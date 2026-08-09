@@ -30,11 +30,14 @@ test("header keeps navigation and language controls without a decorative brand l
   assert.match(styleSource, /\.languageSwitcher\s*\{[\s\S]*?grid-column:\s*3/);
 });
 
-test("experience cards expose a snap-scrolling track with explicit paging controls", () => {
+test("experience cards expose scrubbed desktop motion and native mobile paging controls", () => {
   assert.match(componentSource, /experienceViewport/);
   assert.match(componentSource, /scrollTo\(/);
   assert.match(componentSource, /experienceControls/);
-  assert.match(styleSource, /scroll-snap-type:\s*x mandatory/);
+  assert.match(componentSource, /ScrollTrigger/);
+  assert.match(componentSource, /getExperienceMotionMetrics/);
+  assert.doesNotMatch(componentSource, /track\.scrollLeft = nextProgress/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*900px\)[\s\S]*?scroll-snap-type:\s*x mandatory/);
   assert.match(styleSource, /\.experienceViewport/);
 });
 
@@ -105,21 +108,22 @@ test("experience rail exposes the active card and progress", () => {
 });
 
 test("desktop experience heading reserves space for English labels and keeps card detail readable", () => {
-  assert.match(styleSource, /\.experienceSection \.sectionHeading\s*\{[^}]*grid-template-columns:\s*minmax\(24rem,\s*0\.85fr\)/);
+  assert.match(styleSource, /\.experienceSection \.sectionHeading\s*\{[^}]*grid-template-columns:\s*minmax\(18rem,\s*0\.72fr\)/);
   assert.match(styleSource, /\.experienceSection \.sectionLead\s*\{[^}]*font-size:\s*var\(--type-lead-compact\)/);
-  assert.match(styleSource, /\.experienceCard\s*\{[^}]*min-height:\s*clamp\(19rem,\s*46vh,\s*21rem\)/);
+  assert.match(styleSource, /\.experienceCard\s*\{[^}]*border-radius:\s*1\.5rem/);
   assert.match(styleSource, /\.experienceCard h3\s*\{[^}]*font-size:\s*var\(--type-card-title\)/);
-  assert.match(styleSource, /\.cardDescription\s*\{[^}]*font-size:\s*var\(--type-body\);[^}]*line-height:\s*1\.42/);
+  assert.match(styleSource, /\.cardDescription\s*\{[^}]*font-size:\s*var\(--type-body\);[^}]*line-height:\s*1\.62/);
   assert.doesNotMatch(styleSource, /\.experienceRail\s*\{[^}]*scroll-behavior:\s*smooth/);
 });
 
 test("desktop vertical progress drives the horizontal experience story without trapping wheel input", () => {
   assert.match(componentSource, /experienceScrollProgress/);
-  assert.match(componentSource, /scrollWidth - track\.clientWidth/);
+  assert.match(componentSource, /getExperienceMotionMetrics/);
+  assert.match(componentSource, /scrub:\s*1\.15/);
   assert.match(componentSource, /experienceStory/);
   assert.match(componentSource, /experienceSticky/);
   assert.doesNotMatch(componentSource, /preventDefault\(/);
-  assert.match(styleSource, /\.experienceStory\s*\{[\s\S]*?height:\s*360vh/);
+  assert.doesNotMatch(styleSource, /\.experienceStory\s*\{[\s\S]*?height:\s*360vh/);
   assert.match(styleSource, /\.experienceSticky\s*\{[^}]*position:\s*sticky[^}]*\n\s*height:\s*100svh/);
   assert.match(styleSource, /@media\s*\(max-width:\s*900px\)[\s\S]*?\.experienceSticky\s*\{[^}]*height:\s*auto/);
   assert.match(styleSource, /\.site\s*\{[^}]*overflow-x:\s*clip/);

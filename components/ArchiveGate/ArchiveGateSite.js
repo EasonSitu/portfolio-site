@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import ScrollTrigger from "gsap/dist/ScrollTrigger";
+import {
+  clampExperienceProgress,
+  getExperienceMotionMetrics,
+} from "../../lib/experienceMotion.mjs";
 import styles from "./ArchiveGateSite.module.scss";
+
+if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 const localeLabels = [
   ["en", "EN"],
@@ -289,6 +297,7 @@ function ExperienceTrack({ copy, locale }) {
   const storyRef = useRef(null);
   const stickyRef = useRef(null);
   const trackRef = useRef(null);
+  const motionTriggerRef = useRef(null);
   const [activeExperience, setActiveExperience] = useState(0);
   const [experienceScrollProgress, setExperienceScrollProgress] = useState(0);
   const labels = locale === "en"
@@ -330,38 +339,72 @@ function ExperienceTrack({ copy, locale }) {
 
   useEffect(() => {
     const story = storyRef.current;
+    const viewport = stickyRef.current?.querySelector(`.${styles.experienceViewport}`);
     const track = trackRef.current;
-    if (!story || !track) return undefined;
+    if (!story || !viewport || !track) return undefined;
 
     const desktop = window.matchMedia("(min-width: 901px)");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (!desktop.matches || reduced.matches) return undefined;
+    if (!desktop.matches || reduced.matches) {
+      story.style.removeProperty("height");
+      gsap.set(track, { clearProps: "transform" });
+      return undefined;
+    }
 
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const rect = story.getBoundingClientRect();
-      const verticalRange = Math.max(1, story.offsetHeight - window.innerHeight);
-      const nextProgress = Math.min(1, Math.max(0, -rect.top / verticalRange));
-      const horizontalRange = Math.max(0, track.scrollWidth - track.clientWidth);
-      track.scrollLeft = nextProgress * horizontalRange;
-      setExperienceScrollProgress(nextProgress);
-      setActiveExperience(Math.round(nextProgress * (copy.experience.length - 1)));
+    const measure = () => getExperienceMotionMetrics({
+      contentWidth: track.scrollWidth,
+      viewportWidth: viewport.clientWidth,
+      viewportHeight: window.innerHeight,
+      pace: 1.25,
+      minimumScreens: 2,
+    });
+
+    const setStoryHeight = () => {
+      const metrics = measure();
+      story.style.height = `${metrics.storyHeight}px`;
+      return metrics;
     };
 
-    const requestUpdate = () => {
-      if (!frame) frame = window.requestAnimationFrame(update);
+    setStoryHeight();
+
+    const context = gsap.context(() => {
+      const tween = gsap.to(track, {
+        x: () => -measure().horizontalDistance,
+        ease: "none",
+        force3D: true,
+        scrollTrigger: {
+          trigger: story,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1.15,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const nextProgress = clampExperienceProgress(self.progress);
+            setExperienceScrollProgress(nextProgress);
+            setActiveExperience(Math.round(nextProgress * (copy.experience.length - 1)));
+          },
+        },
+      });
+
+      motionTriggerRef.current = tween.scrollTrigger;
+    }, story);
+
+    const handleResize = () => {
+      setStoryHeight();
+      ScrollTrigger.refresh();
     };
 
-    update();
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("resize", handleResize);
+    ScrollTrigger.refresh();
+
     return () => {
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
-      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", handleResize);
+      motionTriggerRef.current = null;
+      context.revert();
+      story.style.removeProperty("height");
+      gsap.set(track, { clearProps: "transform" });
     };
-  }, [copy.experience.length]);
+  }, [copy.experience.length, locale]);
 
   const scrollTrack = (direction) => {
     const story = storyRef.current;
@@ -372,12 +415,11 @@ function ExperienceTrack({ copy, locale }) {
     const nextIndex = Math.min(copy.experience.length - 1, Math.max(0, activeExperience + direction));
     const nextCard = track.children[nextIndex];
 
-    if (story && desktop && !reduced) {
-      const storyTop = window.scrollY + story.getBoundingClientRect().top;
-      const verticalRange = Math.max(1, story.offsetHeight - window.innerHeight);
+    const motionTrigger = motionTriggerRef.current;
+    if (story && motionTrigger && desktop && !reduced) {
       const nextProgress = nextIndex / Math.max(1, copy.experience.length - 1);
       window.scrollTo({
-        top: storyTop + verticalRange * nextProgress,
+        top: motionTrigger.start + (motionTrigger.end - motionTrigger.start) * nextProgress,
         behavior: "smooth",
       });
       return;
@@ -403,7 +445,6 @@ function ExperienceTrack({ copy, locale }) {
           <div
             className={styles.experienceRail}
             ref={trackRef}
-            data-reveal
             data-cursor-label={labels.drag}
             role="list"
             aria-label={copy.experienceHeader.title}
@@ -415,6 +456,7 @@ function ExperienceTrack({ copy, locale }) {
                 key={`${item.company}-${item.period}`}
                 role="listitem"
                 data-active={activeExperience === index ? "true" : "false"}
+                data-tone={["cream", "blue", "clay"][index % 3]}
               >
                 <div className={styles.cardTopline}>
                   <span className={styles.cardIndex}>{String(index + 1).padStart(2, "0")}</span>

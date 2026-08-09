@@ -80,8 +80,21 @@ test("section labels are promoted to headings while explanatory copy becomes a l
   assert.match(componentSource, /<h2>\{kicker\}<\/h2>/);
   assert.match(componentSource, /sectionLead/);
   assert.match(componentSource, /contactOpportunity/);
-  assert.match(styleSource, /\.sectionHeading h2[\s\S]*font-size:\s*clamp\(/);
+  assert.match(styleSource, /\.sectionHeading h2[\s\S]*font-size:\s*var\(--type-display-lg\)/);
   assert.match(styleSource, /\.contactOpportunity/);
+});
+
+test("site typography follows one capped responsive hierarchy across languages and viewports", () => {
+  assert.match(styleSource, /--type-display-xl:\s*clamp\(3\.4rem,\s*5vw,\s*5\.2rem\)/);
+  assert.match(styleSource, /--type-display-lg:\s*clamp\(2\.75rem,\s*4\.2vw,\s*4\.25rem\)/);
+  assert.match(styleSource, /--type-display-md:\s*clamp\(1\.5rem,\s*2\.2vw,\s*2\.25rem\)/);
+  assert.match(styleSource, /--type-card-title:\s*clamp\(1\.65rem,\s*2\.4vw,\s*2\.55rem\)/);
+  assert.match(styleSource, /--type-body:\s*0\.9rem/);
+  assert.match(styleSource, /--type-meta:\s*0\.66rem/);
+  assert.match(styleSource, /\.heroIntro\s*\{[^}]*font-size:\s*var\(--type-display-xl\)/);
+  assert.match(styleSource, /\.sectionLead,[\s\S]*?font-size:\s*var\(--type-display-md\)/);
+  assert.match(styleSource, /\.experienceCard h3\s*\{[^}]*font-size:\s*var\(--type-card-title\)/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?--type-display-lg:\s*clamp\(2\.35rem,\s*9\.5vw,\s*3\.2rem\)/);
 });
 
 test("experience rail exposes the active card and progress", () => {
@@ -93,10 +106,10 @@ test("experience rail exposes the active card and progress", () => {
 
 test("desktop experience heading reserves space for English labels and keeps card detail readable", () => {
   assert.match(styleSource, /\.experienceSection \.sectionHeading\s*\{[^}]*grid-template-columns:\s*minmax\(24rem,\s*0\.85fr\)/);
-  assert.match(styleSource, /\.experienceSection \.sectionLead\s*\{[^}]*font-size:\s*clamp\(1\.35rem,\s*1\.8vw,\s*1\.8rem\)/);
+  assert.match(styleSource, /\.experienceSection \.sectionLead\s*\{[^}]*font-size:\s*var\(--type-lead-compact\)/);
   assert.match(styleSource, /\.experienceCard\s*\{[^}]*min-height:\s*clamp\(19rem,\s*46vh,\s*21rem\)/);
-  assert.match(styleSource, /\.experienceCard h3\s*\{[^}]*font-size:\s*clamp\(2rem,\s*3vw,\s*3\.1rem\)/);
-  assert.match(styleSource, /\.cardDescription\s*\{[^}]*font-size:\s*0\.86rem;[^}]*line-height:\s*1\.42/);
+  assert.match(styleSource, /\.experienceCard h3\s*\{[^}]*font-size:\s*var\(--type-card-title\)/);
+  assert.match(styleSource, /\.cardDescription\s*\{[^}]*font-size:\s*var\(--type-body\);[^}]*line-height:\s*1\.42/);
   assert.doesNotMatch(styleSource, /\.experienceRail\s*\{[^}]*scroll-behavior:\s*smooth/);
 });
 

@@ -16,6 +16,16 @@
   --font-sans: var(--font-manrope), var(--font-calibre), "Noto Sans", "Segoe UI", sans-serif;
   --font-cjk-sc: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-cjk-tc: "Noto Sans TC", "Noto Sans HK", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --type-display-xl: clamp(3.4rem, 5vw, 5.2rem);
+  --type-display-lg: clamp(2.75rem, 4.2vw, 4.25rem);
+  --type-display-lg-cjk: clamp(2.65rem, 3.9vw, 3.95rem);
+  --type-display-md: clamp(1.5rem, 2.2vw, 2.25rem);
+  --type-display-md-cjk: clamp(1.45rem, 2vw, 2.05rem);
+  --type-lead-compact: clamp(1.25rem, 1.65vw, 1.65rem);
+  --type-card-title: clamp(1.65rem, 2.4vw, 2.55rem);
+  --type-body-lg: 1rem;
+  --type-body: 0.9rem;
+  --type-meta: 0.66rem;
   --cursor-x: 50vw;
   --cursor-y: 50vh;
   position: relative;
@@ -85,7 +95,7 @@
   align-items: center;
   gap: 1.75rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
+  font-size: var(--type-meta);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -116,7 +126,7 @@
   color: var(--muted);
   cursor: pointer;
   font: inherit;
-  font-size: 0.68rem;
+  font-size: var(--type-meta);
   transition: 180ms ease;
 }
 
@@ -288,7 +298,7 @@
   max-width: 11.5ch;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(3.5rem, 5.8vw, 5.9rem);
+  font-size: var(--type-display-xl);
   font-weight: 500;
   letter-spacing: -0.055em;
   line-height: 1.02;
@@ -305,7 +315,7 @@
   min-height: 2.5em;
   margin: 2.3rem 0 0;
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 2.8vw, 2.85rem);
+  font-size: var(--type-display-md);
   font-weight: 500;
   letter-spacing: -0.035em;
   line-height: 1.14;
@@ -356,7 +366,7 @@
   border: 1px solid var(--ink);
   border-radius: 999px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
+  font-size: var(--type-meta);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   transition: background 180ms ease, color 180ms ease, transform 180ms ease;
@@ -385,7 +395,7 @@
   gap: 0.7rem;
   color: var(--ink);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
+  font-size: var(--type-meta);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -469,7 +479,7 @@
 .solutionNumber {
   color: var(--gold);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
+  font-size: var(--type-meta);
 }
 
 .solutionDot {
@@ -545,21 +555,21 @@
 
 .sectionHeading h2,
 .contactContent h2 {
-  font-size: clamp(4.4rem, 7.4vw, 7rem);
-  line-height: 0.9;
+  font-size: var(--type-display-lg);
+  line-height: 0.94;
 }
 
 .sectionLead,
 .projectCopy h2 {
   max-width: 24ch;
   margin-top: 1.6rem;
-  font-size: clamp(2rem, 3.5vw, 3.55rem);
-  line-height: 1.04;
+  font-size: var(--type-display-md);
+  line-height: 1.08;
 }
 
 .site[lang="zh-CN"] .sectionHeading h2,
 .site[lang="zh-HK"] .sectionHeading h2 {
-  font-size: clamp(4rem, 6.8vw, 6.4rem);
+  font-size: var(--type-display-lg-cjk);
   letter-spacing: -0.055em;
   line-height: 0.96;
 }
@@ -568,7 +578,7 @@
 .site[lang="zh-HK"] .sectionLead,
 .site[lang="zh-CN"] .projectCopy h2,
 .site[lang="zh-HK"] .projectCopy h2 {
-  font-size: clamp(1.9rem, 3.2vw, 3.15rem);
+  font-size: var(--type-display-md-cjk);
   letter-spacing: -0.04em;
   line-height: 1.08;
 }
@@ -577,7 +587,7 @@
   max-width: 42rem;
   margin: 1.4rem 0 0;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: var(--type-body-lg);
 }
 
 .aboutStatement {
@@ -592,7 +602,7 @@
   max-width: 32rem;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.65rem, 3vw, 2.8rem);
+  font-size: var(--type-display-md);
   line-height: 1.08;
 }
 
@@ -665,7 +675,7 @@
   display: block;
   color: var(--accent);
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-size: clamp(2.35rem, 3.6vw, 3.7rem);
   font-weight: 400;
   letter-spacing: -0.08em;
   line-height: 0.9;
@@ -711,13 +721,13 @@
 
 .experienceSection .sectionHeading h2 {
   grid-row: 1 / span 2;
-  font-size: clamp(3.6rem, 5.1vw, 4.8rem);
+  font-size: var(--type-display-lg);
 }
 
 .experienceSection .sectionLead {
   margin-top: 0;
   max-width: 36ch;
-  font-size: clamp(1.35rem, 1.8vw, 1.8rem);
+  font-size: var(--type-lead-compact);
   line-height: 1.08;
 }
 
@@ -818,7 +828,7 @@
   max-width: 13ch;
   margin: 1.35rem 0 0.6rem;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3vw, 3.1rem);
+  font-size: var(--type-card-title);
   font-weight: 500;
   letter-spacing: -0.055em;
   line-height: 0.98;
@@ -829,7 +839,7 @@
   margin: 0;
   color: var(--accent);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.65rem;
+  font-size: var(--type-meta);
   line-height: 1.45;
 }
 
@@ -838,7 +848,7 @@
   max-width: 39rem;
   margin: 1.2rem 0 0.9rem;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: var(--type-body);
   line-height: 1.42;
 }
 
@@ -856,7 +866,7 @@
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--type-meta);
 }
 
 .cardArrow {
@@ -888,7 +898,7 @@
   align-items: center;
   color: var(--muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.66rem;
+  font-size: var(--type-meta);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -948,14 +958,14 @@
 
 .projectCopy h2 {
   max-width: 12ch;
-  font-size: clamp(2.75rem, 4.4vw, 4.5rem);
+  font-size: var(--type-display-lg);
 }
 
 .projectCopy > p:not(.kicker):not(.projectBoundary) {
   max-width: 34rem;
   margin: 1.5rem 0 0;
   color: rgba(245, 243, 238, 0.62);
-  font-size: 0.96rem;
+  font-size: var(--type-body-lg);
 }
 
 .projectBoundary {
@@ -1139,7 +1149,7 @@
 .roleCard > span {
   color: var(--gold);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
+  font-size: var(--type-meta);
 }
 
 .roleCard h3 {
@@ -1156,14 +1166,14 @@
 .roleClosing {
   margin: 0;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--type-body);
 }
 
 .roleClosing {
   max-width: 42rem;
   margin-top: 2.5rem;
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: var(--type-lead-compact);
   line-height: 1.1;
 }
 
@@ -1191,7 +1201,7 @@
   position: relative;
   z-index: 1;
   color: var(--gold);
-  font-size: 0.65rem;
+  font-size: var(--type-meta);
 }
 
 .aiOrb {
@@ -1209,7 +1219,7 @@
   max-width: 14ch;
   margin: 3.5rem 0 0.8rem;
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: clamp(1.6rem, 2vw, 1.9rem);
   font-weight: 400;
   letter-spacing: -0.05em;
   line-height: 0.95;
@@ -1220,7 +1230,7 @@
   margin: 3.2rem 0 0;
   color: var(--accent);
   font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-size: var(--type-lead-compact);
   line-height: 1.08;
 }
 
@@ -1258,13 +1268,13 @@
 
 .contactContent h2 {
   max-width: 12ch;
-  font-size: clamp(4.2rem, 7vw, 6.6rem);
+  font-size: var(--type-display-lg);
 }
 
 .contactOpportunity {
   max-width: 30ch;
   margin-top: 1.8rem;
-  font-size: clamp(1.8rem, 3.2vw, 3rem);
+  font-size: var(--type-display-md);
   line-height: 1.12;
 }
 
@@ -1272,7 +1282,7 @@
   max-width: 30rem;
   margin: 1.7rem 0 0;
   color: rgba(245, 243, 238, 0.7);
-  font-size: 1rem;
+  font-size: var(--type-body-lg);
 }
 
 .contactMeta {
@@ -1347,7 +1357,7 @@
   }
 
   .experienceSection .sectionHeading h2 {
-    font-size: clamp(3.5rem, 12vw, 5rem);
+    font-size: var(--type-display-lg);
   }
 
   .experienceSection .sectionLead {
@@ -1357,6 +1367,16 @@
 
 @media (max-width: 700px) {
   .site {
+    --type-display-xl: clamp(2.75rem, 11vw, 3.75rem);
+    --type-display-lg: clamp(2.35rem, 9.5vw, 3.2rem);
+    --type-display-lg-cjk: clamp(2.25rem, 9vw, 3rem);
+    --type-display-md: clamp(1.35rem, 6.2vw, 1.8rem);
+    --type-display-md-cjk: clamp(1.3rem, 5.8vw, 1.7rem);
+    --type-lead-compact: clamp(1.2rem, 5.4vw, 1.55rem);
+    --type-card-title: clamp(1.75rem, 7.5vw, 2.25rem);
+    --type-body-lg: 0.94rem;
+    --type-body: 0.86rem;
+    --type-meta: 0.64rem;
     scroll-behavior: auto;
   }
 
@@ -1391,13 +1411,11 @@
 
   .heroIntro {
     max-width: 11ch;
-    font-size: clamp(3.2rem, 14.5vw, 4.8rem);
   }
 
   .typewriterLine {
     min-height: 3.35em;
     margin-top: 1.8rem;
-    font-size: clamp(1.6rem, 7.8vw, 2.25rem);
   }
 
   .heroClaim {
@@ -1437,20 +1455,17 @@
 
   .sectionHeading h2,
   .contactContent h2 {
-    font-size: clamp(3.65rem, 16vw, 5.4rem);
-    line-height: 0.95;
+    line-height: 0.96;
   }
 
   .site[lang="zh-CN"] .sectionHeading h2,
   .site[lang="zh-HK"] .sectionHeading h2 {
-    font-size: clamp(3.35rem, 14vw, 4.9rem);
     line-height: 1;
   }
 
   .sectionLead,
   .projectCopy h2,
   .contactOpportunity {
-    font-size: clamp(1.75rem, 8vw, 2.55rem);
     line-height: 1.08;
   }
 
@@ -1458,7 +1473,6 @@
   .site[lang="zh-HK"] .sectionLead,
   .site[lang="zh-CN"] .projectCopy h2,
   .site[lang="zh-HK"] .projectCopy h2 {
-    font-size: clamp(1.7rem, 7.5vw, 2.4rem);
     line-height: 1.12;
   }
 
@@ -1508,7 +1522,6 @@
 
   .experienceCard h3 {
     margin-top: 3.4rem;
-    font-size: 2.65rem;
   }
 
   .cardTopline {

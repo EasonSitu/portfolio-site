@@ -1,0 +1,53 @@
+.pageWrapper {
+  min-height: 100vh;
+  color: #f3efe7;
+  background: #050506;
+}
+
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 100;
+  padding: 1.2rem max(5vw, 2rem);
+  background: linear-gradient(to bottom, rgba(5,5,6,.88), rgba(5,5,6,.4), transparent);
+}
+
+.navInner,
+.brand,
+.navRight,
+.navLinks,
+.localeSwitch {
+  display: flex;
+  align-items: center;
+}
+
+.navInner { max-width: 96rem; margin: 0 auto; justify-content: space-between; }
+.brand { gap: 1.25rem; color: #f3efe7; }
+.monogram { color: #a66fff; font-family: Georgia, serif; font-size: 2rem; }
+.brandName { padding-left: 1.25rem; border-left: 1px solid rgba(255,255,255,.22); font-family: Georgia, serif; font-size: .72rem; letter-spacing: .24em; }
+.navRight { gap: 2rem; }
+.navLinks { gap: 2rem; }
+.navLinks a { color: #c4bec2; font-size: .78rem; transition: color 180ms ease; }
+.navLinks a:hover { color: white; }
+.localeSwitch { gap: .15rem; padding: .18rem; border: 1px solid rgba(255,255,255,.1); border-radius: 999px; background: rgba(0,0,0,.28); }
+.localeSwitch button { min-width: 2rem; padding: .3rem .45rem; color: #716e76; border-radius: 999px; font-size: .64rem; }
+.localeSwitch button:focus-visible { outline: 1px solid #b990ff; }
+.localeSwitch .localeActive { color: #f4eee6; background: rgba(141,94,232,.28); }
+
+.nextSection {
+  min-height: 32vh;
+  display: grid;
+  place-items: center;
+  border-top: 1px solid rgba(255,255,255,.06);
+  background: #070709;
+  color: #68646e;
+  font-family: "JetBrains Mono", monospace;
+  font-size: .7rem;
+  letter-spacing: .22em;
+}
+
+@media (max-width: 720px) {
+  .nav { padding: 1rem; }
+  .brandName, .navLinks { display: none; }
+  .navRight { gap: .6rem; }
+}

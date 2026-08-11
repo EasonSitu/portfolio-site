@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">E monogram for Zhicheng Situ</title>
+  <desc id="description">A geometric E mark for Zhicheng Situ's portfolio.</desc>
+  <rect width="512" height="512" rx="112" fill="#17212B"/>
+  <path d="M112 76h288v62H184v72h216v62H184v76h216v62H112V76Z" fill="#F4F0E7"/>
+  <path d="M184 208h216v62H184l-46 46v-62l46-46Z" fill="#174EA6"/>
+</svg>

@@ -4,6 +4,7 @@
 }
 
 .site {
+  /* 基础颜色：页面背景、文字、弱化文字和强调色。 */
   --paper: #f4f0e7;
   --paper-deep: #e9e6de;
   --ink: #17212b;
@@ -13,20 +14,59 @@
   --accent-soft: #dbe6f4;
   --terracotta: #c75a34;
   --gold: var(--terracotta);
+  --menu-pink: #ff5f91;
   --font-display: var(--font-manrope), var(--font-calibre), "Avenir Next", "Segoe UI", sans-serif;
   --font-sans: var(--font-manrope), var(--font-calibre), "Noto Sans", "Segoe UI", sans-serif;
   --font-cjk-sc: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-cjk-tc: "Noto Sans TC", "Noto Sans HK", "PingFang TC", "Microsoft JhengHei", sans-serif;
-  --type-display-xl: clamp(3.4rem, 5vw, 5.2rem);
-  --type-display-lg: clamp(2.75rem, 4.2vw, 4.25rem);
-  --type-display-lg-cjk: clamp(2.65rem, 3.9vw, 3.95rem);
-  --type-display-md: clamp(1.5rem, 2.2vw, 2.25rem);
-  --type-display-md-cjk: clamp(1.45rem, 2vw, 2.05rem);
-  --type-lead-compact: clamp(1.25rem, 1.65vw, 1.65rem);
-  --type-card-title: clamp(1.65rem, 2.4vw, 2.55rem);
-  --type-body-lg: 1rem;
-  --type-body: 0.9rem;
-  --type-meta: 0.66rem;
+
+  /* 基础字号：最小正文/标签字号保持在 12px，避免招聘者需要放大页面。 */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+
+  /* 间距、容器和圆角：组件只应从这一组基础值组合布局。 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --container-content: 980px;
+  --container-wide: 1180px;
+  --container-header: 1320px;
+  --radius-control: 999px;
+  --radius-panel: 1.25rem;
+  --radius-card: 1.5rem;
+
+  /* 动效 token：统一速度，减少每个组件各自发明 timing 的情况。 */
+  --motion-instant: 80ms;
+  --motion-fast: 180ms;
+  --motion-base: 260ms;
+  --motion-slow: 650ms;
+  --ease-standard: cubic-bezier(0.2, 0.75, 0.25, 1);
+
+  --gutter: clamp(1.125rem, 4vw, 2.5rem);
+  /*
+   * 視覺層級：Hero 是唯一的 Display XL，區塊標題再低一級，
+   * 說明文字和卡片標題繼續收斂，讓內容而不是單一大字成為視覺中心。
+   */
+  --type-display-xl: clamp(2.75rem, 3.8vw, 4rem);
+  --type-display-lg: clamp(2.2rem, 3.1vw, 3.1rem);
+  --type-display-lg-cjk: clamp(2.1rem, 2.9vw, 2.9rem);
+  --type-display-md: clamp(1.3rem, 1.7vw, 1.75rem);
+  --type-display-md-cjk: clamp(1.25rem, 1.6vw, 1.65rem);
+  --type-lead-compact: clamp(1.1rem, 1.25vw, 1.3rem);
+  --type-card-title: clamp(1.4rem, 1.8vw, 2rem);
+  --type-card-label: clamp(1.2rem, 1.4vw, 1.35rem);
+  /* 選單保持醒目，但不再與頁面主標題使用同一個重量。 */
+  --type-menu-link: clamp(1.75rem, 3.2vw, 2.5rem);
+  --type-body-lg: var(--text-base);
+  --type-body: var(--text-sm);
+  --type-meta: var(--text-xs);
   --cursor-x: 50vw;
   --cursor-y: 50vh;
   position: relative;
@@ -45,6 +85,7 @@
 
 .site[lang="zh-HK"] {
   font-family: var(--font-cjk-tc);
+  line-height: 1.62;
 }
 
 .site a {
@@ -57,21 +98,27 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.site a:focus-visible,
+.site button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
 .container,
 .containerWide {
   position: relative;
   z-index: 1;
-  width: min(100% - 5rem, 980px);
+  width: min(calc(100% - 2 * var(--gutter)), var(--container-content));
   margin: 0 auto;
 }
 
 .containerWide {
-  width: min(100% - 5rem, 1180px);
+  width: min(calc(100% - 2 * var(--gutter)), var(--container-wide));
 }
 
 .header {
   position: fixed;
-  z-index: 20;
+  z-index: 40;
   top: 0;
   right: 0;
   left: 0;
@@ -82,45 +129,190 @@
 
 .headerInner {
   display: grid;
-  grid-template-columns: minmax(170px, 1fr) auto minmax(170px, 1fr);
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 2rem;
-  width: min(100% - 5rem, 1320px);
+  width: min(calc(100% - 2 * var(--gutter)), var(--container-header));
   min-height: 5.25rem;
   margin: 0 auto;
 }
 
-.nav {
-  grid-column: 2;
+.headerIdentity {
+  grid-column: 1;
   display: flex;
   align-items: center;
-  gap: 1.75rem;
+  gap: var(--space-4);
+}
+
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(244, 240, 231, 0.62);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-base) var(--ease-standard);
+}
+
+.menuButton:hover,
+.site[data-menu-open="true"] .menuButton {
+  border-color: var(--menu-pink);
+  color: var(--menu-pink);
+}
+
+.menuButton:active {
+  transform: scale(0.94);
+}
+
+.menuIcon {
+  position: relative;
+  display: block;
+  width: 1.25rem;
+  height: 1rem;
+  transform: rotate(0deg);
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+
+.menuIconLine {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform-origin: center;
+  transition: top var(--motion-base) var(--ease-standard), opacity var(--motion-fast) ease, transform var(--motion-base) var(--ease-standard);
+}
+
+.menuIconLine:nth-child(1) {
+  top: 0;
+}
+
+.menuIconLine:nth-child(2) {
+  top: calc(50% - 0.75px);
+}
+
+.menuIconLine:nth-child(3) {
+  top: calc(100% - 1.5px);
+}
+
+.site[data-menu-open="true"] .menuIcon {
+  transform: rotate(180deg);
+}
+
+.site[data-menu-open="true"] .menuIconLine:nth-child(1) {
+  top: calc(50% - 0.75px);
+  transform: rotate(45deg);
+}
+
+.site[data-menu-open="true"] .menuIconLine:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0.2);
+}
+
+.site[data-menu-open="true"] .menuIconLine:nth-child(3) {
+  top: calc(50% - 0.75px);
+  transform: rotate(-45deg);
+}
+
+.menuOverlay {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  align-items: center;
+  overflow-y: auto;
+  padding: 7.5rem var(--gutter) 4rem;
+  background: rgba(23, 33, 43, 0.9);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-0.75rem);
+  transition: opacity var(--motion-base) ease, visibility 0s linear var(--motion-base), transform var(--motion-base) var(--ease-standard);
+}
+
+.menuOverlay[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition: opacity var(--motion-base) ease, visibility 0s linear 0s, transform var(--motion-base) var(--ease-standard);
+}
+
+.menuOverlayInner {
+  width: min(100%, 56rem);
+  margin: auto;
+}
+
+.menuKicker {
+  margin: 0;
+  color: rgba(244, 240, 231, 0.62);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--type-meta);
-  letter-spacing: 0.08em;
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-.nav a,
-.textButton {
-  transition: color 180ms ease;
+.menuNav {
+  display: grid;
+  gap: 0;
+  margin-top: var(--space-5);
 }
 
-.nav a:hover,
-.textButton:hover {
-  color: var(--accent);
+.menuLink {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-5);
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(244, 240, 231, 0.16);
+  color: var(--paper);
+  font-size: var(--type-menu-link);
+  font-weight: 500;
+  line-height: 1.14;
+  transition: border-color var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-base) var(--ease-standard);
+}
+
+.menuLink:first-child {
+  border-top: 1px solid rgba(244, 240, 231, 0.16);
+}
+
+.menuOverlay .menuLink {
+  color: var(--paper);
+}
+
+.menuOverlay .menuLink:hover,
+.menuOverlay .menuLink:focus-visible {
+  border-color: var(--menu-pink);
+  color: var(--menu-pink);
+  outline-color: var(--menu-pink);
+  transform: translateX(0.55rem);
+}
+
+.menuLinkNumber {
+  flex: 0 0 2.2rem;
+  color: var(--terracotta);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
 }
 
 .languageSwitcher {
-  grid-column: 3;
+  grid-column: 2;
   display: flex;
   justify-content: flex-end;
-  gap: 0.28rem;
+  gap: var(--space-1);
 }
 
 .languageSwitcher button {
   min-width: 2rem;
-  padding: 0.48rem 0.5rem;
+  padding: var(--space-2);
   border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
@@ -128,7 +320,7 @@
   cursor: pointer;
   font: inherit;
   font-size: var(--type-meta);
-  transition: 180ms ease;
+  transition: background var(--motion-fast) ease, border-color var(--motion-fast) ease, color var(--motion-fast) ease;
 }
 
 .languageSwitcher button:hover,
@@ -138,16 +330,96 @@
   color: var(--paper) !important;
 }
 
+.textButton:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.pageLoader {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #101821;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease-standard);
+}
+
+.pageLoader[data-phase="visible"] {
+  opacity: 1;
+}
+
+.pageLoader[data-phase="exiting"] {
+  opacity: 0;
+}
+
+.pageLoaderContent {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-6);
+}
+
+.pageLoaderMark {
+  display: block;
+  width: 4.5rem;
+  height: 4.5rem;
+  animation: pageLoaderMarkIn 520ms var(--ease-standard) both;
+}
+
+.pageLoaderBar {
+  display: block;
+  width: min(11rem, 34vw);
+  height: 2px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(244, 240, 231, 0.18);
+}
+
+.pageLoaderBarFill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  animation: pageLoaderProgress 900ms linear forwards;
+}
+
+@keyframes pageLoaderMarkIn {
+  from {
+    opacity: 0;
+    transform: scale(0.82) rotate(-8deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes pageLoaderProgress {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
 .signatureAura {
   position: fixed;
   z-index: 0;
   top: var(--cursor-y);
   left: var(--cursor-x);
-  width: 22rem;
-  height: 22rem;
+  width: 18rem;
+  height: 18rem;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(23, 78, 166, 0.13) 0%, rgba(199, 90, 52, 0.07) 33%, transparent 69%);
-  filter: blur(4px);
+  background: radial-gradient(circle, rgba(23, 78, 166, 0.08) 0%, rgba(199, 90, 52, 0.04) 33%, transparent 69%);
+  filter: blur(10px);
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, -50%);
@@ -155,7 +427,7 @@
 }
 
 .site[data-pointer="ready"] .signatureAura {
-  opacity: 1;
+  opacity: 0.55;
 }
 
 .site[data-pointer="ready"],
@@ -217,7 +489,7 @@
   color: var(--paper);
   content: attr(data-label);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
@@ -261,7 +533,7 @@
 .heroVisualHeader,
 .cardKicker,
 .cardIndex,
-.aiNumber,
+  .practiceNumber,
 .projectModule span,
 .projectModule em,
 .contactMeta,
@@ -282,6 +554,20 @@
 .heroName {
   display: block;
   color: var(--ink);
+}
+
+/* 問候語只作為入口提示，刻意比姓名低兩級，避免搶走 Hero 的視覺中心。 */
+.heroEyebrow {
+  font-size: var(--type-display-md);
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.site[lang="zh-CN"] .heroEyebrow,
+.site[lang="zh-HK"] .heroEyebrow {
+  font-size: var(--type-display-md-cjk);
+  letter-spacing: -0.04em;
+  line-height: 1.12;
 }
 
 .sectionHeading h2,
@@ -309,17 +595,28 @@
   display: block;
 }
 
+.heroPositioning {
+  max-width: 28ch;
+  margin: 2.4rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--type-lead-compact);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.16;
+}
+
 .typewriterLine {
   display: flex;
   align-items: flex-start;
   max-width: 23ch;
-  min-height: 2.5em;
-  margin: 2.3rem 0 0;
-  font-family: var(--font-display);
-  font-size: var(--type-display-md);
-  font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1.14;
+  min-height: 2.9em;
+  margin: 0.9rem 0 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-lg);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.45;
 }
 
 .typewriterLine i {
@@ -334,17 +631,6 @@
 @keyframes typewriterCaret {
   0%, 48% { opacity: 1; }
   49%, 100% { opacity: 0; }
-}
-
-.heroClaim {
-  max-width: 28rem;
-  margin: 1.15rem 0 0;
-  color: var(--muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  line-height: 1.45;
-  text-transform: uppercase;
 }
 
 .heroActions,
@@ -365,12 +651,12 @@
   min-width: 10.5rem;
   padding: 0.82rem 1rem;
   border: 1px solid var(--ink);
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--type-meta);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) ease;
 }
 
 .site .primaryButton {
@@ -390,15 +676,35 @@
   color: var(--paper);
 }
 
+/* 深色 Contact 区域使用浅色主按钮，避免按钮和背景融在一起。 */
+.contactSection .primaryButton {
+  border-color: var(--paper);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.contactSection .primaryButton:hover {
+  border-color: var(--accent-soft);
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
 .textButton {
   display: inline-flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.7rem;
+  min-width: 9rem;
+  padding: 0.82rem 1rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-control);
+  background: transparent;
   color: var(--ink);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--type-meta);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  transition: background var(--motion-fast) ease, border-color var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) ease;
 }
 
 .heroVisual {
@@ -407,7 +713,7 @@
   padding: 1.35rem 1.45rem 1.5rem;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 1.35rem;
+  border-radius: var(--radius-panel);
   background:
     linear-gradient(rgba(23, 78, 166, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(23, 78, 166, 0.035) 1px, transparent 1px),
@@ -434,7 +740,7 @@
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--line);
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
 }
 
 .solutionMap {
@@ -497,7 +803,7 @@
 .solutionNode strong {
   display: block;
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: var(--type-card-label);
   font-weight: 400;
   line-height: 1.05;
 }
@@ -506,7 +812,7 @@
   max-width: 27rem;
   margin: 0.32rem 0 0;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   line-height: 1.45;
 }
 
@@ -528,25 +834,23 @@
   gap: 2rem;
   padding-top: 1.7rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
 }
 
 .heroFooter span:last-child {
   flex: 0 0 auto;
   color: var(--ink);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.63rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.aboutSection,
-.roleSection,
-.aiSection {
+.skillsSection {
   padding: clamp(8rem, 12vw, 12rem) 0;
 }
 
-.aboutSection {
+.skillsSection {
   background: var(--paper);
 }
 
@@ -619,7 +923,7 @@
 }
 
 .scrollTextBase {
-  color: rgba(21, 28, 38, 0.22);
+  color: rgba(21, 28, 38, 0.58);
 }
 
 .scrollTextFill {
@@ -627,7 +931,7 @@
   inset: 0;
   color: var(--ink);
   clip-path: inset(0 calc(100% - var(--text-progress)) 0 0);
-  transition: clip-path 80ms linear;
+  transition: clip-path var(--motion-instant) linear;
 }
 
 .keywordRail {
@@ -642,13 +946,13 @@
   gap: 0.8rem;
   align-items: baseline;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
 }
 
 .keywordRail b {
   color: var(--gold);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.65rem;
+  font-size: var(--text-xs);
   font-weight: 400;
 }
 
@@ -677,7 +981,7 @@
   display: block;
   color: var(--accent);
   font-family: var(--font-display);
-  font-size: clamp(2.35rem, 3.6vw, 3.7rem);
+  font-size: clamp(2rem, 3vw, 3.1rem);
   font-weight: 400;
   letter-spacing: -0.08em;
   line-height: 0.9;
@@ -688,7 +992,7 @@
   max-width: 10rem;
   margin-top: 1rem;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
 }
 
 .experienceSection {
@@ -738,7 +1042,7 @@
 .experienceSection .sectionIntro {
   max-width: 52ch;
   margin-top: 0.45rem;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 
@@ -777,7 +1081,7 @@
   padding: clamp(1.7rem, 2.2vw, 2.35rem);
   overflow: hidden;
   border: 1px solid rgba(23, 33, 43, 0.11);
-  border-radius: 1.5rem;
+  border-radius: var(--radius-card);
   background: var(--card-surface);
   transition: border-color 200ms ease, background 200ms ease, transform 220ms ease, box-shadow 220ms ease;
 }
@@ -834,19 +1138,20 @@
 
 .cardTopline {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: var(--space-3);
 }
 
 .cardIndex {
   color: var(--card-accent);
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
 }
 
 .cardKicker {
   color: var(--muted);
-  font-size: 0.62rem;
-  text-align: right;
+  font-size: var(--text-xs);
+  text-align: left;
 }
 
 .experienceCard h3 {
@@ -914,7 +1219,7 @@
 .experienceControls p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: var(--text-xs);
 }
 
 .experienceStatus {
@@ -975,6 +1280,16 @@
   color: var(--paper);
 }
 
+.projectStack {
+  display: grid;
+  gap: clamp(5rem, 9vw, 8rem);
+}
+
+.projectCard + .projectCard {
+  padding-top: clamp(4rem, 7vw, 6rem);
+  border-top: 1px solid rgba(245, 243, 238, 0.14);
+}
+
 .projectLayout {
   display: grid;
   grid-template-columns: minmax(0, 1.06fr) minmax(280px, 0.94fr);
@@ -1002,13 +1317,13 @@
   padding-top: 1rem;
   border-top: 1px solid rgba(245, 243, 238, 0.18);
   color: rgba(245, 243, 238, 0.55);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
 }
 
 .projectBoundary span {
   color: var(--gold);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1021,7 +1336,7 @@
   min-height: 30rem;
   padding: 1.75rem;
   border: 1px solid rgba(245, 243, 238, 0.2);
-  border-radius: 1.5rem;
+  border-radius: var(--radius-card);
   background:
     radial-gradient(circle at 78% 48%, rgba(23, 78, 166, 0.26), transparent 12rem),
     linear-gradient(rgba(245, 243, 238, 0.035) 1px, transparent 1px),
@@ -1038,7 +1353,7 @@
   gap: 1rem;
   color: rgba(245, 243, 238, 0.42);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1126,13 +1441,13 @@
 
 .projectModule span {
   color: var(--gold);
-  font-size: 0.62rem;
+  font-size: var(--text-xs);
 }
 
 .projectModule strong {
   max-width: 10ch;
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: var(--type-card-label);
   font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1;
@@ -1140,7 +1455,7 @@
 
 .projectModule em {
   color: rgba(245, 243, 238, 0.47);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
   font-style: normal;
 }
 
@@ -1153,52 +1468,52 @@
 }
 
 .projectOutcome strong {
-  font-size: 2rem;
+  font-size: var(--type-display-md);
 }
 
-.roleSection {
+.skillsSection {
   background: var(--paper-deep);
 }
 
-.roleGrid {
+.capabilityGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
-  margin-top: 5rem;
+  margin-top: 4rem;
 }
 
-.roleCard {
+.capabilityCard {
   min-height: 16.5rem;
   padding: 1.6rem 1.5rem;
   border: 1px solid var(--line);
-  border-radius: 1.25rem;
+  border-radius: var(--radius-panel);
   background: rgba(255, 255, 255, 0.45);
 }
 
-.roleCard > span {
+.capabilityCard > span {
   color: var(--gold);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--type-meta);
 }
 
-.roleCard h3 {
+.capabilityCard h3 {
   margin: 4.2rem 0 0.9rem;
   font-family: var(--font-display);
-  font-size: 1.65rem;
+  font-size: var(--type-card-title);
   font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1;
 }
 
-.roleCard p,
-.aiCard p,
-.roleClosing {
+.capabilityCard p,
+.practiceCard p,
+.skillsClosing {
   margin: 0;
   color: var(--muted);
   font-size: var(--type-body);
 }
 
-.roleClosing {
+.skillsClosing {
   max-width: 42rem;
   margin-top: 2.5rem;
   font-family: var(--font-display);
@@ -1206,35 +1521,90 @@
   line-height: 1.1;
 }
 
-.aiSection {
-  background: #fbfaf7;
+.skillsBands {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
-.aiGrid {
+.skillsBand {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1.55fr);
   gap: 1.5rem;
+  align-items: baseline;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.skillsBand:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.skillsBand h3,
+.practiceHeader h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.skillsBand div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.skillsBand span {
+  padding: 0.38rem 0.62rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: var(--type-meta);
+}
+
+.practiceHeader {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1fr);
+  gap: 0.45rem 1.5rem;
   margin-top: 5rem;
 }
 
-.aiCard {
+.practiceHeader .kicker {
+  grid-row: 1 / span 2;
+}
+
+.practiceHeader > p:last-child {
+  max-width: 48ch;
+  color: var(--muted);
+  font-size: var(--type-body);
+}
+
+.practiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.practiceCard {
   position: relative;
   min-height: 15rem;
   padding: 1.8rem;
-  border: 1px solid var(--line);
-  border-radius: 1.25rem;
-  background: var(--paper);
   overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: rgba(255, 255, 255, 0.42);
 }
 
-.aiNumber {
+.practiceNumber {
   position: relative;
   z-index: 1;
   color: var(--gold);
   font-size: var(--type-meta);
 }
 
-.aiOrb {
+.practiceOrb {
   position: absolute;
   top: -4rem;
   right: -2rem;
@@ -1244,32 +1614,32 @@
   background: radial-gradient(circle at 35% 35%, rgba(23, 78, 166, 0.24), rgba(23, 78, 166, 0.05) 55%, transparent 70%);
 }
 
-.aiCard h3 {
+.practiceCard h3 {
   position: relative;
   max-width: 14ch;
   margin: 3.5rem 0 0.8rem;
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 2vw, 1.9rem);
+  font-size: var(--type-card-title);
   font-weight: 400;
   letter-spacing: -0.05em;
   line-height: 0.95;
 }
 
-.aiClosing {
-  max-width: 40rem;
-  margin: 3.2rem 0 0;
+.skillsClosing {
   color: var(--accent);
-  font-family: var(--font-display);
   font-size: var(--type-lead-compact);
-  line-height: 1.08;
 }
 
-.aiClosing .scrollTextBase {
+.skillsClosing .scrollTextBase {
   color: rgba(23, 78, 166, 0.2);
 }
 
-.aiClosing .scrollTextFill {
+.skillsClosing .scrollTextFill {
   color: var(--accent);
+}
+
+.practiceSection {
+  background: #fbfaf7;
 }
 
 .contactSection {
@@ -1321,23 +1691,23 @@
   gap: 1rem 2rem;
   margin-top: 5rem;
   color: rgba(245, 243, 238, 0.48);
-  font-size: 0.6rem;
+  font-size: var(--text-xs);
 }
 
 .footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 2rem;
   padding: 1.2rem max(2.5rem, calc((100% - 1320px) / 2));
   background: var(--ink);
   color: rgba(245, 243, 238, 0.42);
-  font-size: 0.58rem;
+  font-size: var(--text-xs);
 }
 
-.site [data-reveal] {
+.site[data-reveal-ready="true"] [data-reveal] {
   opacity: 0;
   transform: translateY(1.4rem);
-  transition: opacity 650ms ease, transform 650ms ease;
+  transition: opacity var(--motion-slow) var(--ease-standard), transform var(--motion-slow) var(--ease-standard);
 }
 
 .site [data-reveal][data-visible="true"] {
@@ -1359,8 +1729,57 @@
     max-width: 44rem;
   }
 
-  .roleGrid {
+  .projectLayout {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+
+  .capabilityGrid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 矮屏桌面优先保持内容可读；经历区改为普通页面流和横向卡片浏览。 */
+@media (min-width: 901px) and (max-height: 760px) {
+  .heroSection {
+    min-height: auto;
+    padding-top: 8.2rem;
+  }
+
+  .heroGrid {
+    min-height: auto;
+    align-items: start;
+  }
+
+  .experienceStory {
+    min-height: auto;
+  }
+
+  .experienceSticky {
+    position: relative;
+    height: auto;
+    min-height: auto;
+    padding: 6rem 0 2rem;
+    overflow: visible;
+  }
+
+  .experienceViewport {
+    overflow: visible;
+  }
+
+  .experienceRail {
+    width: auto;
+    overflow-x: auto;
+    padding-bottom: 1.2rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .experienceCard {
+    width: min(34rem, 46vw);
+    scroll-snap-align: start;
   }
 }
 
@@ -1424,13 +1843,14 @@
 
 @media (max-width: 700px) {
   .site {
-    --type-display-xl: clamp(2.75rem, 11vw, 3.75rem);
-    --type-display-lg: clamp(2.35rem, 9.5vw, 3.2rem);
-    --type-display-lg-cjk: clamp(2.25rem, 9vw, 3rem);
-    --type-display-md: clamp(1.35rem, 6.2vw, 1.8rem);
-    --type-display-md-cjk: clamp(1.3rem, 5.8vw, 1.7rem);
-    --type-lead-compact: clamp(1.2rem, 5.4vw, 1.55rem);
-    --type-card-title: clamp(1.75rem, 7.5vw, 2.25rem);
+    --type-display-xl: clamp(2.3rem, 8.4vw, 3rem);
+    --type-display-lg: clamp(1.9rem, 7.2vw, 2.5rem);
+    --type-display-lg-cjk: clamp(1.8rem, 6.8vw, 2.4rem);
+    --type-display-md: clamp(1.15rem, 5vw, 1.4rem);
+    --type-display-md-cjk: clamp(1.1rem, 4.8vw, 1.35rem);
+    --type-lead-compact: clamp(1rem, 4.4vw, 1.25rem);
+    --type-card-title: clamp(1.35rem, 5.8vw, 1.8rem);
+    --type-card-label: clamp(1.1rem, 4.7vw, 1.25rem);
     --type-body-lg: 0.94rem;
     --type-body: 0.86rem;
     --type-meta: 0.64rem;
@@ -1440,16 +1860,18 @@
   .container,
   .containerWide,
   .headerInner {
-    width: min(100% - 2.25rem, 100%);
+    width: min(calc(100% - 2 * var(--gutter)), 100%);
   }
 
   .headerInner {
     grid-template-columns: 1fr auto;
     min-height: 4.4rem;
+    position: relative;
   }
 
-  .nav {
-    display: none;
+  .menuButton {
+    width: 2.55rem;
+    height: 2.55rem;
   }
 
   .languageSwitcher {
@@ -1472,11 +1894,11 @@
 
   .typewriterLine {
     min-height: 3.35em;
-    margin-top: 1.8rem;
+    margin-top: 0.8rem;
   }
 
-  .heroClaim {
-    font-size: 0.72rem;
+  .heroPositioning {
+    margin-top: 2rem;
   }
 
   .heroVisual {
@@ -1493,7 +1915,7 @@
   }
 
   .workflowLayer p {
-    font-size: 0.72rem;
+    font-size: var(--text-xs);
   }
 
   .heroFooter {
@@ -1501,11 +1923,9 @@
     gap: 0.75rem;
   }
 
-  .aboutSection,
   .experienceSection,
   .projectSection,
-  .roleSection,
-  .aiSection,
+  .skillsSection,
   .contactSection {
     padding: 5.5rem 0;
   }
@@ -1548,6 +1968,14 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .skillsSection > .container {
+    padding-inline: var(--space-2);
+  }
+
+  .metrics article {
+    padding: 1.5rem var(--space-3);
+  }
+
   .metrics article:nth-child(2) {
     border-right: 0;
   }
@@ -1558,7 +1986,7 @@
   }
 
   .metrics article:nth-child(3) {
-    padding-left: 0;
+    padding-left: var(--space-3);
   }
 
   .experienceSection .sectionHeading {
@@ -1572,7 +2000,7 @@
   }
 
   .experienceCard {
-    width: 88vw;
+    width: calc(100vw - 2 * var(--gutter));
     min-height: 25rem;
     padding: 1.4rem;
     border-radius: 1.25rem;
@@ -1583,11 +2011,15 @@
   }
 
   .cardTopline {
-    display: block;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.45rem var(--space-3);
   }
 
   .cardKicker {
-    margin-top: 0.55rem;
+    flex: 1 1 12rem;
+    margin-top: 0;
     text-align: left;
   }
 
@@ -1604,7 +2036,7 @@
     grid-column: 1 / -1;
   }
 
-  .aiGrid {
+  .practiceGrid {
     padding-top: 0;
   }
 
@@ -1646,23 +2078,33 @@
     transition: none;
   }
 
-  .roleGrid,
-  .aiGrid {
+  .capabilityGrid,
+  .practiceGrid {
     grid-template-columns: 1fr;
     gap: 0;
   }
 
-  .roleCard,
-  .aiCard {
+  .capabilityCard,
+  .practiceCard {
     min-height: auto;
-    padding: 1.25rem 0 2rem;
+    padding: 1.25rem var(--space-3) 2rem;
     border-right: 0;
     border-left: 0;
   }
 
-  .roleCard h3,
-  .aiCard h3 {
+  .capabilityCard h3,
+  .practiceCard h3 {
     margin-top: 2.2rem;
+  }
+
+  .skillsBand,
+  .practiceHeader {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .practiceHeader .kicker {
+    grid-row: auto;
   }
 
   .contactActions {
@@ -1688,6 +2130,21 @@
 @media (prefers-reduced-motion: reduce) {
   .site {
     scroll-behavior: auto;
+  }
+
+  .pageLoader {
+    display: none;
+    transition: none;
+  }
+
+  .pageLoaderMark,
+  .pageLoaderBarFill,
+  .menuIcon,
+  .menuIconLine,
+  .menuOverlay,
+  .menuLink {
+    animation: none !important;
+    transition: none !important;
   }
 
   .signatureAura,

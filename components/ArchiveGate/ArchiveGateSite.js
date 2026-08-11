@@ -28,6 +28,8 @@ function useReveal(rootRef) {
       return undefined;
     }
 
+    root.dataset.revealReady = "true";
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -41,7 +43,10 @@ function useReveal(rootRef) {
     );
 
     blocks.forEach((block) => observer.observe(block));
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      delete root.dataset.revealReady;
+    };
   }, [rootRef]);
 }
 
@@ -206,6 +211,11 @@ function ScrollText({ children, className = "" }) {
   );
 }
 
+// 打字機節奏：讓每個字有足夠時間被讀到，完整句子也多停留一會兒。
+const TYPEWRITER_TYPE_DELAY = 92;
+const TYPEWRITER_DELETE_DELAY = 48;
+const TYPEWRITER_HOLD_DELAY = 3500;
+
 function TypewriterLine({ phrases }) {
   const [text, setText] = useState(phrases[0] || "");
 
@@ -230,11 +240,11 @@ function TypewriterLine({ phrases }) {
 
         if (characterIndex >= phrase.length) {
           deleting = true;
-          timeout = window.setTimeout(tick, 1500);
+          timeout = window.setTimeout(tick, TYPEWRITER_HOLD_DELAY);
           return;
         }
 
-        timeout = window.setTimeout(tick, 46);
+        timeout = window.setTimeout(tick, TYPEWRITER_TYPE_DELAY);
         return;
       }
 
@@ -248,7 +258,7 @@ function TypewriterLine({ phrases }) {
         return;
       }
 
-      timeout = window.setTimeout(tick, 24);
+      timeout = window.setTimeout(tick, TYPEWRITER_DELETE_DELAY);
     };
 
     setText("");
@@ -257,7 +267,7 @@ function TypewriterLine({ phrases }) {
   }, [phrases]);
 
   return (
-    <p className={styles.typewriterLine} aria-live="polite">
+    <p className={styles.typewriterLine} aria-live="off">
       <span>{text}</span>
       <i aria-hidden="true" />
     </p>
@@ -289,6 +299,82 @@ function LanguageSwitcher({ locale, onChange }) {
           {label}
         </button>
       ))}
+    </div>
+  );
+}
+
+function EBrandMark({ className, inverted = false }) {
+  return (
+    <svg className={className} viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <path
+        fill={inverted ? "#F4F0E7" : "#17212B"}
+        d="M22 15h56v12H36v14h42v12H36v15h42v12H22V15Z"
+      />
+      <path fill="#174EA6" d="M36 41h42v12H36l-9 9V50l9-9Z" />
+    </svg>
+  );
+}
+
+// 只有頁面載入較慢時才顯示，快速載入不會被固定開場動畫打斷。
+const LOADER_SHOW_DELAY = 220;
+const LOADER_MIN_VISIBLE = 900;
+const LOADER_EXIT_DURATION = 180;
+
+function PageLoader() {
+  const [phase, setPhase] = useState("hidden");
+
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return undefined;
+
+    let showTimer = 0;
+    let hideTimer = 0;
+    let exitTimer = 0;
+    let shownAt = 0;
+    let hasShown = false;
+    let pageReady = document.readyState === "complete";
+
+    const finish = () => {
+      pageReady = true;
+      window.clearTimeout(showTimer);
+
+      if (!hasShown) return;
+
+      const remaining = Math.max(0, LOADER_MIN_VISIBLE - (performance.now() - shownAt));
+      hideTimer = window.setTimeout(() => {
+        setPhase("exiting");
+        exitTimer = window.setTimeout(() => setPhase("hidden"), LOADER_EXIT_DURATION);
+      }, remaining);
+    };
+
+    if (!pageReady) {
+      showTimer = window.setTimeout(() => {
+        if (pageReady) return;
+        hasShown = true;
+        shownAt = performance.now();
+        setPhase("visible");
+      }, LOADER_SHOW_DELAY);
+      window.addEventListener("load", finish, { once: true });
+    }
+
+    return () => {
+      window.clearTimeout(showTimer);
+      window.clearTimeout(hideTimer);
+      window.clearTimeout(exitTimer);
+      window.removeEventListener("load", finish);
+    };
+  }, []);
+
+  if (phase === "hidden") return null;
+
+  return (
+    <div className={styles.pageLoader} data-phase={phase} aria-hidden="true">
+      <div className={styles.pageLoaderContent}>
+        <EBrandMark className={styles.pageLoaderMark} inverted />
+        <span className={styles.pageLoaderBar}>
+          <span className={styles.pageLoaderBarFill} />
+        </span>
+      </div>
     </div>
   );
 }
@@ -344,8 +430,9 @@ function ExperienceTrack({ copy, locale }) {
     if (!story || !viewport || !track) return undefined;
 
     const desktop = window.matchMedia("(min-width: 901px)");
+    const shortHeight = window.matchMedia("(max-height: 760px)");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (!desktop.matches || reduced.matches) {
+    if (!desktop.matches || shortHeight.matches || reduced.matches) {
       story.style.removeProperty("height");
       gsap.set(track, { clearProps: "transform" });
       return undefined;
@@ -440,7 +527,7 @@ function ExperienceTrack({ copy, locale }) {
   return (
     <div className={styles.experienceStory} ref={storyRef}>
       <div className={styles.experienceSticky} ref={stickyRef}>
-        <SectionHeading kicker={copy.experienceHeader.kicker} title={copy.experienceHeader.title} intro={copy.experienceHeader.intro} />
+        <SectionHeading kicker={copy.experienceHeader.kicker} title={copy.experienceHeader.title} />
         <div className={styles.experienceViewport}>
           <div
             className={styles.experienceRail}
@@ -502,7 +589,7 @@ function ExperienceTrack({ copy, locale }) {
   );
 }
 
-function AIProjectSection({ project, locale }) {
+function ProjectEvidenceCard({ project, locale }) {
   const inputModules = project.modules.slice(0, 3);
   const outcomeModule = project.modules[3];
   const labels = locale === "en"
@@ -530,9 +617,7 @@ function AIProjectSection({ project, locale }) {
         };
 
   return (
-    <section id="project" className={styles.projectSection}>
-      <div className={styles.containerWide}>
-        <div className={styles.projectLayout} data-reveal>
+    <article className={`${styles.projectLayout} ${styles.projectCard}`} data-reveal>
           <div className={styles.projectCopy}>
             <p className={styles.kicker}>{project.kicker}</p>
             <h2>{project.title}</h2>
@@ -569,7 +654,82 @@ function AIProjectSection({ project, locale }) {
               <span>OpenCV</span><span>ArUco</span><span>YOLO</span><span>MediaPipe</span>
             </div>
           </div>
+    </article>
+  );
+}
+
+function SelectedProjectsSection({ projects, locale }) {
+  return (
+    <section id="project" className={styles.projectSection}>
+      <div className={styles.containerWide}>
+        <div className={styles.projectStack}>
+          {projects.map((project) => (
+            <ProjectEvidenceCard key={project.title} project={project} locale={locale} />
+          ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+function SkillsSection({ copy }) {
+  return (
+    <section id="skills" className={styles.skillsSection}>
+      <div className={styles.container}>
+        <SectionHeading
+          kicker={copy.evidence.kicker}
+          title={copy.teamValue.title}
+          intro={`${copy.about.primary} ${copy.about.detail}`}
+        />
+
+        <div className={styles.metrics} data-reveal>
+          {copy.metrics.map((metric) => (
+            <article key={metric.label}>
+              <strong>{metric.value}</strong>
+              <span>{metric.label}</span>
+            </article>
+          ))}
+        </div>
+
+        <div className={styles.capabilityGrid} data-reveal>
+          {copy.teamValue.items.map((item, index) => (
+            <article key={item.title} className={styles.capabilityCard}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className={styles.skillsBands} data-reveal>
+          {copy.skills.map((category) => (
+            <article key={category.title} className={styles.skillsBand}>
+              <h3>{category.title}</h3>
+              <div>
+                {category.items.map((item) => <span key={item}>{item}</span>)}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className={styles.practiceHeader} data-reveal>
+          <p className={styles.kicker}>{copy.aiHeader.kicker}</p>
+          <h3>{copy.aiHeader.title}</h3>
+          <p>{copy.aiHeader.intro}</p>
+        </div>
+        <div className={styles.practiceGrid} data-reveal>
+          {copy.aiPractice.map((item) => (
+            <article className={styles.practiceCard} key={item.number}>
+              <span className={styles.practiceNumber}>{item.number}</span>
+              <div className={styles.practiceOrb} aria-hidden="true" />
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))}
+        </div>
+        <ScrollText className={styles.skillsClosing}>
+          {`${copy.teamValue.closing} ${copy.aiClosing}`}
+        </ScrollText>
       </div>
     </section>
   );
@@ -579,6 +739,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
   const rootRef = useRef(null);
   const cursorRef = useRef(null);
   const cursorFollowerRef = useRef(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   useReveal(rootRef);
   usePointerCursor(rootRef, cursorRef, cursorFollowerRef);
   useScrollTextReveal(rootRef);
@@ -588,23 +749,100 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
     document.documentElement.lang = language;
   }, [locale]);
 
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setMobileMenuOpen(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const documentElement = document.documentElement;
+    const previousOverflow = documentElement.style.overflow;
+    if (mobileMenuOpen) documentElement.style.overflow = "hidden";
+
+    return () => {
+      documentElement.style.overflow = previousOverflow;
+    };
+  }, [mobileMenuOpen]);
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+  const menuLabels = locale === "en"
+    ? { open: "Open menu", close: "Close menu", navigation: "Site navigation", home: "Home", kicker: "Navigate" }
+    : locale === "zh-CN"
+      ? { open: "打开菜单", close: "关闭菜单", navigation: "网站导航", home: "首页", kicker: "页面导航" }
+      : { open: "開啟選單", close: "關閉選單", navigation: "網站導覽", home: "首頁", kicker: "頁面導覽" };
+
   return (
-    <div ref={rootRef} className={styles.site} lang={locale}>
+    <div ref={rootRef} className={styles.site} lang={locale} data-menu-open={mobileMenuOpen}>
+      <PageLoader />
       <span ref={cursorRef} className={styles.cursor} aria-hidden="true" />
       <span ref={cursorFollowerRef} className={styles.cursorFollower} aria-hidden="true" />
       <span className={styles.signatureAura} aria-hidden="true" />
 
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <nav className={styles.nav} aria-label="Primary navigation">
-            <a href="#experience" data-cursor-label="WORK">{copy.nav.experience}</a>
-            <a href="#about" data-cursor-label="ABOUT">{copy.nav.about}</a>
-            <a href="#ai" data-cursor-label="AI">{copy.nav.ai}</a>
-            <a href="#contact" data-cursor-label="CONTACT">{copy.nav.contact}</a>
-          </nav>
+          <div className={styles.headerIdentity}>
+            <button
+              className={styles.menuButton}
+              type="button"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="site-navigation"
+              aria-label={mobileMenuOpen ? menuLabels.close : menuLabels.open}
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              data-cursor-label="MENU"
+            >
+              <span className={styles.menuIcon} aria-hidden="true">
+                <span className={styles.menuIconLine} />
+                <span className={styles.menuIconLine} />
+                <span className={styles.menuIconLine} />
+              </span>
+            </button>
+          </div>
           <LanguageSwitcher locale={locale} onChange={onLocaleChange} />
         </div>
       </header>
+
+      <div
+        className={styles.menuOverlay}
+        data-open={mobileMenuOpen}
+        aria-hidden={!mobileMenuOpen}
+      >
+        <div className={styles.menuOverlayInner}>
+          <p className={styles.menuKicker}>{menuLabels.kicker}</p>
+          <nav
+            id="site-navigation"
+            className={styles.menuNav}
+            data-open={mobileMenuOpen}
+            aria-label={menuLabels.navigation}
+          >
+            <a className={styles.menuLink} href="#home" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} data-cursor-label="HOME">
+              <span className={styles.menuLinkNumber}>01</span>
+              <span>{menuLabels.home}</span>
+            </a>
+            <a className={styles.menuLink} href="#experience" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} data-cursor-label="WORK">
+              <span className={styles.menuLinkNumber}>02</span>
+              <span>{copy.nav.experience}</span>
+            </a>
+            <a className={styles.menuLink} href="#project" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} data-cursor-label="PROJECTS">
+              <span className={styles.menuLinkNumber}>03</span>
+              <span>{copy.nav.projects}</span>
+            </a>
+            <a className={styles.menuLink} href="#skills" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} data-cursor-label="SKILLS">
+              <span className={styles.menuLinkNumber}>04</span>
+              <span>{copy.nav.skills}</span>
+            </a>
+            <a className={styles.menuLink} href="#contact" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} data-cursor-label="CONTACT">
+              <span className={styles.menuLinkNumber}>05</span>
+              <span>{copy.nav.contact}</span>
+            </a>
+          </nav>
+        </div>
+      </div>
 
       <main>
         <section id="home" className={styles.heroSection}>
@@ -615,8 +853,8 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                   <span className={styles.heroEyebrow}>{copy.hero.eyebrow}</span>
                   <span className={styles.heroName}>{copy.hero.name}</span>
                 </h1>
+                <p className={styles.heroPositioning}>{copy.positioning.primary}</p>
                 <TypewriterLine phrases={copy.hero.typewriter} />
-                <p className={styles.heroClaim}>{copy.positioning.primary}</p>
                 <div className={styles.heroActions}>
                   <a className={styles.primaryButton} href="#experience" data-cursor-label="WORK">{copy.hero.viewExperience}<span>↘</span></a>
                   <a className={styles.textButton} href={copy.contact.resume} download data-cursor-label="CV">{copy.hero.download}<span>↓</span></a>
@@ -659,71 +897,9 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
           </div>
         </section>
 
-        <section id="about" className={styles.aboutSection}>
-          <div className={styles.container}>
-            <SectionHeading kicker={copy.evidence.kicker} title={copy.about.primary} intro={copy.about.detail} />
-            <div className={styles.aboutStatement}>
-              <ScrollText>{copy.about.secondary}</ScrollText>
-              <div className={styles.keywordRail} aria-label="Focus areas">
-                {copy.about.keywords.map((keyword, index) => (
-                  <span key={keyword}>
-                    <b>{String(index + 1).padStart(2, "0")}</b>
-                    {keyword}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className={styles.metrics} data-reveal>
-              {copy.metrics.map((metric) => (
-                <article key={metric.label}>
-                  <strong>{metric.value}</strong>
-                  <span>{metric.label}</span>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <SelectedProjectsSection projects={copy.selectedProjects} locale={locale} />
 
-        <AIProjectSection project={copy.aiProject} locale={locale} />
-
-        <section id="role" className={styles.roleSection}>
-          <div className={styles.container}>
-            <SectionHeading kicker={copy.teamValue.kicker} title={copy.teamValue.title} />
-            <div className={styles.roleGrid} data-reveal>
-              {copy.teamValue.items.map((item, index) => (
-                <article key={item.title} className={styles.roleCard}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </article>
-              ))}
-            </div>
-            {copy.teamValue.closing && <ScrollText className={styles.roleClosing}>{copy.teamValue.closing}</ScrollText>}
-          </div>
-        </section>
-
-        <section id="ai" className={styles.aiSection}>
-          <div className={styles.container}>
-            <SectionHeading kicker={copy.aiHeader.kicker} title={copy.aiHeader.title} intro={copy.aiHeader.intro} />
-            <div className={styles.aiGrid} data-reveal>
-              {copy.aiPractice.map((item) => (
-                <article className={styles.aiCard} key={item.number}>
-                  <span className={styles.aiNumber}>{item.number}</span>
-                  <div className={styles.aiOrb} aria-hidden="true" />
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </article>
-              ))}
-            </div>
-            <ScrollText className={styles.aiClosing}>
-              {copy.aiClosing || (locale === "en"
-                ? "AI does not make the judgement for me; it helps me organise information, validate ideas and deliver faster."
-                : locale === "zh-CN"
-                  ? "AI 不会替我作出判断，但能让我更快整理信息、验证想法和完成交付。"
-                  : "AI 不會替我作出判斷，但能讓我更快整理資訊、驗證構想和完成交付。")}
-            </ScrollText>
-          </div>
-        </section>
+        <SkillsSection copy={copy} />
 
         <section id="contact" className={styles.contactSection}>
           <div className={styles.contactGlow} aria-hidden="true" />
@@ -748,7 +924,6 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
 
       <footer className={styles.footer}>
         <span>ZS · Zhicheng Situ</span>
-        <span>{copy.footer}</span>
       </footer>
     </div>
   );

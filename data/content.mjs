@@ -7,11 +7,11 @@ const sharedLinks = {
 export const siteContent = {
   en: {
     localeName: "English",
-    nav: { about: "About", experience: "Experience", ai: "AI Practice", contact: "Contact" },
+    nav: { experience: "Experience", projects: "Projects", skills: "Skills", contact: "Contact" },
     loader: ["BUSINESS", "TECHNOLOGY", "DELIVERY"],
     hero: {
-      eyebrow: "Hello, it’s good to meet you.",
-      name: "I’m Zhicheng Situ.",
+      eyebrow: "Hello, it’s good to meet you",
+      name: "I’m Zhicheng Situ Eason",
       chineseName: "司徒智成",
       title: "Digital & AI Solution Delivery",
       typewriter: [
@@ -31,7 +31,6 @@ export const siteContent = {
     },
     positioning: {
       primary: "Solution Delivery · Project Coordination",
-      secondary: "I turn requirements into clear priorities, practical prototypes and deliverable solutions.",
     },
     about: {
       primary: "My experience spans AI/IoT projects, software delivery, product requirements and applied AI prototypes.",
@@ -63,7 +62,7 @@ export const siteContent = {
       { value: "8", label: "Product iterations" },
     ],
     capabilities: ["Requirement clarification", "Solution delivery", "Testing & UAT", "AI-assisted improvement"],
-    experienceHeader: { kicker: "EXPERIENCE", title: "From product research and requirements documents to software project coordination and digital solution delivery in real environments.", intro: "Four horizontal cards showing the company, role, period, project focus and work I actually handled." },
+    experienceHeader: { kicker: "EXPERIENCE", title: "From product research and requirements documents to software project coordination and digital solution delivery in real environments." },
     experience: [
       {
         company: "isBIM Limited",
@@ -142,16 +141,15 @@ export const siteContent = {
       education: "Australian National University · Bachelor of Information Technology",
       languages: "Cantonese · Mandarin · English",
     },
-    footer: "Designed for clarity. Built with motion.",
   },
 
   "zh-CN": {
     localeName: "简体中文",
-    nav: { about: "关于我", experience: "工作经历", ai: "AI实践", contact: "联系" },
+    nav: { experience: "工作经历", projects: "精选项目", skills: "能力", contact: "联系" },
     loader: ["业务", "技术", "交付"],
     hero: {
-      eyebrow: "你好，很高兴认识你。",
-      name: "我是司徒智成。",
+      eyebrow: "你好，很高兴认识你",
+      name: "我是司徒智成 Eason",
       chineseName: "Zhicheng Situ",
       title: "Digital & AI Solution Delivery",
       typewriter: [
@@ -171,7 +169,6 @@ export const siteContent = {
     },
     positioning: {
       primary: "Solution Delivery · Project Coordination",
-      secondary: "我把需求、优先级、原型和交付方案整理清楚，让项目继续向前推进。",
     },
     about: {
       primary: "我的经历涵盖 AI/IoT 项目、软件交付、产品需求及应用型 AI 原型。",
@@ -203,7 +200,7 @@ export const siteContent = {
       { value: "8", label: "次产品迭代" },
     ],
     capabilities: ["需求澄清", "方案交付", "测试与 UAT", "AI 辅助改善"],
-    experienceHeader: { kicker: "工作经历", title: "从产品研究与需求文档，到软件项目协调，再到真实环境中的数字化方案交付。", intro: "四张横向卡片，展示公司、职位、时间、项目重点和实际负责的工作。" },
+    experienceHeader: { kicker: "工作经历", title: "从产品研究与需求文档，到软件项目协调，再到真实环境中的数字化方案交付。" },
     experience: [
       {
         company: "香港互联立方有限公司（isBIM Limited）",
@@ -282,16 +279,15 @@ export const siteContent = {
       education: "澳大利亚国立大学 · 信息技术学士",
       languages: "粤语 · 普通话 · 英语",
     },
-    footer: "以清晰为先，以动效表达。",
   },
 
   "zh-HK": {
     localeName: "繁體中文",
-    nav: { about: "關於我", experience: "工作經歷", ai: "AI實踐", contact: "聯絡" },
+    nav: { experience: "工作經歷", projects: "精選項目", skills: "能力", contact: "聯絡" },
     loader: ["業務", "技術", "交付"],
     hero: {
-      eyebrow: "你好，很高興認識你。",
-      name: "我是司徒智成。",
+      eyebrow: "你好，很高興認識你",
+      name: "我是司徒智成 Eason",
       chineseName: "Zhicheng Situ",
       title: "Digital & AI Solution Delivery",
       typewriter: [
@@ -311,7 +307,6 @@ export const siteContent = {
     },
     positioning: {
       primary: "Solution Delivery · Project Coordination",
-      secondary: "我把需求、優先次序、原型和交付方案整理清楚，讓項目繼續向前推進。",
     },
     about: {
       primary: "我的經歷涵蓋 AI/IoT 項目、軟件交付、產品需求及應用型 AI 原型。",
@@ -343,7 +338,7 @@ export const siteContent = {
       { value: "8", label: "次產品迭代" },
     ],
     capabilities: ["需求釐清", "方案交付", "測試與 UAT", "AI 輔助改善"],
-    experienceHeader: { kicker: "工作經歷", title: "從產品研究與需求文件，到軟件項目協調，再到真實環境中的數碼方案交付。", intro: "四張橫向卡片，展示公司、職位、時間、項目重點和實際負責的工作。" },
+    experienceHeader: { kicker: "工作經歷", title: "從產品研究與需求文件，到軟件項目協調，再到真實環境中的數碼方案交付。" },
     experience: [
       {
         company: "香港互聯立方有限公司（isBIM Limited）",
@@ -422,6 +417,9 @@ export const siteContent = {
       education: "澳洲國立大學 · 資訊科技學士",
       languages: "粵語 · 普通話 · 英語",
     },
-    footer: "以清晰為先，以動效表達。",
   },
 };
+
+for (const copy of Object.values(siteContent)) {
+  copy.selectedProjects = [copy.aiProject];
+}

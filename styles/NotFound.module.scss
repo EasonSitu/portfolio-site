@@ -1,0 +1,74 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 1fr);
+  gap: clamp(2rem, 8vw, 8rem);
+  align-items: start;
+  min-height: 100svh;
+  padding: clamp(6rem, 14vh, 11rem) max(1.25rem, 6vw);
+  background: #f4f0e7;
+  color: #17212b;
+  font-family: "Calibre", "Noto Sans TC", "Noto Sans CJK TC", system-ui, sans-serif;
+}
+
+.code {
+  color: #c75a34;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+}
+
+.content {
+  max-width: 38rem;
+}
+
+.content h1 {
+  max-width: 12ch;
+  font-size: clamp(2.75rem, 7vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.content p {
+  max-width: 30rem;
+  margin-top: 1.5rem;
+  color: #67727a;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.link {
+  display: inline-flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid currentColor;
+  color: #17212b;
+  font-size: 1rem;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+.link:hover {
+  border-color: #174ea6;
+  color: #174ea6;
+}
+
+.link:focus-visible {
+  outline: 2px solid #174ea6;
+  outline-offset: 4px;
+}
+
+@media (max-width: 700px) {
+  .page {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+    padding-top: 7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}

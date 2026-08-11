@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Zhicheng Situ — Solution Delivery</title>
+  <desc id="description">Recruiter-facing portfolio preview for solution delivery and project coordination.</desc>
+  <rect width="1200" height="630" fill="#F4F0E7"/>
+  <circle cx="1040" cy="-10" r="300" fill="#DBE6F4"/>
+  <circle cx="1070" cy="520" r="230" fill="#EAD5C6"/>
+  <path d="M72 86h1056" stroke="#17212B" stroke-opacity=".14"/>
+  <text x="72" y="142" fill="#174EA6" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">AI &amp; DIGITAL SOLUTION DELIVERY</text>
+  <text x="72" y="280" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="92" font-weight="700">Zhicheng Situ</text>
+  <text x="72" y="346" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="500">Solution Delivery · Project Coordination</text>
+  <text x="72" y="414" fill="#67727A" font-family="Arial, Helvetica, sans-serif" font-size="24">Requirements → Coordination → Testing → Delivery</text>
+  <g transform="translate(72 508)">
+    <circle cx="0" cy="0" r="10" fill="#C75A34"/>
+    <path d="M10 0h172" stroke="#C75A34" stroke-width="3"/>
+    <circle cx="194" cy="0" r="10" fill="#174EA6"/>
+    <path d="M204 0h172" stroke="#174EA6" stroke-width="3"/>
+    <circle cx="398" cy="0" r="10" fill="#C75A34"/>
+    <path d="M408 0h172" stroke="#C75A34" stroke-width="3"/>
+    <circle cx="602" cy="0" r="10" fill="#174EA6"/>
+  </g>
+  <text x="72" y="578" fill="#67727A" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="2">ZHICHENG SITU / PORTFOLIO</text>
+</svg>

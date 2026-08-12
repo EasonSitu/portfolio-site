@@ -94,7 +94,7 @@ test("archive gate sections stay in reading order", () => {
 test("the site defaults to Traditional Chinese before hydration", () => {
   assert.equal(DEFAULT_LOCALE, "zh-HK");
   assert.match(indexSource, /useState\(DEFAULT_LOCALE\)/);
-  assert.match(documentSource, /<Html lang="zh-HK">/);
+  assert.match(documentSource, /<Html lang="zh-Hant-HK">/);
 });
 
 test("archive gate design tokens keep background, stone, glass and energy distinct", () => {

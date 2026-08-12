@@ -24,7 +24,7 @@ test("release metadata identifies Zhicheng Situ without an invented domain", () 
 
 test("404 is a lightweight recruiter-site fallback in Traditional Chinese", () => {
   assert.match(notFoundSource, /next\/head/);
-  assert.match(notFoundSource, /lang="zh-HK"/);
+  assert.match(notFoundSource, /lang="zh-Hant-HK"/);
   assert.match(notFoundSource, /返回首頁/);
   assert.doesNotMatch(notFoundSource, /components\/(Button|Cursor)|from "gsap"/);
 });

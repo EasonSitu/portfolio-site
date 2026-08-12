@@ -3,7 +3,7 @@ import { withPublicBasePath } from "../lib/publicPath.mjs";
 
 const Document = () => {
   return (
-    <Html lang="zh-HK">
+    <Html lang="zh-Hant-HK">
       <Head>
         <link rel="manifest" href={withPublicBasePath("/manifest.json")} />
       </Head>

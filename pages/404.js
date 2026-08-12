@@ -9,7 +9,7 @@ export default function Custom404() {
         <title>找不到頁面 | Zhicheng Situ</title>
         <meta name="description" content="這個頁面不存在；返回 Zhicheng Situ 的作品集首頁。" />
       </Head>
-      <main className={styles.page} lang="zh-HK">
+      <main className={styles.page} lang="zh-Hant-HK">
         <p className={styles.code}>404 / NOT FOUND</p>
         <div className={styles.content}>
           <h1>這個頁面不存在。</h1>

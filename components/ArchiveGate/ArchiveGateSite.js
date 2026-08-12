@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import ScrollTrigger from "gsap/dist/ScrollTrigger";
-import {
-  clampExperienceProgress,
-  getExperienceMotionMetrics,
-} from "../../lib/experienceMotion.mjs";
 import styles from "./ArchiveGateSite.module.scss";
-
-if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
+import { withPublicBasePath } from "../../lib/publicPath.mjs";
 
 const localeLabels = [
   ["en", "EN"],
@@ -379,293 +372,144 @@ function PageLoader() {
   );
 }
 
-function ExperienceTrack({ copy, locale }) {
-  const storyRef = useRef(null);
-  const stickyRef = useRef(null);
-  const trackRef = useRef(null);
-  const motionTriggerRef = useRef(null);
-  const [activeExperience, setActiveExperience] = useState(0);
-  const [experienceScrollProgress, setExperienceScrollProgress] = useState(0);
-  const labels = locale === "en"
-    ? {
-        previous: "Previous",
-        next: "Next",
-        drag: "DRAG",
-        progress: "Experience progress",
-        instruction: "Scroll to follow the timeline, or use the arrows.",
-      }
-    : locale === "zh-CN"
-      ? {
-          previous: "上一段",
-          next: "下一段",
-          drag: "滑动",
-          progress: "经历浏览进度",
-          instruction: "向下滚动查看经历，或使用箭头。",
-        }
-      : {
-          previous: "上一段",
-          next: "下一段",
-          drag: "滑動",
-          progress: "經歷瀏覽進度",
-          instruction: "向下滾動查看經歷，或使用箭頭。",
-        };
-
-  const updateActiveExperience = () => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cards = [...track.children];
-    const target = track.scrollLeft + track.clientWidth / 2;
-    const closest = cards.reduce((best, card, index) => {
-      const center = card.offsetLeft + card.offsetWidth / 2;
-      const distance = Math.abs(center - target);
-      return distance < best.distance ? { index, distance } : best;
-    }, { index: 0, distance: Number.POSITIVE_INFINITY });
-    setActiveExperience(closest.index);
-  };
-
-  useEffect(() => {
-    const story = storyRef.current;
-    const viewport = stickyRef.current?.querySelector(`.${styles.experienceViewport}`);
-    const track = trackRef.current;
-    if (!story || !viewport || !track) return undefined;
-
-    const desktop = window.matchMedia("(min-width: 901px)");
-    const shortHeight = window.matchMedia("(max-height: 760px)");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (!desktop.matches || shortHeight.matches || reduced.matches) {
-      story.style.removeProperty("height");
-      gsap.set(track, { clearProps: "transform" });
-      return undefined;
-    }
-
-    const measure = () => getExperienceMotionMetrics({
-      contentWidth: track.scrollWidth,
-      viewportWidth: viewport.clientWidth,
-      viewportHeight: window.innerHeight,
-      pace: 1.25,
-      minimumScreens: 2,
-    });
-
-    const setStoryHeight = () => {
-      const metrics = measure();
-      story.style.height = `${metrics.storyHeight}px`;
-      return metrics;
-    };
-
-    setStoryHeight();
-
-    const context = gsap.context(() => {
-      const tween = gsap.to(track, {
-        x: () => -measure().horizontalDistance,
-        ease: "none",
-        force3D: true,
-        scrollTrigger: {
-          trigger: story,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1.15,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const nextProgress = clampExperienceProgress(self.progress);
-            setExperienceScrollProgress(nextProgress);
-            setActiveExperience(Math.round(nextProgress * (copy.experience.length - 1)));
-          },
-        },
-      });
-
-      motionTriggerRef.current = tween.scrollTrigger;
-    }, story);
-
-    const handleResize = () => {
-      setStoryHeight();
-      ScrollTrigger.refresh();
-    };
-
-    window.addEventListener("resize", handleResize);
-    ScrollTrigger.refresh();
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      motionTriggerRef.current = null;
-      context.revert();
-      story.style.removeProperty("height");
-      gsap.set(track, { clearProps: "transform" });
-    };
-  }, [copy.experience.length, locale]);
-
-  const scrollTrack = (direction) => {
-    const story = storyRef.current;
-    const track = trackRef.current;
-    if (!track) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const desktop = window.matchMedia("(min-width: 901px)").matches;
-    const nextIndex = Math.min(copy.experience.length - 1, Math.max(0, activeExperience + direction));
-    const nextCard = track.children[nextIndex];
-
-    const motionTrigger = motionTriggerRef.current;
-    if (story && motionTrigger && desktop && !reduced) {
-      const nextProgress = nextIndex / Math.max(1, copy.experience.length - 1);
-      window.scrollTo({
-        top: motionTrigger.start + (motionTrigger.end - motionTrigger.start) * nextProgress,
-        behavior: "smooth",
-      });
-      return;
-    }
-
-    track.scrollTo({
-      left: nextCard?.offsetLeft || 0,
-      behavior: reduced ? "auto" : "smooth",
-    });
-    setActiveExperience(nextIndex);
-  };
-
-  const progress = Math.max(
-    (activeExperience + 1) / copy.experience.length,
-    experienceScrollProgress,
-  ) * 100;
-
+function ExperienceTimeline({ copy }) {
   return (
-    <div className={styles.experienceStory} ref={storyRef}>
-      <div className={styles.experienceSticky} ref={stickyRef}>
+    <div className={styles.experienceStory}>
+      <div className={styles.experienceSticky}>
         <SectionHeading kicker={copy.experienceHeader.kicker} title={copy.experienceHeader.title} />
-        <div className={styles.experienceViewport}>
-          <div
-            className={styles.experienceRail}
-            ref={trackRef}
-            data-cursor-label={labels.drag}
-            role="list"
-            aria-label={copy.experienceHeader.title}
-            onScroll={updateActiveExperience}
+      </div>
+      <div className={styles.experienceTimeline} role="list" aria-label={copy.experienceHeader.title}>
+        {copy.experience.map((item, index) => (
+          <article
+            className={styles.experienceTimelineItem}
+            key={`${item.company}-${item.period}`}
+            role="listitem"
+            data-reveal
           >
-            {copy.experience.map((item, index) => (
-              <article
-                className={styles.experienceCard}
-                key={`${item.company}-${item.period}`}
-                role="listitem"
-                data-active={activeExperience === index ? "true" : "false"}
-                data-tone={["cream", "blue", "clay"][index % 3]}
-              >
-                <div className={styles.cardTopline}>
-                  <span className={styles.cardIndex}>{String(index + 1).padStart(2, "0")}</span>
-                  <span className={styles.cardKicker}>{item.period} · {item.location}</span>
-                </div>
-                <h3>{item.headline}</h3>
-                <p className={styles.cardRole}>{item.company} / {item.role}</p>
-                <p className={styles.cardDescription}>{item.description}</p>
-                <div className={styles.tags}>
-                  {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
-                </div>
-                <span className={styles.cardArrow} aria-hidden="true">→</span>
-              </article>
-            ))}
-          </div>
-        </div>
-        <div className={styles.experienceControls} data-reveal>
-          <div className={styles.experienceStatus}>
-            <span>{String(activeExperience + 1).padStart(2, "0")} / {String(copy.experience.length).padStart(2, "0")}</span>
-            <span
-              className={styles.experienceProgress}
-              role="progressbar"
-              aria-label={labels.progress}
-              aria-valuemin="1"
-              aria-valuemax={copy.experience.length}
-              aria-valuenow={activeExperience + 1}
-            >
-              <i style={{ width: `${progress}%` }} />
-            </span>
-            <p>{labels.instruction}</p>
-          </div>
-          <div className={styles.experienceButtons}>
-            <button type="button" onClick={() => scrollTrack(-1)} aria-label={labels.previous} data-cursor-label="←">
-              <span aria-hidden="true">←</span>
-            </button>
-            <button type="button" onClick={() => scrollTrack(1)} aria-label={labels.next} data-cursor-label="→">
-              <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        </div>
+            <div className={styles.experienceTimelineMarker} aria-hidden="true">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+            </div>
+            <div className={styles.experienceTimelineMeta}>
+              <span className={styles.cardKicker}>{item.period}</span>
+              <span className={styles.timelineLocation}>{item.location}</span>
+            </div>
+            <div className={styles.experienceTimelineBody}>
+              <h3>{item.company}</h3>
+              <p className={styles.experienceRole}>{item.role}</p>
+              <p className={styles.experienceFocus}>{item.focus}</p>
+              <div className={styles.tags}>
+                {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   );
 }
 
-function ProjectEvidenceCard({ project, locale }) {
-  const inputModules = project.modules.slice(0, 3);
-  const outcomeModule = project.modules[3];
-  const labels = locale === "en"
-    ? {
-        boundary: "BOUNDARY",
-        flow: "Project evidence flow",
-        signals: "SIGNALS",
-        support: "EXAMINER SUPPORT",
-        stack: "Technology stack",
-      }
-    : locale === "zh-CN"
-      ? {
-          boundary: "边界",
-          flow: "项目证据流程",
-          signals: "输入讯号",
-          support: "辅助考官复核",
-          stack: "技术组合",
-        }
-      : {
-          boundary: "邊界",
-          flow: "項目證據流程",
-          signals: "輸入訊號",
-          support: "輔助考官覆核",
-          stack: "技術組合",
-        };
-
+function ProjectShowcaseCard({ project, index }) {
   return (
-    <article className={`${styles.projectLayout} ${styles.projectCard}`} data-reveal>
-          <div className={styles.projectCopy}>
-            <p className={styles.kicker}>{project.kicker}</p>
-            <h2>{project.title}</h2>
-            <p>{project.background}</p>
-            <p>{project.role}</p>
-            {project.technologies && <p>{project.technologies}</p>}
-            {project.delivery && <p>{project.delivery}</p>}
-            <p className={styles.projectBoundary}>
-              <span>{labels.boundary}</span>
-              {project.boundary}
-            </p>
-          </div>
-          <div className={styles.projectSignalFlow} aria-label={labels.flow}>
-            <div className={styles.projectSignalHeader}>
-              <span>{labels.signals}</span>
-              <span>{labels.support}</span>
-            </div>
-            <div className={styles.projectSignalInputs}>
-              {inputModules.map((module) => (
-                <article className={styles.projectModule} key={module.number}>
-                  <span>{module.number}</span>
-                  <strong>{module.title}</strong>
-                  <em>{module.label}</em>
-                </article>
-              ))}
-            </div>
-            <span className={styles.projectSignalConnector} aria-hidden="true"><i /><i /><i /></span>
-            <article className={`${styles.projectModule} ${styles.projectOutcome}`}>
-              <span>{outcomeModule.number}</span>
-              <strong>{outcomeModule.title}</strong>
-              <em>{outcomeModule.label}</em>
-            </article>
-            <div className={styles.projectTechRail} aria-label={labels.stack}>
-              <span>OpenCV</span><span>ArUco</span><span>YOLO</span><span>MediaPipe</span>
-            </div>
-          </div>
+    <article className={styles.projectShowcaseCard} data-reveal role="listitem" data-tone={index % 2 === 0 ? "blue" : "clay"}>
+      <div className={styles.projectShowcaseTopline}>
+        <p className={styles.kicker}>{project.kicker}</p>
+        <span>{String(index + 1).padStart(2, "0")}</span>
+      </div>
+      <h3>{project.title}</h3>
+      <p className={styles.projectShowcaseSummary}>{project.summary}</p>
+      <p className={styles.projectShowcaseRole}>{project.role}</p>
+      <div className={styles.projectShowcaseTags}>
+        {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
+      </div>
+      <p className={styles.projectShowcaseBoundary}>{project.boundary}</p>
+      <span className={styles.projectShowcaseArrow} aria-hidden="true">↗</span>
     </article>
   );
 }
 
-function SelectedProjectsSection({ projects, locale }) {
+function SelectedProjectsSection({ projects, locale, header }) {
+  const railRef = useRef(null);
+  const dragStateRef = useRef({ active: false, pointerId: null, startX: 0, startScrollLeft: 0 });
+  const [dragging, setDragging] = useState(false);
+  const labels = locale === "en"
+    ? { previous: "Previous project", next: "Next project", instruction: "Scroll or drag to explore projects." }
+    : locale === "zh-CN"
+      ? { previous: "上一个项目", next: "下一个项目", instruction: "横向滚动或拖动查看项目。" }
+      : { previous: "上一個項目", next: "下一個項目", instruction: "橫向滾動或拖動查看項目。" };
+  const dragLabel = locale === "en" ? "DRAG" : locale === "zh-CN" ? "拖动" : "拖曳";
+
+  const scrollByCard = (direction) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    rail.scrollBy({
+      left: direction * Math.max(rail.clientWidth * 0.82, 280),
+      behavior: reduced ? "auto" : "smooth",
+    });
+  };
+
+  const handlePointerDown = (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    const rail = railRef.current;
+    if (!rail) return;
+    dragStateRef.current = {
+      active: true,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScrollLeft: rail.scrollLeft,
+    };
+    rail.setPointerCapture?.(event.pointerId);
+    setDragging(true);
+  };
+
+  const handlePointerMove = (event) => {
+    const state = dragStateRef.current;
+    const rail = railRef.current;
+    if (!state.active || !rail) return;
+    rail.scrollLeft = state.startScrollLeft - (event.clientX - state.startX);
+  };
+
+  const endDrag = (event) => {
+    const state = dragStateRef.current;
+    const rail = railRef.current;
+    if (!state.active) return;
+    if (rail?.hasPointerCapture?.(state.pointerId)) rail.releasePointerCapture(state.pointerId);
+    dragStateRef.current = { active: false, pointerId: null, startX: 0, startScrollLeft: 0 };
+    setDragging(false);
+    if (event?.type === "pointercancel") rail?.releasePointerCapture?.(event.pointerId);
+  };
+
   return (
     <section id="project" className={styles.projectSection}>
       <div className={styles.containerWide}>
-        <div className={styles.projectStack}>
-          {projects.map((project) => (
-            <ProjectEvidenceCard key={project.title} project={project} locale={locale} />
-          ))}
+        <SectionHeading kicker={header.kicker} title={header.title} intro={header.intro} />
+        <div className={styles.projectShowcase}>
+          <div
+            className={styles.projectShowcaseRail}
+            ref={railRef}
+            data-dragging={dragging ? "true" : "false"}
+            data-cursor-label={dragLabel}
+            role="list"
+            aria-label={header.title}
+            tabIndex="0"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowLeft") scrollByCard(-1);
+              if (event.key === "ArrowRight") scrollByCard(1);
+            }}
+          >
+            {projects.map((project, index) => <ProjectShowcaseCard key={project.id} project={project} index={index} />)}
+          </div>
+          <div className={styles.projectShowcaseControls} data-reveal>
+            <p>{labels.instruction}</p>
+            <div className={styles.projectShowcaseButtons}>
+              <button type="button" onClick={() => scrollByCard(-1)} aria-label={labels.previous} data-cursor-label="←">←</button>
+              <button type="button" onClick={() => scrollByCard(1)} aria-label={labels.next} data-cursor-label="→">→</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -857,7 +701,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                 <TypewriterLine phrases={copy.hero.typewriter} />
                 <div className={styles.heroActions}>
                   <a className={styles.primaryButton} href="#experience" data-cursor-label="WORK">{copy.hero.viewExperience}<span>↘</span></a>
-                  <a className={styles.textButton} href={copy.contact.resume} download data-cursor-label="CV">{copy.hero.download}<span>↓</span></a>
+                  <a className={styles.textButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">{copy.hero.download}<span>↓</span></a>
                 </div>
               </div>
               <div className={styles.heroVisual} data-reveal aria-label={locale === "en" ? "Delivery workflow" : "交付工作流程"}>
@@ -893,11 +737,11 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
 
         <section id="experience" className={styles.experienceSection}>
           <div className={styles.containerWide}>
-            <ExperienceTrack copy={copy} locale={locale} />
+            <ExperienceTimeline copy={copy} />
           </div>
         </section>
 
-        <SelectedProjectsSection projects={copy.selectedProjects} locale={locale} />
+        <SelectedProjectsSection projects={copy.selectedProjects} locale={locale} header={copy.projectHeader} />
 
         <SkillsSection copy={copy} />
 
@@ -911,7 +755,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
               <div className={styles.contactActions}>
                 <a className={styles.primaryButton} href={copy.contact.email} data-cursor-label="EMAIL">{copy.contact.emailLabel}<span>↗</span></a>
                 {copy.contact.linkedin && <a className={styles.secondaryButton} href={copy.contact.linkedin} data-cursor-label="LINKEDIN">LinkedIn<span>↗</span></a>}
-                <a className={styles.secondaryButton} href={copy.contact.resume} download data-cursor-label="CV">{copy.contact.resumeLabel}<span>↓</span></a>
+                <a className={styles.secondaryButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">{copy.contact.resumeLabel}<span>↓</span></a>
               </div>
               <div className={styles.contactMeta}>
                 <span>{copy.contact.education}</span>

@@ -87,18 +87,18 @@ test("footer keeps the identity line without the removed motion slogan", () => {
 });
 
 test("the document points to the existing favicon asset", () => {
-  assert.match(indexSource, /rel="icon" href="\/brand-mark\.svg"/);
+  assert.match(indexSource, /withPublicBasePath\("\/brand-mark\.svg"\)/);
 });
 
-test("experience cards expose scrubbed desktop motion and native mobile paging controls", () => {
-  assert.match(componentSource, /experienceViewport/);
-  assert.match(componentSource, /scrollTo\(/);
-  assert.match(componentSource, /experienceControls/);
-  assert.match(componentSource, /ScrollTrigger/);
-  assert.match(componentSource, /getExperienceMotionMetrics/);
-  assert.doesNotMatch(componentSource, /track\.scrollLeft = nextProgress/);
-  assert.match(styleSource, /@media\s*\(max-width:\s*900px\)[\s\S]*?scroll-snap-type:\s*x mandatory/);
-  assert.match(styleSource, /\.experienceViewport/);
+test("experience is a normal-flow vertical timeline with no scroll hijacking", () => {
+  assert.match(componentSource, /experienceTimeline/);
+  assert.match(componentSource, /experienceTimelineItem/);
+  assert.match(componentSource, /item\.focus/);
+  assert.doesNotMatch(componentSource, /ScrollTrigger/);
+  assert.doesNotMatch(componentSource, /getExperienceMotionMetrics/);
+  assert.doesNotMatch(componentSource, /experienceScrollProgress/);
+  assert.match(styleSource, /\.experienceTimeline\s*\{/);
+  assert.match(styleSource, /\.experienceTimelineItem\s*\{/);
 });
 
 test("pointer effects have coarse-pointer and reduced-motion fallbacks", () => {
@@ -152,12 +152,21 @@ test("typewriter pacing gives each phrase a slower read and a longer pause", () 
   assert.match(componentSource, /TYPEWRITER_HOLD_DELAY\s*=\s*3500/);
 });
 
-test("short desktop heights fall back to a readable vertical experience flow", () => {
-  assert.match(componentSource, /matchMedia\("\(max-height: 760px\)"\)/);
-  assert.match(componentSource, /shortHeight\.matches/);
-  assert.match(styleSource, /@media\s*\(min-width:\s*901px\)\s*and\s*\(max-height:\s*760px\)/);
-  assert.match(styleSource, /@media[\s\S]*max-height:\s*760px[\s\S]*\.experienceSticky[\s\S]*position:\s*relative/);
-  assert.match(styleSource, /@media[\s\S]*max-height:\s*760px[\s\S]*\.experienceRail[\s\S]*overflow-x:\s*auto/);
+test("typewriter copy avoids artificial wrapping and uses a stable medium sans treatment", () => {
+  const typewriterBlock = styleSource.match(/\.typewriterLine\s*\{[^}]*\}/)?.[0] || "";
+  assert.match(typewriterBlock, /max-width:\s*min\(100%,\s*36rem\)/);
+  assert.match(typewriterBlock, /min-height:\s*1\.5em/);
+  assert.match(typewriterBlock, /font-family:\s*inherit/);
+  assert.match(typewriterBlock, /font-weight:\s*500/);
+  assert.match(typewriterBlock, /letter-spacing:\s*0/);
+  assert.doesNotMatch(typewriterBlock, /max-width:\s*23ch|font-family:\s*ui-monospace/);
+});
+
+test("experience timeline keeps normal page flow on short desktop screens", () => {
+  assert.doesNotMatch(componentSource, /matchMedia\("\(max-height: 760px\)"\)/);
+  assert.match(styleSource, /\.experienceStory\s*\{[\s\S]*display:\s*grid/);
+  assert.doesNotMatch(styleSource, /\.experienceStory\s*\{[\s\S]*height:\s*360vh/);
+  assert.doesNotMatch(styleSource, /\.experienceTimeline\s*\{[\s\S]*overflow-y:\s*(auto|scroll)/);
 });
 
 test("decorative motion stays secondary to readable content", () => {
@@ -181,6 +190,11 @@ test("hero greeting stays two levels below the candidate name", () => {
   assert.match(styleSource, /\.site\[lang="zh-CN"\]\s+\.heroEyebrow,[\s\S]*?\.site\[lang="zh-HK"\]\s+\.heroEyebrow\s*\{[\s\S]*?font-size:\s*var\(--type-display-md-cjk\)/);
 });
 
+test("candidate name steps down one display level without changing the Hero structure", () => {
+  assert.match(styleSource, /\.heroName\s*\{[\s\S]*?font-size:\s*var\(--type-display-lg\)/);
+  assert.match(styleSource, /\.site\[lang="zh-CN"\]\s+\.heroName,[\s\S]*?\.site\[lang="zh-HK"\]\s+\.heroName\s*\{[\s\S]*?font-size:\s*var\(--type-display-lg-cjk\)/);
+});
+
 test("site typography follows one capped responsive hierarchy across languages and viewports", () => {
   assert.match(styleSource, /--text-xs:\s*0\.75rem/);
   assert.match(styleSource, /--text-sm:\s*0\.875rem/);
@@ -202,32 +216,33 @@ test("site typography follows one capped responsive hierarchy across languages a
   assert.ok(directFontSizes.every((size) => size >= 0.75), `found unreadably small font sizes: ${directFontSizes.join(", ")}`);
   assert.match(styleSource, /\.heroIntro\s*\{[^}]*font-size:\s*var\(--type-display-xl\)/);
   assert.match(styleSource, /\.sectionLead,[\s\S]*?font-size:\s*var\(--type-display-md\)/);
-  assert.match(styleSource, /\.experienceCard h3\s*\{[^}]*font-size:\s*var\(--type-card-title\)/);
+  assert.match(styleSource, /\.experienceTimelineItem h3\s*\{[^}]*font-size:\s*var\(--type-card-title\)/);
   assert.match(styleSource, /\.menuLink\s*\{[\s\S]*font-size:\s*var\(--type-menu-link\)/);
   assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?--type-display-xl:\s*clamp\(2\.3rem,\s*8\.4vw,\s*3rem\)/);
   assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?--type-display-lg-cjk:\s*clamp\(1\.8rem,\s*6\.8vw,\s*2\.4rem\)/);
 });
 
-test("experience rail exposes the active card and progress", () => {
-  assert.match(componentSource, /activeExperience/);
-  assert.match(componentSource, /experienceProgress/);
-  assert.match(componentSource, /role="progressbar"/);
-  assert.match(componentSource, /onScroll=/);
+test("experience timeline keeps the recruiter scan order visible", () => {
+  assert.match(componentSource, /item\.period/);
+  assert.match(componentSource, /item\.company/);
+  assert.match(componentSource, /item\.role/);
+  assert.match(componentSource, /item\.focus/);
+  assert.match(componentSource, /item\.tags\.map/);
+  assert.match(styleSource, /\.experienceTimelineMeta\s*\{/);
+  assert.match(styleSource, /\.experienceTimelineBody\s*\{/);
 });
 
-test("desktop experience heading reserves space for English labels and keeps card detail readable", () => {
-  assert.match(styleSource, /\.experienceSection \.sectionHeading\s*\{[^}]*grid-template-columns:\s*minmax\(18rem,\s*0\.72fr\)/);
-  assert.match(styleSource, /\.experienceSection \.sectionLead\s*\{[^}]*font-size:\s*var\(--type-lead-compact\)/);
-  assert.match(styleSource, /\.experienceCard\s*\{[^}]*border-radius:\s*var\(--radius-card\)/);
-  assert.match(styleSource, /\.experienceCard h3\s*\{[^}]*font-size:\s*var\(--type-card-title\)/);
-  assert.match(styleSource, /\.cardDescription\s*\{[^}]*font-size:\s*var\(--type-body\);[^}]*line-height:\s*1\.62/);
-  assert.doesNotMatch(styleSource, /\.experienceRail\s*\{[^}]*scroll-behavior:\s*smooth/);
+test("experience heading can stay sticky without becoming a nested scroll region", () => {
+  assert.match(styleSource, /\.experienceSticky\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(styleSource, /\.experienceTimeline\s*\{[\s\S]*position:\s*relative/);
+  assert.match(styleSource, /\.experienceTimelineItem\s*\{[\s\S]*border-bottom:\s*1px solid var\(--line\)/);
+  assert.match(styleSource, /\.experienceTimelineItem h3\s*\{[\s\S]*font-size:\s*var\(--type-card-title\)/);
 });
 
-test("experience cards separate the index from the period on narrow screens", () => {
-  assert.match(styleSource, /\.cardTopline\s*\{[\s\S]*?justify-content:\s*flex-start;[\s\S]*?gap:\s*var\(--space-3\)/);
-  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.cardTopline\s*\{[\s\S]*?display:\s*flex;[\s\S]*?flex-wrap:\s*wrap/);
-  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.cardKicker\s*\{[\s\S]*?margin-top:\s*0/);
+test("experience timeline collapses to one column on narrow screens", () => {
+  assert.match(styleSource, /@media\s*\(max-width:\s*900px\)[\s\S]*?\.experienceStory\s*\{[\s\S]*grid-template-columns:\s*1fr/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.experienceTimelineItem\s*\{[\s\S]*grid-template-columns:\s*1fr/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.experienceTimeline\s*\{/);
 });
 
 test("skills content gets an inner mobile gutter instead of touching the container edge", () => {
@@ -236,28 +251,29 @@ test("skills content gets an inner mobile gutter instead of touching the contain
   assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.capabilityCard,[\s\S]*?\.practiceCard\s*\{[\s\S]*?padding:\s*1\.25rem var\(--space-3\) 2rem/);
 });
 
-test("desktop vertical progress drives the horizontal experience story without trapping wheel input", () => {
-  assert.match(componentSource, /experienceScrollProgress/);
-  assert.match(componentSource, /getExperienceMotionMetrics/);
-  assert.match(componentSource, /scrub:\s*1\.15/);
-  assert.match(componentSource, /experienceStory/);
-  assert.match(componentSource, /experienceSticky/);
+test("experience removes the former horizontal scroll implementation", () => {
+  assert.doesNotMatch(componentSource, /scrub:\s*1\.15/);
+  assert.doesNotMatch(componentSource, /experienceControls/);
+  assert.doesNotMatch(componentSource, /experienceViewport/);
   assert.doesNotMatch(componentSource, /preventDefault\(/);
-  assert.doesNotMatch(styleSource, /\.experienceStory\s*\{[\s\S]*?height:\s*360vh/);
-  assert.match(styleSource, /\.experienceSticky\s*\{[^}]*position:\s*sticky[^}]*\n\s*height:\s*100svh/);
-  assert.match(styleSource, /@media\s*\(max-width:\s*900px\)[\s\S]*?\.experienceSticky\s*\{[^}]*height:\s*auto/);
   assert.match(styleSource, /\.site\s*\{[^}]*overflow-x:\s*clip/);
   assert.doesNotMatch(styleSource, /\.site\s*\{[^}]*overflow:\s*hidden/);
   assert.equal((globalStyleSource.match(/overflow-x:\s*clip/g) || []).length, 2);
   assert.doesNotMatch(globalStyleSource, /overflow-x:\s*hidden/);
 });
 
-test("selected AI project is rendered as a connected evidence flow", () => {
-  assert.match(componentSource, /projectSignalFlow/);
-  assert.match(componentSource, /projectSignalConnector/);
-  assert.match(componentSource, /projectOutcome/);
-  assert.match(componentSource, /輸入訊號/);
-  assert.match(componentSource, /輔助考官覆核/);
+test("selected work is a concise horizontal draggable showcase", () => {
+  assert.match(componentSource, /projectShowcaseRail/);
+  assert.match(componentSource, /projectShowcaseCard/);
+  assert.match(componentSource, /onPointerDown/);
+  assert.match(componentSource, /onPointerMove/);
+  assert.match(componentSource, /scrollBy/);
+  assert.doesNotMatch(componentSource, /ProjectEvidenceCard/);
+  assert.doesNotMatch(componentSource, /projectSignalFlow/);
+  assert.match(styleSource, /\.projectShowcaseRail\s*\{[\s\S]*overflow-x:\s*auto/);
+  assert.match(styleSource, /\.projectShowcaseCard\s*\{[\s\S]*scroll-snap-align:\s*start/);
+  assert.match(styleSource, /\.projectShowcaseCard\s*\{[\s\S]*flex:\s*0 0/);
+  assert.match(styleSource, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.projectShowcaseRail/);
 });
 
 test("the consolidated skills section keeps one reduced-motion-safe synthesis statement", () => {
@@ -270,8 +286,8 @@ test("the consolidated skills section keeps one reduced-motion-safe synthesis st
 test("responsive layout uses a shared gutter and narrow fallback", () => {
   assert.match(styleSource, /--gutter:\s*clamp\(1\.125rem,\s*4vw,\s*2\.5rem\)/);
   assert.match(styleSource, /width:\s*min\(calc\(100%\s*-\s*2\s*\*\s*var\(--gutter\)\)/);
-  assert.match(styleSource, /@media\s*\(max-width:\s*1050px\)[\s\S]*?\.projectLayout\s*\{[^}]*grid-template-columns:\s*1fr/);
-  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.experienceCard\s*\{[^}]*width:\s*calc\(100vw\s*-\s*2\s*\*\s*var\(--gutter\)\)/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.projectShowcaseCard\s*\{[^}]*flex:\s*0 0 calc\(100vw\s*-\s*4\s*\*\s*var\(--gutter\)\)/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.projectShowcaseRail\s*\{[\s\S]*scroll-padding-inline:\s*var\(--gutter\)/);
 });
 
 for (const locale of ["en", "zh-CN", "zh-HK"]) {

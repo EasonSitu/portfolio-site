@@ -34,11 +34,15 @@ for (const locale of locales) {
     assert.equal(copy.aiPractice.length, 4);
     assert.equal(copy.workflow.steps.length, 6);
     assert.ok(copy.selectedProjects.length >= 1);
-    assert.ok(copy.selectedProjects[0].title);
-    assert.ok(copy.selectedProjects[0].boundary);
+    assert.equal(copy.selectedProjects.length, 2);
+    assert.deepEqual(
+      copy.selectedProjects.map((project) => project.id),
+      ["cic-ai-assessment", "portfolio-site"],
+    );
+    assert.ok(copy.selectedProjects.every((project) => project.title && project.summary && project.tags?.length >= 3));
     assert.equal(copy.experienceHeader.intro, undefined);
     assert.equal(copy.footer, undefined);
-    assert.ok(copy.experience.every((item) => item.headline && item.description && item.tags?.length));
+    assert.ok(copy.experience.every((item) => item.focus && item.tags?.length >= 3 && item.tags.length <= 4));
     assert.ok(copy.aiPractice.every((item) => item.number && item.title && item.description));
     assert.ok(copy.teamValue.items.every((item) => item.title && item.description));
     assert.ok(copy.skills.every((category) => category.title && category.items?.length));
@@ -121,4 +125,14 @@ test("experience chronology and Questwork date are accurate", () => {
   );
   assert.match(experience[1].period, /Mar 2025/);
   assert.match(experience[3].period, /May 2022/);
+});
+
+test("selected work keeps the CIC prototype first and the portfolio project second", () => {
+  for (const locale of locales) {
+    const projects = siteContent[locale].selectedProjects;
+    assert.equal(projects[0].id, "cic-ai-assessment");
+    assert.equal(projects[1].id, "portfolio-site");
+    assert.match(projects[0].kicker, /CIC/i);
+    assert.match(projects[1].summary, /AI|AI-assisted|AI 輔助|AI 辅助/i);
+  }
 });

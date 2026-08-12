@@ -4,7 +4,7 @@
   "description": "Zhicheng Situ's recruiter-facing portfolio for AI and digital solution delivery.",
   "icons": [
     {
-      "src": "/brand-mark.svg",
+      "src": "./brand-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
@@ -12,7 +12,7 @@
   ],
   "theme_color": "#17212B",
   "background_color": "#F4F0E7",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "orientation": "portrait"
 }

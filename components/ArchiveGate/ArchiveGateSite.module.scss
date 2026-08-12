@@ -554,6 +554,13 @@
 .heroName {
   display: block;
   color: var(--ink);
+  /* 姓名是 Hero 的主標題，但比整體 Display XL 收斂一級。 */
+  font-size: var(--type-display-lg);
+}
+
+.site[lang="zh-CN"] .heroName,
+.site[lang="zh-HK"] .heroName {
+  font-size: var(--type-display-lg-cjk);
 }
 
 /* 問候語只作為入口提示，刻意比姓名低兩級，避免搶走 Hero 的視覺中心。 */
@@ -608,14 +615,16 @@
 .typewriterLine {
   display: flex;
   align-items: flex-start;
-  max-width: 23ch;
-  min-height: 2.9em;
+  /* 這是一句完整的職業定位，不是短標籤；避免用 23ch 把中文硬拆開。 */
+  max-width: min(100%, 36rem);
+  min-height: 1.5em;
   margin: 0.9rem 0 0;
   color: var(--muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* 沿用頁面現有的跨平台字體堆疊，避免中文等寬 fallback 顯得單薄。 */
+  font-family: inherit;
   font-size: var(--text-lg);
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  letter-spacing: 0;
   line-height: 1.45;
 }
 
@@ -1471,6 +1480,374 @@
   font-size: var(--type-display-md);
 }
 
+/* Experience redesign: normal page flow with a readable vertical timeline. */
+.experienceSection {
+  padding: clamp(7rem, 11vw, 10rem) 0;
+  background:
+    linear-gradient(140deg, rgba(219, 230, 244, 0.46), transparent 42%),
+    var(--paper-deep);
+}
+
+.experienceStory {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.62fr) minmax(0, 1.38fr);
+  gap: clamp(3rem, 7vw, 8rem);
+  align-items: start;
+  min-height: 0;
+}
+
+.experienceSticky {
+  position: sticky;
+  top: clamp(6.5rem, 12vh, 8rem);
+  height: max-content;
+  min-height: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.experienceSection .sectionHeading {
+  display: block;
+  grid-template-columns: none;
+  gap: 0;
+  align-items: initial;
+  max-width: 28rem;
+  margin: 0;
+}
+
+.experienceSection .sectionHeading h2 {
+  grid-row: auto;
+}
+
+.experienceSection .sectionLead {
+  max-width: 24ch;
+  margin-top: 1.6rem;
+  font-size: var(--type-lead-compact);
+  line-height: 1.18;
+}
+
+.experienceTimeline {
+  position: relative;
+  display: grid;
+  gap: 0;
+  padding-left: clamp(1.7rem, 3vw, 2.6rem);
+  overflow: visible;
+}
+
+.experienceTimeline::before {
+  position: absolute;
+  top: 0.85rem;
+  bottom: 1rem;
+  left: 0.35rem;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--accent), rgba(23, 78, 166, 0.16));
+  content: "";
+}
+
+.experienceTimelineItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.34fr) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 3rem);
+  padding: 0 0 clamp(3rem, 5vw, 4.5rem);
+  margin: 0 0 clamp(2rem, 4vw, 3.5rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.experienceTimelineItem:last-child {
+  margin-bottom: 0;
+}
+
+.experienceTimelineMarker {
+  position: absolute;
+  top: 0.35rem;
+  left: calc(-1 * clamp(1.7rem, 3vw, 2.6rem) - 0.3rem);
+  display: grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  place-items: center;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: var(--paper-deep);
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-xs);
+  letter-spacing: -0.04em;
+}
+
+.experienceTimelineMeta {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  padding-top: 0.15rem;
+}
+
+.experienceTimelineMeta .cardKicker {
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.timelineLocation {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.experienceTimelineBody {
+  min-width: 0;
+}
+
+.experienceTimelineItem h3 {
+  max-width: 18ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--type-card-title);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.02;
+}
+
+.experienceRole {
+  margin: 0.55rem 0 0;
+  color: var(--terracotta);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--type-meta);
+  line-height: 1.45;
+}
+
+.experienceFocus {
+  max-width: 52ch;
+  margin: 1.15rem 0 0;
+  color: var(--muted);
+  font-size: var(--type-body-lg);
+  line-height: 1.52;
+}
+
+.experienceTimelineBody .tags {
+  margin-top: 1.35rem;
+  padding-right: 0;
+}
+
+/* Selected Work redesign: a concise, draggable horizontal card rail. */
+.projectSection {
+  padding: clamp(8rem, 11vw, 11rem) 0;
+  background: #101622;
+  color: var(--paper);
+}
+
+.projectSection .sectionHeading {
+  max-width: 48rem;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.projectSection .sectionHeading h2,
+.projectSection .sectionLead {
+  color: var(--paper);
+}
+
+.projectSection .sectionIntro {
+  max-width: 48ch;
+  color: rgba(245, 243, 238, 0.62);
+}
+
+.projectShowcase {
+  position: relative;
+}
+
+.projectShowcaseRail {
+  display: flex;
+  gap: clamp(1rem, 2.2vw, 1.75rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 0 1.2rem;
+  scroll-padding-inline: var(--gutter);
+  scroll-snap-type: x mandatory;
+  scrollbar-color: rgba(245, 243, 238, 0.5) transparent;
+  scrollbar-width: thin;
+  cursor: grab;
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
+}
+
+.projectShowcaseRail[data-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.projectShowcaseRail::-webkit-scrollbar {
+  height: 0.35rem;
+}
+
+.projectShowcaseRail::-webkit-scrollbar-track {
+  background: rgba(245, 243, 238, 0.1);
+}
+
+.projectShowcaseRail::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(245, 243, 238, 0.5);
+}
+
+.projectShowcaseCard {
+  --project-surface: #f4f0e7;
+  --project-accent: var(--accent);
+  position: relative;
+  display: flex;
+  flex: 0 0 min(42rem, 72vw);
+  min-height: 28rem;
+  flex-direction: column;
+  padding: clamp(1.6rem, 3vw, 2.8rem);
+  overflow: hidden;
+  border: 1px solid rgba(245, 243, 238, 0.2);
+  border-radius: var(--radius-card);
+  background: var(--project-surface);
+  color: var(--ink);
+  scroll-snap-align: start;
+}
+
+.projectShowcaseCard[data-tone="clay"] {
+  --project-surface: #ead5c6;
+  --project-accent: var(--terracotta);
+}
+
+.projectShowcaseCard::after {
+  position: absolute;
+  right: -5rem;
+  bottom: -7rem;
+  width: 18rem;
+  height: 18rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--project-accent) 12%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.projectShowcaseTopline {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.projectShowcaseTopline .kicker {
+  margin: 0;
+  color: var(--project-accent);
+}
+
+.projectShowcaseTopline > span {
+  color: var(--project-accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+}
+
+.projectShowcaseCard h3 {
+  position: relative;
+  z-index: 1;
+  max-width: 18ch;
+  margin: clamp(3rem, 7vw, 5rem) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--type-card-title);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.02;
+}
+
+.projectShowcaseSummary {
+  position: relative;
+  z-index: 1;
+  max-width: 44ch;
+  margin: 1.2rem 0 0;
+  font-size: var(--type-lead-compact);
+  line-height: 1.35;
+}
+
+.projectShowcaseRole {
+  position: relative;
+  z-index: 1;
+  max-width: 56ch;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: var(--type-body);
+  line-height: 1.58;
+}
+
+.projectShowcaseTags {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding-top: 2rem;
+  padding-right: 3rem;
+}
+
+.projectShowcaseTags span {
+  padding: 0.38rem 0.62rem;
+  border: 1px solid rgba(23, 33, 43, 0.2);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: var(--type-meta);
+}
+
+.projectShowcaseBoundary {
+  position: relative;
+  z-index: 1;
+  max-width: 56ch;
+  margin: 1.25rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.projectShowcaseArrow {
+  position: absolute;
+  z-index: 1;
+  right: 1.5rem;
+  bottom: 1.35rem;
+  color: var(--project-accent);
+  font-size: 1.7rem;
+}
+
+.projectShowcaseControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-top: 1rem;
+}
+
+.projectShowcaseControls p {
+  margin: 0;
+  color: rgba(245, 243, 238, 0.58);
+  font-size: var(--text-xs);
+}
+
+.projectShowcaseButtons {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.projectShowcaseButtons button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid rgba(245, 243, 238, 0.7);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) ease;
+}
+
+.projectShowcaseButtons button:hover {
+  background: var(--paper);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
 .skillsSection {
   background: var(--paper-deep);
 }
@@ -1893,7 +2270,7 @@
   }
 
   .typewriterLine {
-    min-height: 3.35em;
+    min-height: 1.5em;
     margin-top: 0.8rem;
   }
 
@@ -2207,5 +2584,107 @@
   .experienceCard {
     width: min(38rem, 78vw);
     scroll-snap-align: start;
+  }
+}
+
+/* Final responsive mapping for the redesigned sections. */
+@media (max-width: 900px) {
+  .experienceStory {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .experienceSticky {
+    position: relative;
+    top: auto;
+  }
+
+  .experienceSection .sectionHeading {
+    max-width: 42rem;
+    margin-bottom: 0;
+  }
+
+  .experienceTimelineItem {
+    grid-template-columns: minmax(8rem, 0.32fr) minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  .projectShowcaseCard {
+    flex-basis: min(38rem, 84vw);
+  }
+}
+
+@media (max-width: 700px) {
+  .experienceStory {
+    gap: 2.5rem;
+  }
+
+  .experienceTimeline {
+    padding-left: 1.55rem;
+  }
+
+  .experienceTimelineItem {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding-bottom: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .experienceTimelineMarker {
+    left: -2.2rem;
+  }
+
+  .experienceTimelineMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.8rem;
+    padding-top: 0;
+  }
+
+  .experienceTimelineItem h3 {
+    max-width: none;
+  }
+
+  .experienceFocus {
+    margin-top: 1rem;
+  }
+
+  .projectShowcaseRail {
+    gap: 1rem;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+  }
+
+  .projectShowcaseCard {
+    flex: 0 0 calc(100vw - 4 * var(--gutter));
+    min-height: 25rem;
+    padding: 1.35rem;
+    border-radius: 1.25rem;
+  }
+
+  .projectShowcaseCard h3 {
+    margin-top: 2.6rem;
+  }
+
+  .projectShowcaseControls {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .experienceSticky {
+    position: relative;
+    top: auto;
+  }
+
+  .experienceTimelineItem,
+  .projectShowcaseCard,
+  .projectShowcaseButtons button {
+    transition: none !important;
+  }
+
+  .projectShowcaseRail {
+    scroll-behavior: auto;
   }
 }

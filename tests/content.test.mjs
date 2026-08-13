@@ -15,6 +15,9 @@ for (const locale of locales) {
     const copy = siteContent[locale];
     assert.ok(copy.hero.name);
     assert.match(copy.hero.name, /Eason/);
+    assert.ok(copy.hero.namePrimary);
+    assert.equal(copy.hero.nameLatin, "Eason");
+    assert.equal(`${copy.hero.namePrimary} ${copy.hero.nameLatin}`, copy.hero.name);
     assert.doesNotMatch(copy.hero.name, /[。.!！]$/);
     assert.ok(copy.hero.title);
     assert.equal(copy.hero.typewriter.length, 3);
@@ -53,8 +56,63 @@ for (const locale of locales) {
     assert.match(contact.email, /^mailto:/);
     assert.equal(contact.linkedin, "");
     assert.equal(contact.resume, "/Zhicheng-Situ-CV.pdf");
+    assert.equal(contact.emailAddress, "situeason@gmail.com");
+    assert.ok(contact.location);
+    assert.ok(contact.closing);
+    assert.equal(contact.talkTitle, "LET'S\nTALK.");
   });
 }
+
+test("contact copy follows the approved recruiter-facing message hierarchy", () => {
+  assert.deepEqual(
+    {
+      title: siteContent.en.contact.title,
+      statement: siteContent.en.contact.statement,
+      closing: siteContent.en.contact.closing,
+      location: siteContent.en.contact.location,
+      languages: siteContent.en.contact.languages,
+    },
+    {
+      title: "I want to keep working where business needs, technology and delivery come together.",
+      statement: "I’m interested in digital solution delivery, project coordination and applied AI — especially work that solves real problems and gets used in practice.",
+      closing: "If my experience connects with something your team is working on, I’d be glad to talk.",
+      location: "Hong Kong",
+      languages: "Cantonese · Mandarin · English",
+    },
+  );
+  assert.deepEqual(
+    {
+      title: siteContent["zh-CN"].contact.title,
+      statement: siteContent["zh-CN"].contact.statement,
+      closing: siteContent["zh-CN"].contact.closing,
+      location: siteContent["zh-CN"].contact.location,
+      languages: siteContent["zh-CN"].contact.languages,
+    },
+    {
+      title: "我希望继续做连接业务、技术与交付的工作。",
+      statement: "我关注数字化方案交付、项目协调及应用型 AI，希望参与真正能够解决问题并落地使用的项目。",
+      closing: "如果你认为我的经历与你的团队正在推进的事情有关，欢迎和我聊聊。",
+      location: "香港 · 深圳",
+      languages: "粤语 · 普通话 · 英语",
+    },
+  );
+  assert.deepEqual(
+    {
+      title: siteContent["zh-HK"].contact.title,
+      statement: siteContent["zh-HK"].contact.statement,
+      closing: siteContent["zh-HK"].contact.closing,
+      location: siteContent["zh-HK"].contact.location,
+      languages: siteContent["zh-HK"].contact.languages,
+    },
+    {
+      title: "我希望繼續做連接業務、技術與交付的工作。",
+      statement: "我關注數碼方案交付、項目協調及應用型 AI，希望參與真正能夠解決問題並落地使用的項目。",
+      closing: "如果你認為我的經歷與你的團隊正在推進的事情有關，歡迎和我聊聊。",
+      location: "香港 · 深圳",
+      languages: "粵語 · 普通話 · 英語",
+    },
+  );
+});
 
 test("hero typewriter copy is concise and role-accurate in every locale", () => {
   assert.deepEqual(siteContent.en.hero.typewriter, [
@@ -120,11 +178,41 @@ test("experience chronology and Questwork date are accurate", () => {
       "isBIM Limited",
       "Questwork Consultation Company",
       "K Compact Company Limited",
-      "Zhuhai Kingsoft Seasun Technology Co., Ltd.",
+      "Kingame Corporation Limited",
     ],
   );
   assert.match(experience[1].period, /Mar 2025/);
   assert.match(experience[3].period, /May 2022/);
+});
+
+test("experience entries provide concise cards and detailed reports in every locale", () => {
+  const expectedIds = ["isbim", "questwork", "k-compact", "kingame"];
+
+  for (const locale of locales) {
+    const copy = siteContent[locale];
+    assert.deepEqual(copy.experience.map((item) => item.id), expectedIds);
+    assert.ok(copy.experienceHeader.detailOverviewLabel);
+    assert.ok(copy.experienceHeader.detailSectionsLabel);
+    assert.ok(copy.experienceHeader.detailCasesLabel);
+
+    for (const item of copy.experience) {
+      assert.ok(item.headline);
+      assert.ok(item.focus);
+      assert.ok(item.tags.length >= 3 && item.tags.length <= 4);
+      assert.ok(item.detail?.overview);
+      assert.ok(item.detail.sections.length >= 2);
+      assert.ok(item.detail.sections.every((section) => section.title && section.body));
+      assert.ok(item.detail.cases.length >= 1);
+      assert.ok(item.detail.cases.every((selectedCase) => selectedCase.title && selectedCase.body));
+    }
+  }
+
+  assert.equal(siteContent.en.experience[0].headline, "Construction technology IoT solution delivery");
+  assert.equal(siteContent["zh-CN"].experience[0].headline, "建筑科技 IoT 方案交付");
+  assert.equal(siteContent["zh-HK"].experience[0].headline, "建造科技 IoT 方案交付");
+  assert.match(siteContent.en.experience[0].detail.overview, /site surveys/i);
+  assert.match(siteContent["zh-CN"].experience[0].detail.overview, /现场勘测/);
+  assert.match(siteContent["zh-HK"].experience[0].detail.overview, /現場勘測/);
 });
 
 test("selected work keeps the CIC prototype first and the portfolio project second", () => {

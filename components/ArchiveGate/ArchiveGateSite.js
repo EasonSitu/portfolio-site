@@ -204,7 +204,7 @@ function ScrollText({ children, className = "" }) {
   );
 }
 
-// 打字機節奏：讓每個字有足夠時間被讀到，完整句子也多停留一會兒。
+// 打字機節奏：逐字出現，完整句子停留一會兒，再逐字刪除。
 const TYPEWRITER_TYPE_DELAY = 92;
 const TYPEWRITER_DELETE_DELAY = 48;
 const TYPEWRITER_HOLD_DELAY = 3500;
@@ -372,37 +372,133 @@ function PageLoader() {
   );
 }
 
-function ExperienceTimeline({ copy }) {
+function ExperienceDetailContent({ item, copy }) {
   return (
-    <div className={styles.experienceStory}>
-      <div className={styles.experienceSticky}>
-        <SectionHeading kicker={copy.experienceHeader.kicker} title={copy.experienceHeader.title} />
+    <>
+      <div className={styles.experienceDetailTopline}>
+        <div>
+          <p className={styles.cardKicker}>{item.period}</p>
+          <p className={styles.experienceDetailLocation}>{item.location}</p>
+        </div>
+        <span className={styles.experienceDetailMarker} aria-hidden="true">DETAIL</span>
       </div>
-      <div className={styles.experienceTimeline} role="list" aria-label={copy.experienceHeader.title}>
-        {copy.experience.map((item, index) => (
-          <article
-            className={styles.experienceTimelineItem}
-            key={`${item.company}-${item.period}`}
-            role="listitem"
+      <h3 className={styles.experienceDetailTitle}>{item.headline}</h3>
+      <p className={styles.experienceDetailRole}>{item.company} / {item.role}</p>
+
+      <section className={styles.experienceDetailBlock}>
+        <h4>{copy.experienceHeader.detailOverviewLabel}</h4>
+        <p className={styles.experienceDetailOverview}>{item.detail.overview}</p>
+      </section>
+
+      <section className={styles.experienceDetailBlock}>
+        <h4>{copy.experienceHeader.detailSectionsLabel}</h4>
+        <div className={styles.experienceDetailList}>
+          {item.detail.sections.map((section) => (
+            <article key={section.title} className={styles.experienceDetailItem}>
+              <h5>{section.title}</h5>
+              <p>{section.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {item.detail.cases.length > 0 && (
+        <section className={styles.experienceDetailBlock}>
+          <h4>{copy.experienceHeader.detailCasesLabel}</h4>
+          <div className={styles.experienceDetailList}>
+            {item.detail.cases.map((selectedCase) => (
+              <article key={selectedCase.title} className={styles.experienceDetailItem}>
+                <h5>{selectedCase.title}</h5>
+                <p>{selectedCase.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  );
+}
+
+function ExperienceExplorer({ copy }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeItem = copy.experience[activeIndex] || copy.experience[0];
+  const experienceDetailId = "experience-detail-panel";
+
+  const selectExperience = (index) => {
+    setActiveIndex(index);
+  };
+
+  const handleExperienceKeyDown = (event, index) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      selectExperience(index);
+    }
+  };
+
+  return (
+    <div className={styles.experienceExplorer}>
+      <div className={styles.experienceExplorerHeading}>
+        <SectionHeading
+          kicker={copy.experienceHeader.kicker}
+          title={copy.experienceHeader.title}
+        />
+      </div>
+
+      <div className={styles.experienceExplorerGrid}>
+        <div className={styles.experienceCardList} role="list" aria-label={copy.experienceHeader.title}>
+          {copy.experience.map((item, index) => {
+            const isActive = index === activeIndex;
+            return (
+              <article
+                className={styles.experienceSelectableItem}
+                key={item.id || `${item.company}-${item.period}`}
+                role="listitem"
+                data-active={isActive}
+                data-reveal
+              >
+                <button
+                  type="button"
+                  className={styles.experienceSelectableCard}
+                  aria-expanded={isActive}
+                  aria-controls={experienceDetailId}
+                  aria-label={`${item.headline} — ${item.company}`}
+                  data-active={isActive}
+                  onClick={() => selectExperience(index)}
+                  onKeyDown={(event) => handleExperienceKeyDown(event, index)}
+                >
+                  <span className={styles.experienceCardNumber} aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={styles.experienceCardBody}>
+                    <span className={styles.experienceCardPeriod}>{item.period} · {item.location}</span>
+                    <strong>{item.company}</strong>
+                    <span className={styles.experienceCardRole}>{item.role}</span>
+                    <span className={styles.experienceCardHeadline}>{item.headline}</span>
+                    <span className={styles.experienceCardFocus}>{item.focus}</span>
+                    <span className={styles.tags}>
+                      {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                    </span>
+                  </span>
+                  <span className={styles.experienceCardToggle} aria-hidden="true">
+                    {isActive ? "−" : "+"}
+                  </span>
+                </button>
+              </article>
+            );
+          })}
+        </div>
+
+        {activeItem && (
+          <aside
+            id={experienceDetailId}
+            className={styles.experienceDetailPanel}
+            aria-live="polite"
+            aria-label={`${activeItem.company} detail`}
             data-reveal
           >
-            <div className={styles.experienceTimelineMarker} aria-hidden="true">
-              <span>{String(index + 1).padStart(2, "0")}</span>
-            </div>
-            <div className={styles.experienceTimelineMeta}>
-              <span className={styles.cardKicker}>{item.period}</span>
-              <span className={styles.timelineLocation}>{item.location}</span>
-            </div>
-            <div className={styles.experienceTimelineBody}>
-              <h3>{item.company}</h3>
-              <p className={styles.experienceRole}>{item.role}</p>
-              <p className={styles.experienceFocus}>{item.focus}</p>
-              <div className={styles.tags}>
-                {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
-              </div>
-            </div>
-          </article>
-        ))}
+            <ExperienceDetailContent item={activeItem} copy={copy} />
+          </aside>
+        )}
       </div>
     </div>
   );
@@ -695,13 +791,16 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
               <div className={styles.heroCopy} data-reveal>
                 <h1 className={styles.heroIntro}>
                   <span className={styles.heroEyebrow}>{copy.hero.eyebrow}</span>
-                  <span className={styles.heroName}>{copy.hero.name}</span>
+                  <span className={styles.heroName}>
+                    <span className={styles.heroNamePrimary}>{copy.hero.namePrimary || copy.hero.name}</span>
+                    {copy.hero.namePrimary && copy.hero.nameLatin && <span className={styles.heroNameLatin}>{copy.hero.nameLatin}</span>}
+                  </span>
                 </h1>
                 <p className={styles.heroPositioning}>{copy.positioning.primary}</p>
                 <TypewriterLine phrases={copy.hero.typewriter} />
                 <div className={styles.heroActions}>
-                  <a className={styles.primaryButton} href="#experience" data-cursor-label="WORK">{copy.hero.viewExperience}<span>↘</span></a>
-                  <a className={styles.textButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">{copy.hero.download}<span>↓</span></a>
+                  <a className={styles.primaryButton} href="#experience" data-cursor-label="WORK">{copy.hero.viewExperience}</a>
+                  <a className={styles.textButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">{copy.hero.download}</a>
                 </div>
               </div>
               <div className={styles.heroVisual} data-reveal aria-label={locale === "en" ? "Delivery workflow" : "交付工作流程"}>
@@ -729,15 +828,12 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                 </div>
               </div>
             </div>
-            <div className={styles.heroFooter} data-reveal>
-              <span>Hong Kong · AI · Delivery</span>
-            </div>
           </div>
         </section>
 
         <section id="experience" className={styles.experienceSection}>
           <div className={styles.containerWide}>
-            <ExperienceTimeline copy={copy} />
+            <ExperienceExplorer copy={copy} />
           </div>
         </section>
 
@@ -748,19 +844,35 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
         <section id="contact" className={styles.contactSection}>
           <div className={styles.contactGlow} aria-hidden="true" />
           <div className={styles.container}>
-            <div className={styles.contactContent} data-reveal>
-              <h2>{copy.contact.kicker}</h2>
-              <p className={styles.contactOpportunity}>{copy.contact.title}</p>
-              <p className={styles.contactStatement}>{copy.contact.statement}</p>
-              <div className={styles.contactActions}>
-                <a className={styles.primaryButton} href={copy.contact.email} data-cursor-label="EMAIL">{copy.contact.emailLabel}<span>↗</span></a>
-                {copy.contact.linkedin && <a className={styles.secondaryButton} href={copy.contact.linkedin} data-cursor-label="LINKEDIN">LinkedIn<span>↗</span></a>}
-                <a className={styles.secondaryButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">{copy.contact.resumeLabel}<span>↓</span></a>
+            <div className={styles.contactLayout} data-reveal>
+              <div className={styles.contactCopy}>
+                <h2 className={styles.contactKicker}>{copy.contact.kicker}</h2>
+                <p className={styles.contactOpportunity}>{copy.contact.title}</p>
+                <p className={styles.contactStatement}>{copy.contact.statement}</p>
+                <p className={styles.contactClosing}>{copy.contact.closing}</p>
+                <div className={styles.contactMeta}>
+                  <span>{copy.contact.location}</span>
+                  <span>{copy.contact.languages}</span>
+                </div>
               </div>
-              <div className={styles.contactMeta}>
-                <span>{copy.contact.education}</span>
-                <span>{copy.contact.languages}</span>
-              </div>
+
+              <aside className={styles.contactAside} aria-label={copy.contact.kicker}>
+                <p className={styles.contactTalk}>{copy.contact.talkTitle}</p>
+                <div className={styles.contactActions}>
+                  <a className={styles.primaryButton} href={copy.contact.email} data-cursor-label="EMAIL">
+                    {copy.contact.emailLabel}
+                    <span>↗</span>
+                  </a>
+                  {copy.contact.linkedin && <a className={styles.secondaryButton} href={copy.contact.linkedin} data-cursor-label="LINKEDIN">LinkedIn<span>↗</span></a>}
+                  <a className={styles.secondaryButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">
+                    {copy.contact.resumeLabel}
+                    <span>↓</span>
+                  </a>
+                </div>
+                <a className={styles.contactEmail} href={copy.contact.email} data-cursor-label="EMAIL">
+                  {copy.contact.emailAddress}
+                </a>
+              </aside>
             </div>
           </div>
         </section>

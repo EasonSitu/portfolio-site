@@ -23,8 +23,10 @@ for (const locale of locales) {
     assert.equal(copy.hero.typewriter.length, 3);
     assert.ok(copy.about.primary);
     assert.equal(copy.about.keywords.length, 5);
-    assert.equal(copy.teamValue.items.length, 4);
     assert.equal(copy.skills.length, 3);
+    assert.ok(copy.skillsHeader.title);
+    assert.ok(copy.skillsHeader.intro);
+    assert.equal(copy.skillsEvidence.length, 3);
     assert.deepEqual(
       copy.hero.workflowLayers.map((layer) => layer.id),
       ["business-context", "requirements", "coordination", "testing", "delivery"],
@@ -32,10 +34,17 @@ for (const locale of locales) {
     assert.ok(copy.positioning.primary);
     assert.equal(copy.positioning.secondary, undefined);
     assert.equal(copy.metrics.length, 4);
-    assert.equal(copy.capabilities.length, 4);
     assert.equal(copy.experience.length, 4);
-    assert.equal(copy.aiPractice.length, 4);
-    assert.equal(copy.workflow.steps.length, 6);
+    assert.equal(copy.aiPractice.length, 3);
+    assert.ok(copy.aiPracticeHeader.title);
+    assert.ok(copy.aiPracticeHeader.intro);
+    assert.ok(copy.aiPracticeClosing);
+    assert.equal(copy.about.secondary, undefined);
+    assert.equal(copy.capabilities, undefined);
+    assert.equal(copy.teamValue, undefined);
+    assert.equal(copy.workflow, undefined);
+    assert.equal(copy.evidence, undefined);
+    assert.equal(copy.aiHeader, undefined);
     assert.ok(copy.selectedProjects.length >= 1);
     assert.equal(copy.selectedProjects.length, 2);
     assert.deepEqual(
@@ -47,7 +56,6 @@ for (const locale of locales) {
     assert.equal(copy.footer, undefined);
     assert.ok(copy.experience.every((item) => item.focus && item.tags?.length >= 3 && item.tags.length <= 4));
     assert.ok(copy.aiPractice.every((item) => item.number && item.title && item.description));
-    assert.ok(copy.teamValue.items.every((item) => item.title && item.description));
     assert.ok(copy.skills.every((category) => category.title && category.items?.length));
   });
 
@@ -74,7 +82,7 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
     },
     {
       title: "I want to keep working where business needs, technology and delivery come together.",
-      statement: "I’m interested in digital solution delivery, project coordination and applied AI — especially work that solves real problems and gets used in practice.",
+       statement: "I’m interested in digital and AI solution delivery, implementation, project coordination and applied AI, especially work that solves real problems and gets used in practice.",
       closing: "If my experience connects with something your team is working on, I’d be glad to talk.",
       location: "Hong Kong",
       languages: "Cantonese · Mandarin · English",
@@ -90,7 +98,7 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
     },
     {
       title: "我希望继续做连接业务、技术与交付的工作。",
-      statement: "我关注数字化方案交付、项目协调及应用型 AI，希望参与真正能够解决问题并落地使用的项目。",
+       statement: "我关注数字化与 AI 方案交付、实施、项目协调及应用型 AI，希望参与真正能够解决问题并落地使用的项目。",
       closing: "如果你认为我的经历与你的团队正在推进的事情有关，欢迎和我聊聊。",
       location: "香港 · 深圳",
       languages: "粤语 · 普通话 · 英语",
@@ -106,7 +114,7 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
     },
     {
       title: "我希望繼續做連接業務、技術與交付的工作。",
-      statement: "我關注數碼方案交付、項目協調及應用型 AI，希望參與真正能夠解決問題並落地使用的項目。",
+       statement: "我關注數碼與 AI 方案交付、實施、項目協調及應用型 AI，希望參與真正能夠解決問題並落地使用的項目。",
       closing: "如果你認為我的經歷與你的團隊正在推進的事情有關，歡迎和我聊聊。",
       location: "香港 · 深圳",
       languages: "粵語 · 普通話 · 英語",
@@ -116,20 +124,62 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
 
 test("hero typewriter copy is concise and role-accurate in every locale", () => {
   assert.deepEqual(siteContent.en.hero.typewriter, [
-    "I deliver digital and AI solutions.",
-    "I turn complex requirements into executable plans.",
-    "I coordinate people, technology and delivery.",
+    "30+ AI/IoT and digital projects",
+    "From product requirements to real-world delivery",
+    "Applied AI for faster validation and clearer workflows",
   ]);
   assert.deepEqual(siteContent["zh-CN"].hero.typewriter, [
-    "我推动数字化与 AI 方案落地。",
-    "我把复杂需求整理成可执行方案。",
-    "我协调业务、技术与项目交付。",
+    "参与 30+ 个 AI/IoT 及数字化项目",
+    "从产品需求、软件交付到真实环境实施",
+    "持续探索 AI 在工作中的实际应用",
   ]);
   assert.deepEqual(siteContent["zh-HK"].hero.typewriter, [
-    "我推動數碼與 AI 方案落地。",
-    "我把複雜需求整理成可執行方案。",
-    "我協調業務、技術與項目交付。",
+    "參與 30+ 個 AI/IoT 及數碼項目",
+    "由產品需求、軟件交付到真實環境實施",
+    "持續探索 AI 在工作中的實際應用",
   ]);
+});
+
+test("skills index uses three recruiter-readable groups and verified evidence", () => {
+  assert.deepEqual(siteContent.en.skills, [
+    {
+      title: "Solution Delivery",
+      items: ["Requirements", "Deployment & Debugging", "Testing & UAT", "Client & Vendor Coordination"],
+    },
+    {
+      title: "Product & Software",
+      items: ["BRD / PRD", "Process Mapping", "Prototyping", "Agile / Scrum", "Technical Documentation"],
+    },
+    {
+      title: "Applied AI",
+      items: ["Generative AI", "Python", "RAG", "YOLO", "OpenCV", "MediaPipe", "Rapid Prototyping"],
+    },
+  ]);
+  assert.deepEqual(siteContent["zh-CN"].skillsEvidence, [
+    "20+ ConTech IoT 项目",
+    "30+ PRD",
+    "8 次产品迭代",
+  ]);
+  assert.deepEqual(siteContent["zh-HK"].skillsEvidence, [
+    "20+ 建造科技 IoT 項目",
+    "30+ PRD",
+    "8 次產品迭代",
+  ]);
+});
+
+test("AI practice frames applied AI as a three-step validation capability", () => {
+  for (const locale of locales) {
+    const copy = siteContent[locale];
+    assert.equal(copy.aiPractice.length, 3);
+    assert.deepEqual(copy.aiPractice.map((item) => item.number), ["01", "02", "03"]);
+    assert.ok(copy.aiPractice.every((item) => item.title && item.description));
+    assert.ok(copy.aiPracticeHeader.title);
+    assert.ok(copy.aiPracticeHeader.intro);
+    assert.ok(copy.aiPracticeClosing);
+  }
+  assert.match(siteContent.en.aiPractice[1].description, /knowledge bases/i);
+  assert.match(siteContent["zh-CN"].aiPractice[2].description, /客户、业务和技术团队/);
+  assert.match(siteContent["zh-HK"].aiPractice[0].description, /業務問題/);
 });
 
 test("hero greeting is concise and unpunctuated in every locale", () => {

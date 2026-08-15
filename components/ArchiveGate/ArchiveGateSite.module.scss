@@ -14,7 +14,6 @@
   --accent-soft: #dbe6f4;
   --terracotta: #c75a34;
   --gold: var(--terracotta);
-  --menu-pink: #ff5f91;
   --font-display: var(--font-manrope), var(--font-calibre), "Avenir Next", "Segoe UI", sans-serif;
   --font-sans: var(--font-manrope), var(--font-calibre), "Noto Sans", "Segoe UI", sans-serif;
   --font-cjk-sc: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -124,9 +123,9 @@
   top: 0;
   right: 0;
   left: 0;
-  border-bottom: 1px solid rgba(21, 28, 38, 0.1);
-  background: rgba(244, 240, 231, 0.86);
-  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(21, 28, 38, 0.08);
+  background: rgba(244, 240, 231, 0.74);
+  backdrop-filter: blur(14px);
 }
 
 .headerInner {
@@ -135,7 +134,7 @@
   align-items: center;
   gap: 2rem;
   width: min(calc(100% - 2 * var(--gutter)), var(--container-header));
-  min-height: 4.5rem;
+  min-height: 4.1rem;
   margin: 0 auto;
 }
 
@@ -150,8 +149,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 2.65rem;
+  height: 2.65rem;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 50%;
@@ -163,8 +162,8 @@
 
 .menuButton:hover,
 .site[data-menu-open="true"] .menuButton {
-  border-color: var(--menu-pink);
-  color: var(--menu-pink);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .menuButton:active {
@@ -291,9 +290,9 @@
 
 .menuOverlay .menuLink:hover,
 .menuOverlay .menuLink:focus-visible {
-  border-color: var(--menu-pink);
-  color: var(--menu-pink);
-  outline-color: var(--menu-pink);
+  border-color: var(--accent);
+  color: var(--accent);
+  outline-color: var(--accent);
   transform: translateX(0.55rem);
 }
 
@@ -782,122 +781,201 @@
 .heroVisual {
   position: relative;
   min-height: 31rem;
-  padding: 1.35rem 1.45rem 1.5rem;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/*
+ * The Hero model floats in the right side of the editorial hero. The canvas
+ * stays contained in its stage so it cannot create a second page-level scroll
+ * area, while the visual container itself remains transparent.
+ */
+.heroTower,
+.heroTowerLoading {
+  position: relative;
+  z-index: 1;
+}
+
+.heroTower {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 25.5rem;
+}
+
+.heroTowerStage {
+  position: relative;
+  height: clamp(21rem, 29vw, 26rem);
+  min-height: 21rem;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background:
-    linear-gradient(rgba(23, 78, 166, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 78, 166, 0.035) 1px, transparent 1px),
-    rgba(255, 255, 255, 0.46);
-  background-size: 2rem 2rem;
-  box-shadow: 1.2rem 1.2rem 2.8rem rgba(23, 33, 43, 0.055);
+  isolation: isolate;
 }
 
-.heroVisual::after {
+.heroTowerCanvas {
+  position: absolute !important;
+  inset: 0;
+  z-index: 2;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: pointer;
+  outline: none;
+  opacity: 0;
+  transition: opacity var(--motion-slow) var(--ease-standard);
+}
+
+.heroTowerStage[data-ready="true"] .heroTowerCanvas {
+  opacity: 1;
+}
+
+.heroTowerCanvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -0.4rem;
+}
+
+.heroTowerFallback {
   position: absolute;
-  right: -8rem;
-  bottom: -10rem;
-  width: 25rem;
-  height: 25rem;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(23, 78, 166, 0.18), transparent 68%);
-  content: "";
-  pointer-events: none;
+  inset: 0.25rem 0.5rem 0;
+  z-index: 1;
+  width: calc(100% - 1rem);
+  height: calc(100% - 0.25rem);
+  object-fit: contain;
+  object-position: center;
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+  transition: opacity var(--motion-slow) var(--ease-standard);
 }
 
-.heroVisualHeader {
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--line);
+.heroTowerStage[data-ready="true"] .heroTowerFallback {
+  opacity: 0;
+}
+
+.heroTowerLoading {
+  display: grid;
+  min-height: 25.5rem;
+  place-items: center;
+}
+
+.heroTowerLoading span {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0.4rem rgba(23, 78, 166, 0.08);
+  animation: towerLoadingPulse 1.4s ease-in-out infinite;
+}
+
+.heroTowerStatus {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.7rem;
+  z-index: 4;
+  max-width: 15rem;
+  margin: 0;
   color: var(--muted);
+  font-size: var(--text-xs);
+  line-height: 1.35;
+  text-align: right;
+}
+
+.heroTowerCallout {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 1rem;
+  z-index: 5;
+  width: min(17rem, 68%);
+  padding: 0.8rem 0.9rem 0.85rem;
+  border: 1px solid rgba(23, 78, 166, 0.24);
+  border-radius: 0.8rem;
+  background: rgba(244, 240, 231, 0.9);
+  box-shadow: 0 0.9rem 1.8rem rgba(23, 33, 43, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.heroTowerCallout span,
+.heroTowerControl,
+.heroTowerHint {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.08em;
+}
+
+.heroTowerCallout span {
+  color: var(--gold);
   font-size: var(--text-xs);
 }
 
-.solutionMap {
-  position: relative;
-  display: grid;
-  gap: 0.3rem;
-  padding: 1.2rem 0 0;
-}
-
-.solutionPath {
-  position: absolute;
-  top: 2.4rem;
-  bottom: 2.9rem;
-  left: 1.2rem;
-  width: 1px;
-  background: linear-gradient(var(--accent), rgba(23, 78, 166, 0.12));
-}
-
-.solutionNode {
-  --node-index: 0;
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 2.4rem 1rem 1fr;
-  gap: 0.75rem;
-  align-items: start;
-  min-height: 4.55rem;
-  padding: 0.75rem 0.7rem;
-  border: 1px solid transparent;
-  border-radius: 0.75rem;
-  background: rgba(245, 243, 238, 0.18);
-  animation: solutionPulse 10s ease-in-out 1 both;
-  animation-delay: calc(var(--node-index) * 2s);
-  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
-}
-
-.solutionNode:hover {
-  border-color: rgba(23, 78, 166, 0.3);
-  background: rgba(255, 255, 255, 0.82);
-  transform: translateX(0.35rem);
-}
-
-.solutionNumber {
-  color: var(--gold);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--type-meta);
-}
-
-.solutionDot {
+.heroTowerCallout strong {
   display: block;
-  width: 0.72rem;
-  height: 0.72rem;
-  margin-top: 0.08rem;
-  border: 2px solid var(--paper);
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 1px rgba(23, 78, 166, 0.45), 0 0 0.9rem rgba(23, 78, 166, 0.24);
-}
-
-.solutionNode strong {
-  display: block;
-  font-family: var(--font-display);
+  margin-top: 0.18rem;
   font-size: var(--type-card-label);
-  font-weight: 400;
-  line-height: 1.05;
+  font-weight: 600;
+  line-height: 1.15;
 }
 
-.solutionNode p {
-  max-width: 27rem;
-  margin: 0.32rem 0 0;
+.heroTowerCallout p {
+  margin: 0.35rem 0 0;
   color: var(--muted);
   font-size: var(--text-xs);
   line-height: 1.45;
 }
 
-@keyframes solutionPulse {
-  0%, 14%, 100% {
-    border-color: transparent;
-    background: rgba(245, 243, 238, 0.18);
-  }
+.heroTowerControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2rem;
+  padding-top: 0.25rem;
+}
 
-  4%, 10% {
-    border-color: rgba(23, 78, 166, 0.32);
-    background: rgba(255, 255, 255, 0.82);
-  }
+.heroTowerControl {
+  display: inline-grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  place-items: center;
+  border: 1px solid rgba(23, 78, 166, 0.2);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  color: var(--muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: border-color var(--motion-fast) ease, background var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) ease;
+}
+
+.heroTowerControl:hover,
+.heroTowerControl:focus-visible,
+.heroTowerControl[data-active="true"] {
+  border-color: var(--accent);
+  background: rgba(219, 230, 244, 0.76);
+  color: var(--accent);
+  transform: translateY(-0.12rem);
+}
+
+.heroTowerHint {
+  margin-left: 0.35rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.heroTowerAccessibleList {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes towerLoadingPulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
 }
 
 .skillsSection {
@@ -1681,13 +1759,9 @@
 }
 
 .experienceExplorerHeading {
-  position: sticky;
-  top: clamp(6.5rem, 12vh, 8rem);
-  z-index: 2;
-  align-self: start;
+  position: relative;
   width: min(100%, 48rem);
   padding-block: 0.35rem 1rem;
-  background: linear-gradient(to bottom, var(--paper-deep) 62%, rgba(233, 230, 222, 0));
 }
 
 .experienceExplorerHeading .sectionHeading {
@@ -1703,24 +1777,18 @@
   line-height: 1.24;
 }
 
-.experienceExplorerGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.88fr) minmax(24rem, 1.12fr);
-  gap: clamp(2rem, 5vw, 5.5rem);
-  align-items: start;
-}
-
 .experienceCardList {
   position: relative;
   display: grid;
-  gap: 0.85rem;
+  gap: 0;
   padding-left: 1.05rem;
+  border-top: 1px solid var(--line);
 }
 
 .experienceCardList::before {
   position: absolute;
-  top: 1.25rem;
-  bottom: 1.25rem;
+  top: 0;
+  bottom: 0;
   left: 0.28rem;
   width: 1px;
   background: linear-gradient(to bottom, var(--accent), rgba(23, 78, 166, 0.15));
@@ -1730,12 +1798,13 @@
 .experienceSelectableItem {
   position: relative;
   min-width: 0;
+  border-bottom: 1px solid var(--line);
 }
 
 .experienceSelectableItem::before {
   position: absolute;
   z-index: 1;
-  top: 1.45rem;
+  top: 1.35rem;
   left: -1.05rem;
   width: 0.58rem;
   height: 0.58rem;
@@ -1754,24 +1823,24 @@
 
 .experienceSelectableCard {
   display: grid;
-  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
-  gap: 0.75rem;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+  gap: 1rem;
   width: 100%;
-  min-height: 11rem;
-  padding: 1.25rem 1.15rem 1.35rem 1.35rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: rgba(244, 240, 231, 0.55);
+  min-height: 0;
+  padding: 1.2rem 0.35rem 1.2rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
   font: inherit;
-  transition: border-color var(--motion-fast) ease, background var(--motion-fast) ease, transform var(--motion-base) var(--ease-standard), box-shadow var(--motion-fast) ease;
+  transition: color var(--motion-fast) ease, transform var(--motion-base) var(--ease-standard);
 }
 
 .experienceSelectableCard:hover {
-  border-color: rgba(23, 78, 166, 0.42);
-  transform: translateY(-0.12rem);
+  color: var(--accent);
+  transform: translateX(0.16rem);
 }
 
 .experienceSelectableCard:focus-visible {
@@ -1780,9 +1849,7 @@
 }
 
 .experienceSelectableCard[data-active="true"] {
-  border-color: rgba(23, 78, 166, 0.52);
-  background: linear-gradient(135deg, rgba(219, 230, 244, 0.92), rgba(244, 240, 231, 0.68));
-  box-shadow: 0 0.8rem 1.8rem rgba(23, 33, 43, 0.08);
+  color: var(--accent);
 }
 
 .experienceCardNumber {
@@ -1797,7 +1864,7 @@
   display: grid;
   min-width: 0;
   align-content: start;
-  gap: 0.38rem;
+  gap: 0.25rem;
 }
 
 .experienceCardPeriod,
@@ -1822,38 +1889,6 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-.experienceCardHeadline {
-  display: block;
-  margin-top: 0.45rem;
-  font-family: var(--font-display);
-  font-size: var(--type-card-label);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 1.15;
-}
-
-.experienceCardFocus {
-  display: -webkit-box;
-  max-width: 52ch;
-  margin-top: 0.25rem;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: var(--type-body);
-  line-height: 1.52;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
-.experienceCardBody .tags {
-  gap: 0.4rem;
-  margin-top: 0.65rem;
-  padding-right: 0;
-}
-
-.experienceCardBody .tags span {
-  padding: 0.3rem 0.52rem;
-}
-
 .experienceCardToggle {
   display: grid;
   width: 1.7rem;
@@ -1867,17 +1902,29 @@
   line-height: 1;
 }
 
-.experienceDetailPanel {
-  position: sticky;
-  top: clamp(6.5rem, 12vh, 8rem);
-  align-self: start;
-  min-width: 0;
-  padding: clamp(1.4rem, 3vw, 2.3rem);
-  border: 1px solid rgba(23, 78, 166, 0.22);
-  border-radius: var(--radius-card);
-  background: rgba(244, 240, 231, 0.72);
-  box-shadow: 0 1.1rem 2.4rem rgba(23, 33, 43, 0.08);
-  transition: border-color var(--motion-base) ease, box-shadow var(--motion-base) ease;
+.experienceAccordionDetail {
+  display: grid;
+  grid-template-rows: 0fr;
+  padding-left: 3.75rem;
+  opacity: 0;
+  transition: grid-template-rows var(--motion-base) var(--ease-standard), opacity var(--motion-fast) ease;
+}
+
+.experienceAccordionDetail[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.experienceAccordionDetailInner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 3rem 0 0.95rem;
+  border-left: 2px solid rgba(23, 78, 166, 0.22);
+  transition: padding-bottom var(--motion-base) var(--ease-standard);
+}
+
+.experienceAccordionDetail[data-open="true"] .experienceAccordionDetailInner {
+  padding-bottom: 1.7rem;
 }
 
 .experienceDetailTopline {
@@ -1924,6 +1971,29 @@
   line-height: 1.45;
 }
 
+.experienceDetailFocus {
+  max-width: 62ch;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: var(--type-body);
+  line-height: 1.58;
+}
+
+.experienceDetailTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.experienceDetailTags span {
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
 .experienceDetailBlock {
   margin-top: 2rem;
 }
@@ -1961,6 +2031,26 @@
   font-size: var(--text-base);
   font-weight: 600;
   line-height: 1.35;
+}
+
+.experienceDetailCases {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.experienceDetailCases summary {
+  width: fit-content;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.experienceDetailCases[open] .experienceDetailList {
+  margin-top: 1rem;
 }
 
 /* Selected Work redesign: a concise, draggable horizontal card rail. */
@@ -2022,12 +2112,29 @@
   background: rgba(245, 243, 238, 0.5);
 }
 
+.projectShowcaseLink {
+  display: block;
+  flex: 0 0 min(42rem, 72vw);
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  scroll-snap-align: start;
+}
+
+.projectShowcaseLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0.45rem;
+}
+
+.projectShowcaseLink:active .projectShowcaseCard {
+  transform: scale(0.985);
+}
+
 .projectShowcaseCard {
   --project-surface: #f4f0e7;
   --project-accent: var(--accent);
   position: relative;
   display: flex;
-  flex: 0 0 min(42rem, 72vw);
   min-height: 28rem;
   flex-direction: column;
   padding: clamp(1.6rem, 3vw, 2.8rem);
@@ -2036,7 +2143,7 @@
   border-radius: var(--radius-card);
   background: var(--project-surface);
   color: var(--ink);
-  scroll-snap-align: start;
+  transition: transform var(--motion-base) var(--ease-standard), border-color var(--motion-fast) ease;
 }
 
 .projectShowcaseCard[data-tone="clay"] {
@@ -2189,103 +2296,104 @@
   background: var(--paper-deep);
 }
 
-.capabilityGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-top: 4rem;
+.skillsHeader {
+  max-width: 48rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
 }
 
-.capabilityCard {
-  min-height: 16.5rem;
-  padding: 1.6rem 1.5rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: rgba(255, 255, 255, 0.45);
-}
-
-.capabilityCard > span {
-  color: var(--gold);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--type-meta);
-}
-
-.capabilityCard h3 {
-  margin: 4.2rem 0 0.9rem;
-  font-family: var(--font-display);
-  font-size: var(--type-card-title);
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-
-.capabilityCard p,
-.practiceCard p,
-.skillsClosing {
+.skillsHeader h2 {
   margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5.4rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+}
+
+.skillsHeader .sectionIntro {
+  max-width: 42ch;
+  margin: 1.25rem 0 0;
+  color: var(--muted);
+  font-size: var(--type-lead-compact);
+}
+
+.skillsIndex {
+  display: grid;
+  gap: 0;
+}
+
+.skillsIndexGroup {
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.5fr) minmax(0, 1.5fr);
+  gap: 1.5rem;
+  align-items: baseline;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.skillsIndexGroup:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.skillsIndexGroup h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--type-display-md);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.skillsIndexItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.85rem;
+}
+
+.skillsIndexItems span {
   color: var(--muted);
   font-size: var(--type-body);
 }
 
-.skillsClosing {
-  max-width: 42rem;
-  margin-top: 2.5rem;
-  font-family: var(--font-display);
-  font-size: var(--type-lead-compact);
-  line-height: 1.1;
+.skillsIndexItems span:not(:last-child)::after {
+  content: "·";
+  margin-left: 0.85rem;
+  color: var(--gold);
 }
 
-.skillsBands {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-
-.skillsBand {
-  display: grid;
-  grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1.55fr);
-  gap: 1.5rem;
-  align-items: baseline;
-  padding: 1rem 0;
-  border-top: 1px solid var(--line);
-}
-
-.skillsBand:last-child {
-  border-bottom: 1px solid var(--line);
-}
-
-.skillsBand h3,
-.practiceHeader h3 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 400;
-  letter-spacing: -0.04em;
-}
-
-.skillsBand div {
+.skillsEvidence {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem;
+  gap: 0.4rem 1.25rem;
+  margin-top: 1.35rem;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
 }
 
-.skillsBand span {
-  padding: 0.38rem 0.62rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: var(--type-meta);
+.skillsEvidence span:not(:last-child)::after {
+  content: "·";
+  margin-left: 1.25rem;
+  color: var(--gold);
 }
 
 .practiceHeader {
   display: grid;
-  grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1fr);
-  gap: 0.45rem 1.5rem;
-  margin-top: 5rem;
+  grid-template-columns: minmax(11rem, 0.5fr) minmax(0, 1.5fr);
+  gap: 0.5rem 1.5rem;
+  margin-top: clamp(4rem, 8vw, 7rem);
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
 }
 
-.practiceHeader .kicker {
-  grid-row: 1 / span 2;
+.practiceHeader h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--type-display-md);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
 }
 
 .practiceHeader > p:last-child {
@@ -2296,52 +2404,49 @@
 
 .practiceGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-top: 2rem;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: 1.35rem;
 }
 
 .practiceCard {
-  position: relative;
-  min-height: 15rem;
-  padding: 1.8rem;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: rgba(255, 255, 255, 0.42);
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--line);
 }
 
 .practiceNumber {
-  position: relative;
-  z-index: 1;
+  padding-top: 0.2rem;
   color: var(--gold);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--type-meta);
 }
 
-.practiceOrb {
-  position: absolute;
-  top: -4rem;
-  right: -2rem;
-  width: 12rem;
-  height: 12rem;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(23, 78, 166, 0.24), rgba(23, 78, 166, 0.05) 55%, transparent 70%);
-}
-
 .practiceCard h3 {
-  position: relative;
-  max-width: 14ch;
-  margin: 3.5rem 0 0.8rem;
+  margin: 0;
   font-family: var(--font-display);
   font-size: var(--type-card-title);
-  font-weight: 400;
-  letter-spacing: -0.05em;
-  line-height: 0.95;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.practiceCard p {
+  max-width: 64ch;
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: var(--type-body);
 }
 
 .skillsClosing {
+  max-width: 48rem;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  font-family: var(--font-display);
   color: var(--accent);
   font-size: var(--type-lead-compact);
+  line-height: 1.25;
 }
 
 .skillsClosing .scrollTextBase {
@@ -2532,9 +2637,6 @@
     gap: 3.5rem;
   }
 
-  .capabilityGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 /* 矮屏桌面优先保持内容可读；经历区改为普通页面流和横向卡片浏览。 */
@@ -2712,20 +2814,27 @@
   }
 
   .heroVisual {
-    padding: 1rem;
-    box-shadow: 0.65rem 0.65rem 0 rgba(230, 228, 222, 0.8);
+    padding: 0;
+    box-shadow: none;
   }
 
-  .workflowLayer {
-    min-height: 5.8rem;
+  .heroTower {
+    min-height: 22rem;
   }
 
-  .workflowLayer strong {
-    font-size: 1.25rem;
+  .heroTowerStage {
+    height: 20rem;
+    min-height: 20rem;
   }
 
-  .workflowLayer p {
-    font-size: var(--text-xs);
+  .heroTowerCallout {
+    right: 0.4rem;
+    bottom: 0.7rem;
+    width: min(16rem, 72%);
+  }
+
+  .heroTowerHint {
+    display: none;
   }
 
   .experienceSection,
@@ -2883,33 +2992,22 @@
     transition: none;
   }
 
-  .capabilityGrid,
-  .practiceGrid {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .capabilityCard,
   .practiceCard {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
     min-height: auto;
     padding: 1.25rem var(--space-3) 2rem;
-    border-right: 0;
-    border-left: 0;
+    border-radius: 0;
   }
 
-  .capabilityCard h3,
-  .practiceCard h3 {
-    margin-top: 2.2rem;
-  }
-
-  .skillsBand,
-  .practiceHeader {
+  .skillsIndexGroup {
     grid-template-columns: 1fr;
     gap: 0.65rem;
   }
 
-  .practiceHeader .kicker {
-    grid-row: auto;
+  .practiceHeader {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
   }
 
   .contactActions {
@@ -2947,7 +3045,8 @@
   .menuIcon,
   .menuIconLine,
   .menuOverlay,
-  .menuLink {
+  .menuLink,
+  .heroTowerLoading span {
     animation: none !important;
     transition: none !important;
   }
@@ -2956,7 +3055,10 @@
   .cursor,
   .cursorFollower,
   .site [data-reveal],
-  .solutionNode,
+  .heroTowerCanvas,
+  .heroTowerFallback,
+  .heroTowerControl,
+  .heroTowerCallout,
   .experienceCard,
   .experienceCard::before,
   .primaryButton,
@@ -2969,10 +3071,6 @@
   .site [data-reveal] {
     opacity: 1;
     transform: none;
-  }
-
-  .solutionNode {
-    animation: none;
   }
 
   .typewriterLine i {
@@ -3017,17 +3115,7 @@
 
 /* Final responsive mapping for the redesigned sections. */
 @media (max-width: 900px) {
-  .experienceExplorerGrid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
   .experienceExplorerHeading {
-    position: relative;
-    top: auto;
-  }
-
-  .experienceDetailPanel {
     position: relative;
     top: auto;
   }
@@ -3052,7 +3140,7 @@
     gap: 1.5rem;
   }
 
-  .projectShowcaseCard {
+  .projectShowcaseLink {
     flex-basis: min(38rem, 84vw);
   }
 
@@ -3093,33 +3181,25 @@
   }
 
   .experienceSelectableCard {
-    grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+    grid-template-columns: 2.2rem minmax(0, 1fr) auto;
     min-height: 0;
-    padding: 1.1rem 0.95rem 1.15rem;
-    border-radius: 1.15rem;
+    padding: 1.05rem 0.35rem 1.05rem 0;
   }
 
   .experienceCardNumber {
     padding-top: 0.15rem;
   }
 
-  .experienceCardBody strong,
-  .experienceCardHeadline {
+  .experienceCardBody strong {
     font-size: 1.18rem;
   }
 
-  .experienceCardFocus {
-    -webkit-line-clamp: 4;
+  .experienceAccordionDetail {
+    padding-left: 2.9rem;
   }
 
-  .experienceCardBody .tags span {
-    font-size: 0.75rem;
-  }
-
-  .experienceDetailPanel {
-    position: static;
-    padding: 1.25rem;
-    border-radius: 1.2rem;
+  .experienceAccordionDetailInner {
+    padding-right: 0.75rem;
   }
 
   .experienceDetailTitle {
@@ -3168,8 +3248,12 @@
     scroll-padding-inline: var(--gutter);
   }
 
-  .projectShowcaseCard {
+  .projectShowcaseLink {
     flex: 0 0 calc(100vw - 4 * var(--gutter));
+    min-height: 25rem;
+  }
+
+  .projectShowcaseCard {
     min-height: 25rem;
     padding: 1.35rem;
     border-radius: 1.25rem;
@@ -3221,7 +3305,10 @@
 @media (prefers-reduced-motion: reduce) {
   .experienceSelectableCard,
   .experienceSelectableItem::before,
-  .experienceDetailPanel {
+  .experienceAccordionDetail,
+  .experienceAccordionDetailInner,
+  .projectShowcaseLink,
+  .projectShowcaseCard {
     transition: none !important;
   }
 

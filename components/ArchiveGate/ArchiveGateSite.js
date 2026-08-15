@@ -1,6 +1,13 @@
+import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import styles from "./ArchiveGateSite.module.scss";
 import { withPublicBasePath } from "../../lib/publicPath.mjs";
+
+const HeroTowerVisual = dynamic(() => import("./HeroTowerVisual"), {
+  ssr: false,
+  loading: () => <div className={styles.heroTowerLoading} aria-hidden="true"><span /></div>,
+});
 
 const localeLabels = [
   ["en", "EN"],
@@ -384,6 +391,10 @@ function ExperienceDetailContent({ item, copy }) {
       </div>
       <h3 className={styles.experienceDetailTitle}>{item.headline}</h3>
       <p className={styles.experienceDetailRole}>{item.company} / {item.role}</p>
+      <p className={styles.experienceDetailFocus}>{item.focus}</p>
+      <div className={styles.experienceDetailTags}>
+        {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
+      </div>
 
       <section className={styles.experienceDetailBlock}>
         <h4>{copy.experienceHeader.detailOverviewLabel}</h4>
@@ -403,8 +414,8 @@ function ExperienceDetailContent({ item, copy }) {
       </section>
 
       {item.detail.cases.length > 0 && (
-        <section className={styles.experienceDetailBlock}>
-          <h4>{copy.experienceHeader.detailCasesLabel}</h4>
+        <details className={styles.experienceDetailCases}>
+          <summary>{copy.experienceHeader.detailCasesLabel}</summary>
           <div className={styles.experienceDetailList}>
             {item.detail.cases.map((selectedCase) => (
               <article key={selectedCase.title} className={styles.experienceDetailItem}>
@@ -413,26 +424,25 @@ function ExperienceDetailContent({ item, copy }) {
               </article>
             ))}
           </div>
-        </section>
+        </details>
       )}
+
     </>
   );
 }
 
 function ExperienceExplorer({ copy }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeItem = copy.experience[activeIndex] || copy.experience[0];
-  const experienceDetailId = "experience-detail-panel";
 
   const selectExperience = (index) => {
-    setActiveIndex(index);
+    setActiveIndex((currentIndex) => (currentIndex === index ? null : index));
   };
 
   const handleExperienceKeyDown = (event, index) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      selectExperience(index);
-    }
+    const key = event.key?.toLowerCase();
+    if (key !== "enter" && key !== " " && key !== "spacebar" && event.code !== "Space") return;
+    event.preventDefault();
+    selectExperience(index);
   };
 
   return (
@@ -444,88 +454,88 @@ function ExperienceExplorer({ copy }) {
         />
       </div>
 
-      <div className={styles.experienceExplorerGrid}>
-        <div className={styles.experienceCardList} role="list" aria-label={copy.experienceHeader.title}>
-          {copy.experience.map((item, index) => {
-            const isActive = index === activeIndex;
-            return (
-              <article
-                className={styles.experienceSelectableItem}
-                key={item.id || `${item.company}-${item.period}`}
-                role="listitem"
+      <div className={styles.experienceCardList} role="list" aria-label={copy.experienceHeader.title}>
+        {copy.experience.map((item, index) => {
+          const isActive = index === activeIndex;
+          const experienceDetailId = `experience-detail-${item.id || index}`;
+          return (
+            <article
+              className={styles.experienceSelectableItem}
+              key={item.id || `${item.company}-${item.period}`}
+              role="listitem"
+              data-active={isActive}
+              data-reveal
+            >
+              <button
+                type="button"
+                className={styles.experienceSelectableCard}
+                aria-expanded={isActive}
+                aria-controls={experienceDetailId}
+                aria-label={`${item.company} — ${item.role}`}
                 data-active={isActive}
-                data-reveal
+                onClick={() => selectExperience(index)}
+                onKeyDown={(event) => handleExperienceKeyDown(event, index)}
               >
-                <button
-                  type="button"
-                  className={styles.experienceSelectableCard}
-                  aria-expanded={isActive}
-                  aria-controls={experienceDetailId}
-                  aria-label={`${item.headline} — ${item.company}`}
-                  data-active={isActive}
-                  onClick={() => selectExperience(index)}
-                  onKeyDown={(event) => handleExperienceKeyDown(event, index)}
-                >
-                  <span className={styles.experienceCardNumber} aria-hidden="true">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className={styles.experienceCardBody}>
-                    <span className={styles.experienceCardPeriod}>{item.period} · {item.location}</span>
-                    <strong>{item.company}</strong>
-                    <span className={styles.experienceCardRole}>{item.role}</span>
-                    <span className={styles.experienceCardHeadline}>{item.headline}</span>
-                    <span className={styles.experienceCardFocus}>{item.focus}</span>
-                    <span className={styles.tags}>
-                      {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
-                    </span>
-                  </span>
-                  <span className={styles.experienceCardToggle} aria-hidden="true">
-                    {isActive ? "−" : "+"}
-                  </span>
-                </button>
-              </article>
-            );
-          })}
-        </div>
-
-        {activeItem && (
-          <aside
-            id={experienceDetailId}
-            className={styles.experienceDetailPanel}
-            aria-live="polite"
-            aria-label={`${activeItem.company} detail`}
-            data-reveal
-          >
-            <ExperienceDetailContent item={activeItem} copy={copy} />
-          </aside>
-        )}
+                <span className={styles.experienceCardNumber} aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className={styles.experienceCardBody}>
+                  <span className={styles.experienceCardPeriod}>{item.period} · {item.location}</span>
+                  <strong>{item.company}</strong>
+                  <span className={styles.experienceCardRole}>{item.role}</span>
+                </span>
+                <span className={styles.experienceCardToggle} aria-hidden="true">
+                  {isActive ? "−" : "+"}
+                </span>
+              </button>
+              <div
+                id={experienceDetailId}
+                className={styles.experienceAccordionDetail}
+                data-open={isActive}
+                aria-hidden={!isActive}
+                aria-label={`${item.company} detail`}
+              >
+                <div className={styles.experienceAccordionDetailInner}>
+                  <ExperienceDetailContent item={item} copy={copy} />
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function ProjectShowcaseCard({ project, index }) {
+function ProjectShowcaseCard({ project, index, onClick }) {
   return (
-    <article className={styles.projectShowcaseCard} data-reveal role="listitem" data-tone={index % 2 === 0 ? "blue" : "clay"}>
-      <div className={styles.projectShowcaseTopline}>
-        <p className={styles.kicker}>{project.kicker}</p>
-        <span>{String(index + 1).padStart(2, "0")}</span>
-      </div>
-      <h3>{project.title}</h3>
-      <p className={styles.projectShowcaseSummary}>{project.summary}</p>
-      <p className={styles.projectShowcaseRole}>{project.role}</p>
-      <div className={styles.projectShowcaseTags}>
-        {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
-      </div>
-      <p className={styles.projectShowcaseBoundary}>{project.boundary}</p>
-      <span className={styles.projectShowcaseArrow} aria-hidden="true">↗</span>
-    </article>
+    <Link
+      href={`/work/${project.id}/`}
+      className={styles.projectShowcaseLink}
+      role="listitem"
+      data-cursor-label="↗"
+      onClick={onClick}
+    >
+      <article className={styles.projectShowcaseCard} data-reveal data-tone={index % 2 === 0 ? "blue" : "clay"}>
+        <div className={styles.projectShowcaseTopline}>
+          <p className={styles.kicker}>{project.kicker}</p>
+          <span>{String(index + 1).padStart(2, "0")}</span>
+        </div>
+        <h3>{project.title}</h3>
+        <p className={styles.projectShowcaseSummary}>{project.summary}</p>
+        <div className={styles.projectShowcaseTags}>
+          {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
+        </div>
+        <span className={styles.projectShowcaseArrow} aria-hidden="true">↗</span>
+      </article>
+    </Link>
   );
 }
 
 function SelectedProjectsSection({ projects, locale, header }) {
   const railRef = useRef(null);
-  const dragStateRef = useRef({ active: false, pointerId: null, startX: 0, startScrollLeft: 0 });
+  const dragStateRef = useRef({ active: false, moved: false, pointerId: null, startX: 0, startScrollLeft: 0 });
+  const suppressClickRef = useRef(false);
   const [dragging, setDragging] = useState(false);
   const labels = locale === "en"
     ? { previous: "Previous project", next: "Next project", instruction: "Scroll or drag to explore projects." }
@@ -548,8 +558,10 @@ function SelectedProjectsSection({ projects, locale, header }) {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     const rail = railRef.current;
     if (!rail) return;
+    suppressClickRef.current = false;
     dragStateRef.current = {
       active: true,
+      moved: false,
       pointerId: event.pointerId,
       startX: event.clientX,
       startScrollLeft: rail.scrollLeft,
@@ -562,6 +574,10 @@ function SelectedProjectsSection({ projects, locale, header }) {
     const state = dragStateRef.current;
     const rail = railRef.current;
     if (!state.active || !rail) return;
+    if (Math.abs(event.clientX - state.startX) > 6) {
+      state.moved = true;
+      suppressClickRef.current = true;
+    }
     rail.scrollLeft = state.startScrollLeft - (event.clientX - state.startX);
   };
 
@@ -570,7 +586,7 @@ function SelectedProjectsSection({ projects, locale, header }) {
     const rail = railRef.current;
     if (!state.active) return;
     if (rail?.hasPointerCapture?.(state.pointerId)) rail.releasePointerCapture(state.pointerId);
-    dragStateRef.current = { active: false, pointerId: null, startX: 0, startScrollLeft: 0 };
+    dragStateRef.current = { active: false, moved: state.moved, pointerId: null, startX: 0, startScrollLeft: 0 };
     setDragging(false);
     if (event?.type === "pointercancel") rail?.releasePointerCapture?.(event.pointerId);
   };
@@ -597,7 +613,20 @@ function SelectedProjectsSection({ projects, locale, header }) {
               if (event.key === "ArrowRight") scrollByCard(1);
             }}
           >
-            {projects.map((project, index) => <ProjectShowcaseCard key={project.id} project={project} index={index} />)}
+            {projects.map((project, index) => (
+              <ProjectShowcaseCard
+                key={project.id}
+                project={project}
+                index={index}
+                onClick={(event) => {
+                  if (event.detail !== 0 && suppressClickRef.current) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    suppressClickRef.current = false;
+                  }
+                }}
+              />
+            ))}
           </div>
           <div className={styles.projectShowcaseControls} data-reveal>
             <p>{labels.instruction}</p>
@@ -616,59 +645,43 @@ function SkillsSection({ copy }) {
   return (
     <section id="skills" className={styles.skillsSection}>
       <div className={styles.container}>
-        <SectionHeading
-          kicker={copy.evidence.kicker}
-          title={copy.teamValue.title}
-          intro={`${copy.about.primary} ${copy.about.detail}`}
-        />
-
-        <div className={styles.metrics} data-reveal>
-          {copy.metrics.map((metric) => (
-            <article key={metric.label}>
-              <strong>{metric.value}</strong>
-              <span>{metric.label}</span>
-            </article>
-          ))}
+        <div className={styles.skillsHeader} data-reveal>
+          <h2>{copy.skillsHeader.title}</h2>
+          <p className={styles.sectionIntro}>{copy.skillsHeader.intro}</p>
         </div>
 
-        <div className={styles.capabilityGrid} data-reveal>
-          {copy.teamValue.items.map((item, index) => (
-            <article key={item.title} className={styles.capabilityCard}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </article>
-          ))}
-        </div>
-
-        <div className={styles.skillsBands} data-reveal>
+        <div className={styles.skillsIndex} data-reveal>
           {copy.skills.map((category) => (
-            <article key={category.title} className={styles.skillsBand}>
+            <article key={category.title} className={styles.skillsIndexGroup}>
               <h3>{category.title}</h3>
-              <div>
+              <div className={styles.skillsIndexItems}>
                 {category.items.map((item) => <span key={item}>{item}</span>)}
               </div>
             </article>
           ))}
         </div>
 
+        <div className={styles.skillsEvidence} data-reveal>
+          {copy.skillsEvidence.map((item) => <span key={item}>{item}</span>)}
+        </div>
+
         <div className={styles.practiceHeader} data-reveal>
-          <p className={styles.kicker}>{copy.aiHeader.kicker}</p>
-          <h3>{copy.aiHeader.title}</h3>
-          <p>{copy.aiHeader.intro}</p>
+          <h3>{copy.aiPracticeHeader.title}</h3>
+          <p>{copy.aiPracticeHeader.intro}</p>
         </div>
         <div className={styles.practiceGrid} data-reveal>
           {copy.aiPractice.map((item) => (
             <article className={styles.practiceCard} key={item.number}>
               <span className={styles.practiceNumber}>{item.number}</span>
-              <div className={styles.practiceOrb} aria-hidden="true" />
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
             </article>
           ))}
         </div>
         <ScrollText className={styles.skillsClosing}>
-          {`${copy.teamValue.closing} ${copy.aiClosing}`}
+          {copy.aiPracticeClosing}
         </ScrollText>
       </div>
     </section>
@@ -803,29 +816,8 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                   <a className={styles.textButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">{copy.hero.download}</a>
                 </div>
               </div>
-              <div className={styles.heroVisual} data-reveal aria-label={locale === "en" ? "Delivery workflow" : "交付工作流程"}>
-                <div className={styles.heroVisualHeader}>
-                  <span>{locale === "en" ? "A working model" : "工作方式"}</span>
-                  <span>01 — 05</span>
-                </div>
-                <div className={styles.solutionMap} role="list">
-                  <span className={styles.solutionPath} aria-hidden="true" />
-                  {copy.hero.workflowLayers.map((layer, index) => (
-                    <article
-                      className={styles.solutionNode}
-                      key={layer.id}
-                      role="listitem"
-                      style={{ "--node-index": index }}
-                    >
-                      <span className={styles.solutionNumber}>{layer.number}</span>
-                      <i className={styles.solutionDot} aria-hidden="true" />
-                      <div>
-                        <strong>{layer.title}</strong>
-                        <p>{layer.description}</p>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+              <div className={styles.heroVisual} data-reveal aria-label={locale === "en" ? "Five-layer delivery workflow model" : locale === "zh-CN" ? "五层数字化交付工作模型" : "五層數碼交付工作模型"}>
+                <HeroTowerVisual layers={copy.hero.workflowLayers} locale={locale} />
               </div>
             </div>
           </div>

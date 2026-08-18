@@ -19,9 +19,9 @@
   --font-cjk-sc: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-cjk-tc: "Noto Sans TC", "Noto Sans HK", "PingFang TC", "Microsoft JhengHei", sans-serif;
 
-  /* 基础字号：最小正文/标签字号保持在 12px，避免招聘者需要放大页面。 */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
+  /* 基础字号：关键小字不低于约 13px，减少中文在 Windows 上发虚的感觉。 */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
 
@@ -82,11 +82,23 @@
 
 .site[lang="zh-CN"] {
   font-family: var(--font-cjk-sc);
+  line-height: 1.62;
 }
 
 .site[lang="zh-HK"] {
   font-family: var(--font-cjk-tc);
   line-height: 1.62;
+}
+
+/*
+ * CJK 只在本地语言作用域内加深弱化文字，并把按钮/meta 拉回可读字号。
+ * 英文页面继续使用原有的视觉密度和字体规则。
+ */
+.site[lang="zh-CN"],
+.site[lang="zh-HK"] {
+  --muted: #5f6b74;
+  --type-body: var(--text-base);
+  --type-button: 0.9375rem;
 }
 
 .site a {
@@ -134,7 +146,7 @@
   align-items: center;
   gap: 2rem;
   width: min(calc(100% - 2 * var(--gutter)), var(--container-header));
-  min-height: 4.1rem;
+  min-height: 3.6rem;
   margin: 0 auto;
 }
 
@@ -149,8 +161,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.65rem;
-  height: 2.65rem;
+  width: 2.35rem;
+  height: 2.35rem;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 50%;
@@ -527,6 +539,9 @@
 }
 
 .heroCopy {
+  display: flex;
+  min-height: clamp(28rem, 62vh, 38rem);
+  flex-direction: column;
   max-width: 47rem;
   padding-top: clamp(0rem, 1.4vw, 1.25rem);
 }
@@ -690,6 +705,11 @@
   margin-top: 2rem;
 }
 
+.heroCopy .heroActions {
+  margin-top: auto;
+  padding-top: 2rem;
+}
+
 .primaryButton,
 .secondaryButton {
   display: inline-flex;
@@ -778,6 +798,63 @@
   font-family: var(--font-cjk-tc);
 }
 
+.site[lang="zh-CN"] .heroActions .primaryButton,
+.site[lang="zh-CN"] .heroActions .textButton,
+.site[lang="zh-CN"] .contactActions .primaryButton,
+.site[lang="zh-CN"] .contactActions .secondaryButton,
+.site[lang="zh-HK"] .heroActions .primaryButton,
+.site[lang="zh-HK"] .heroActions .textButton,
+.site[lang="zh-HK"] .contactActions .primaryButton,
+.site[lang="zh-HK"] .contactActions .secondaryButton {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+/* 中文小字不使用英文式字母間距；保留 monospace 只給真正的技術編號。 */
+.site[lang="zh-CN"] .cardKicker,
+.site[lang="zh-HK"] .cardKicker,
+.site[lang="zh-CN"] .contactKicker,
+.site[lang="zh-HK"] .contactKicker,
+.site[lang="zh-CN"] .contactMeta,
+.site[lang="zh-HK"] .contactMeta,
+.site[lang="zh-CN"] .skillsEvidence,
+.site[lang="zh-HK"] .skillsEvidence {
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.site[lang="zh-CN"] .experienceCardPeriod,
+.site[lang="zh-CN"] .experienceCardRole,
+.site[lang="zh-CN"] .experienceDetailLocation,
+.site[lang="zh-CN"] .experienceDetailRole,
+.site[lang="zh-HK"] .experienceCardPeriod,
+.site[lang="zh-HK"] .experienceCardRole,
+.site[lang="zh-HK"] .experienceDetailLocation,
+.site[lang="zh-HK"] .experienceDetailRole {
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.site[lang="zh-CN"] .sectionIntro,
+.site[lang="zh-CN"] .experienceDetailFocus,
+.site[lang="zh-CN"] .experienceDetailItem p,
+.site[lang="zh-CN"] .projectShowcaseRole,
+.site[lang="zh-CN"] .contactStatement,
+.site[lang="zh-CN"] .contactClosing,
+.site[lang="zh-HK"] .sectionIntro,
+.site[lang="zh-HK"] .experienceDetailFocus,
+.site[lang="zh-HK"] .experienceDetailItem p,
+.site[lang="zh-HK"] .projectShowcaseRole,
+.site[lang="zh-HK"] .contactStatement,
+.site[lang="zh-HK"] .contactClosing {
+  letter-spacing: 0;
+  line-height: 1.65;
+}
+
 .heroVisual {
   position: relative;
   min-height: 31rem;
@@ -810,7 +887,7 @@
   position: relative;
   height: clamp(21rem, 29vw, 26rem);
   min-height: 21rem;
-  overflow: hidden;
+  overflow: visible;
   isolation: isolate;
 }
 
@@ -823,6 +900,8 @@
   cursor: pointer;
   outline: none;
   opacity: 0;
+  transform: translate3d(-1.4rem, 0, 0) scale(1.12);
+  transform-origin: 50% 50%;
   transition: opacity var(--motion-slow) var(--ease-standard);
 }
 
@@ -845,6 +924,8 @@
   object-position: center;
   mix-blend-mode: multiply;
   opacity: 0.92;
+  transform: translate3d(-1.4rem, 0, 0) scale(1.12);
+  transform-origin: 50% 50%;
   transition: opacity var(--motion-slow) var(--ease-standard);
 }
 
@@ -867,25 +948,13 @@
   animation: towerLoadingPulse 1.4s ease-in-out infinite;
 }
 
-.heroTowerStatus {
-  position: absolute;
-  right: 1rem;
-  bottom: 0.7rem;
-  z-index: 4;
-  max-width: 15rem;
-  margin: 0;
-  color: var(--muted);
-  font-size: var(--text-xs);
-  line-height: 1.35;
-  text-align: right;
-}
-
 .heroTowerCallout {
   position: absolute;
   right: 0.75rem;
   bottom: 1rem;
   z-index: 5;
   width: min(17rem, 68%);
+  transform: translate3d(1.1rem, 1.05rem, 0);
   padding: 0.8rem 0.9rem 0.85rem;
   border: 1px solid rgba(23, 78, 166, 0.24);
   border-radius: 0.8rem;
@@ -895,8 +964,7 @@
 }
 
 .heroTowerCallout span,
-.heroTowerControl,
-.heroTowerHint {
+.heroTowerKeyboardControl {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   letter-spacing: 0.08em;
 }
@@ -921,44 +989,25 @@
   line-height: 1.45;
 }
 
-.heroTowerControls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  min-height: 2rem;
-  padding-top: 0.25rem;
-}
-
-.heroTowerControl {
-  display: inline-grid;
-  width: 1.75rem;
-  height: 1.75rem;
+.heroTowerKeyboardControls {
+  position: absolute;
+  width: 1px;
+  height: 1px;
   padding: 0;
-  place-items: center;
-  border: 1px solid rgba(23, 78, 166, 0.2);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.28);
-  color: var(--muted);
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: border-color var(--motion-fast) ease, background var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) ease;
-}
-
-.heroTowerControl:hover,
-.heroTowerControl:focus-visible,
-.heroTowerControl[data-active="true"] {
-  border-color: var(--accent);
-  background: rgba(219, 230, 244, 0.76);
-  color: var(--accent);
-  transform: translateY(-0.12rem);
-}
-
-.heroTowerHint {
-  margin-left: 0.35rem;
-  color: var(--muted);
-  font-size: 0.75rem;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+  border: 0;
+}
+
+.heroTowerKeyboardControl {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
 }
 
 .heroTowerAccessibleList {
@@ -1007,7 +1056,7 @@
 .site[lang="zh-CN"] .sectionHeading h2,
 .site[lang="zh-HK"] .sectionHeading h2 {
   font-size: var(--type-display-lg-cjk);
-  letter-spacing: -0.055em;
+  letter-spacing: -0.02em;
   line-height: 0.96;
 }
 
@@ -1016,8 +1065,21 @@
 .site[lang="zh-CN"] .projectCopy h2,
 .site[lang="zh-HK"] .projectCopy h2 {
   font-size: var(--type-display-md-cjk);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   line-height: 1.08;
+}
+
+.site[lang="zh-CN"] .contactOpportunity,
+.site[lang="zh-HK"] .contactOpportunity,
+.site[lang="zh-CN"] .projectShowcaseCard h3,
+.site[lang="zh-HK"] .projectShowcaseCard h3,
+.site[lang="zh-CN"] .practiceCard h3,
+.site[lang="zh-HK"] .practiceCard h3,
+.site[lang="zh-CN"] .skillsIndexGroup h3,
+.site[lang="zh-HK"] .skillsIndexGroup h3,
+.site[lang="zh-CN"] .experienceDetailTitle,
+.site[lang="zh-HK"] .experienceDetailTitle {
+  letter-spacing: -0.02em;
 }
 
 .sectionIntro {
@@ -1134,276 +1196,10 @@
     var(--paper-deep);
 }
 
-.experienceStory {
-  min-height: 100svh;
-}
-
-.experienceSticky {
-  position: sticky;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100svh;
-  min-height: 0;
-  padding: clamp(6rem, 8vh, 7.5rem) 0 1.2rem;
-  overflow: hidden;
-}
-
-.experienceSection .sectionHeading {
-  display: grid;
-  grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
-  gap: 0.75rem clamp(3rem, 7vw, 7rem);
-  align-items: end;
-  max-width: none;
-  margin-bottom: clamp(2rem, 4vh, 3.5rem);
-}
-
-.experienceSection .sectionHeading h2 {
-  grid-row: 1 / span 2;
-  font-size: var(--type-display-lg);
-}
-
-.experienceSection .sectionLead {
-  margin-top: 0;
-  max-width: 31ch;
-  font-size: var(--type-lead-compact);
-  line-height: 1.08;
-}
-
-.experienceSection .sectionIntro {
-  max-width: 52ch;
-  margin-top: 0.45rem;
-  font-size: var(--text-sm);
-  line-height: 1.6;
-}
-
-.experienceViewport {
-  min-height: 0;
-  overflow: hidden;
-  padding: 0.65rem 0 1.4rem;
-}
-
-.experienceRail {
-  display: flex;
-  gap: clamp(1.5rem, 2.6vw, 2.5rem);
-  width: max-content;
-  padding: 0 0 1.5rem;
-  will-change: transform;
-}
-
-.experienceRail::-webkit-scrollbar {
-  height: 0;
-}
-
-.experienceRail::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: var(--accent);
-}
-
-.experienceCard {
-  --card-surface: #f6ebdc;
-  --card-accent: var(--terracotta);
-  position: relative;
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  width: min(34rem, 46vw);
-  min-height: clamp(21.5rem, 48vh, 25rem);
-  padding: clamp(1.7rem, 2.2vw, 2.35rem);
-  overflow: hidden;
-  border: 1px solid rgba(23, 33, 43, 0.11);
-  border-radius: var(--radius-card);
-  background: var(--card-surface);
-  transition: border-color 200ms ease, background 200ms ease, transform 220ms ease, box-shadow 220ms ease;
-}
-
-.experienceCard[data-tone="blue"] {
-  --card-surface: #dce8f2;
-  --card-accent: var(--accent);
-}
-
-.experienceCard[data-tone="clay"] {
-  --card-surface: #ead5c6;
-  --card-accent: var(--terracotta);
-}
-
-.experienceCard[data-active="true"] {
-  border-color: color-mix(in srgb, var(--card-accent) 38%, transparent);
-  box-shadow: 0 1.4rem 3.2rem rgba(23, 33, 43, 0.11);
-  transform: translateY(-0.4rem);
-}
-
-.experienceCard::before {
-  position: absolute;
-  top: 0;
-  left: clamp(1.7rem, 2.2vw, 2.35rem);
-  width: 6.5rem;
-  height: 0.3rem;
-  border-radius: 0 0 999px 999px;
-  background: var(--card-accent);
-  content: "";
-  transition: width 260ms ease;
-}
-
-.experienceCard::after {
-  position: absolute;
-  right: -5rem;
-  bottom: -7rem;
-  width: 17rem;
-  height: 17rem;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--card-accent) 11%, transparent);
-  content: "";
-  pointer-events: none;
-}
-
-.experienceCard:hover {
-  border-color: color-mix(in srgb, var(--card-accent) 45%, transparent);
-  box-shadow: 0 1.5rem 3.2rem rgba(23, 33, 43, 0.12);
-  transform: translateY(-0.45rem);
-}
-
-.experienceCard:hover::before {
-  width: 9rem;
-}
-
-.cardTopline {
-  display: flex;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: var(--space-3);
-}
-
-.cardIndex {
-  color: var(--card-accent);
-  font-size: var(--text-xs);
-}
-
 .cardKicker {
   color: var(--muted);
   font-size: var(--text-xs);
   text-align: left;
-}
-
-.experienceCard h3 {
-  position: relative;
-  max-width: 15ch;
-  margin: clamp(2.8rem, 6vh, 4.5rem) 0 0.9rem;
-  font-family: var(--font-display);
-  font-size: var(--type-card-title);
-  font-weight: 500;
-  letter-spacing: -0.055em;
-  line-height: 0.98;
-}
-
-.cardRole {
-  position: relative;
-  margin: 0;
-  color: var(--card-accent);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--type-meta);
-  line-height: 1.45;
-}
-
-.cardDescription {
-  position: relative;
-  max-width: 48ch;
-  margin: 1.55rem 0 1.25rem;
-  color: var(--muted);
-  font-size: var(--type-body);
-  line-height: 1.62;
-}
-
-.tags {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-top: auto;
-  padding-right: 3rem;
-}
-
-.tags span {
-  padding: 0.38rem 0.62rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: var(--type-meta);
-}
-
-.cardArrow {
-  position: absolute;
-  right: 1.25rem;
-  bottom: 1.15rem;
-  color: var(--card-accent);
-  font-size: 1.5rem;
-}
-
-.experienceControls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  padding-top: 0.7rem;
-}
-
-.experienceControls p {
-  margin: 0;
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-
-.experienceStatus {
-  display: grid;
-  grid-template-columns: auto minmax(7rem, 13rem) auto;
-  gap: 0.8rem;
-  align-items: center;
-  color: var(--muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--type-meta);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.experienceProgress {
-  position: relative;
-  display: block;
-  height: 2px;
-  overflow: hidden;
-  background: rgba(21, 28, 38, 0.17);
-}
-
-.experienceProgress i {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transition: width 320ms ease;
-}
-
-.experienceButtons {
-  display: flex;
-  gap: 0.55rem;
-}
-
-.experienceButtons button {
-  display: grid;
-  width: 2.4rem;
-  height: 2.4rem;
-  place-items: center;
-  border: 1px solid var(--ink);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--ink);
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
-}
-
-.experienceButtons button:hover {
-  background: var(--ink);
-  color: var(--paper);
-  transform: translateY(-2px);
 }
 
 .projectSection {
@@ -1611,23 +1407,6 @@
     var(--paper-deep);
 }
 
-.experienceStory {
-  display: grid;
-  grid-template-columns: minmax(15rem, 0.62fr) minmax(0, 1.38fr);
-  gap: clamp(3rem, 7vw, 8rem);
-  align-items: start;
-  min-height: 0;
-}
-
-.experienceSticky {
-  position: sticky;
-  top: clamp(6.5rem, 12vh, 8rem);
-  height: max-content;
-  min-height: 0;
-  padding: 0;
-  overflow: visible;
-}
-
 .experienceSection .sectionHeading {
   display: block;
   grid-template-columns: none;
@@ -1646,107 +1425,6 @@
   margin-top: 1.6rem;
   font-size: var(--type-lead-compact);
   line-height: 1.18;
-}
-
-.experienceTimeline {
-  position: relative;
-  display: grid;
-  gap: 0;
-  padding-left: clamp(1.7rem, 3vw, 2.6rem);
-  overflow: visible;
-}
-
-.experienceTimeline::before {
-  position: absolute;
-  top: 0.85rem;
-  bottom: 1rem;
-  left: 0.35rem;
-  width: 1px;
-  background: linear-gradient(to bottom, var(--accent), rgba(23, 78, 166, 0.16));
-  content: "";
-}
-
-.experienceTimelineItem {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(8rem, 0.34fr) minmax(0, 1fr);
-  gap: clamp(1rem, 3vw, 3rem);
-  padding: 0 0 clamp(3rem, 5vw, 4.5rem);
-  margin: 0 0 clamp(2rem, 4vw, 3.5rem);
-  border-bottom: 1px solid var(--line);
-}
-
-.experienceTimelineItem:last-child {
-  margin-bottom: 0;
-}
-
-.experienceTimelineMarker {
-  position: absolute;
-  top: 0.35rem;
-  left: calc(-1 * clamp(1.7rem, 3vw, 2.6rem) - 0.3rem);
-  display: grid;
-  width: 1.35rem;
-  height: 1.35rem;
-  place-items: center;
-  border: 1px solid var(--accent);
-  border-radius: 50%;
-  background: var(--paper-deep);
-  color: var(--accent);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--text-xs);
-  letter-spacing: -0.04em;
-}
-
-.experienceTimelineMeta {
-  display: grid;
-  align-content: start;
-  gap: 0.45rem;
-  padding-top: 0.15rem;
-}
-
-.experienceTimelineMeta .cardKicker {
-  color: var(--ink);
-  line-height: 1.45;
-}
-
-.timelineLocation {
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-
-.experienceTimelineBody {
-  min-width: 0;
-}
-
-.experienceTimelineItem h3 {
-  max-width: 18ch;
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--type-card-title);
-  font-weight: 500;
-  letter-spacing: -0.055em;
-  line-height: 1.02;
-}
-
-.experienceRole {
-  margin: 0.55rem 0 0;
-  color: var(--terracotta);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--type-meta);
-  line-height: 1.45;
-}
-
-.experienceFocus {
-  max-width: 52ch;
-  margin: 1.15rem 0 0;
-  color: var(--muted);
-  font-size: var(--type-body-lg);
-  line-height: 1.52;
-}
-
-.experienceTimelineBody .tags {
-  margin-top: 1.35rem;
-  padding-right: 0;
 }
 
 /*
@@ -1889,6 +1567,15 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+.experienceCardHeadline {
+  max-width: 42ch;
+  color: var(--ink);
+  font-size: var(--type-body);
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 .experienceCardToggle {
   display: grid;
   width: 1.7rem;
@@ -2008,7 +1695,6 @@
   text-transform: uppercase;
 }
 
-.experienceDetailOverview,
 .experienceDetailItem p {
   margin: 0;
   color: var(--muted);
@@ -2592,6 +2278,38 @@
   color: var(--paper);
 }
 
+/* 深色區域的繁體中文輔助文字提高一點透明度，保留層級但不發灰。 */
+.site[lang="zh-CN"] .projectSection .sectionIntro,
+.site[lang="zh-HK"] .projectSection .sectionIntro,
+.site[lang="zh-CN"] .projectCopy > p:not(.kicker):not(.projectBoundary),
+.site[lang="zh-HK"] .projectCopy > p:not(.kicker):not(.projectBoundary),
+.site[lang="zh-CN"] .projectShowcaseControls p,
+.site[lang="zh-HK"] .projectShowcaseControls p {
+  color: rgba(245, 243, 238, 0.74);
+}
+
+.site[lang="zh-CN"] .contactKicker,
+.site[lang="zh-HK"] .contactKicker {
+  color: rgba(245, 243, 238, 0.82);
+}
+
+.site[lang="zh-CN"] .contactStatement,
+.site[lang="zh-CN"] .contactClosing,
+.site[lang="zh-HK"] .contactStatement,
+.site[lang="zh-HK"] .contactClosing {
+  color: rgba(245, 243, 238, 0.82);
+}
+
+.site[lang="zh-CN"] .contactMeta,
+.site[lang="zh-HK"] .contactMeta {
+  color: rgba(245, 243, 238, 0.68);
+}
+
+.site[lang="zh-CN"] .contactEmail,
+.site[lang="zh-HK"] .contactEmail {
+  color: rgba(245, 243, 238, 0.84);
+}
+
 .footer {
   display: flex;
   justify-content: flex-start;
@@ -2621,6 +2339,8 @@
   }
 
   .heroCopy {
+    display: block;
+    min-height: 0;
     padding-top: 0;
   }
 
@@ -2651,80 +2371,11 @@
     align-items: start;
   }
 
-  .experienceStory {
-    min-height: auto;
-  }
-
-  .experienceSticky {
-    position: relative;
-    height: auto;
-    min-height: auto;
-    padding: 6rem 0 2rem;
-    overflow: visible;
-  }
-
-  .experienceViewport {
-    overflow: visible;
-  }
-
-  .experienceRail {
-    width: auto;
-    overflow-x: auto;
-    padding-bottom: 1.2rem;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: thin;
-    transform: none !important;
-    will-change: auto;
-  }
-
-  .experienceCard {
-    width: min(34rem, 46vw);
-    scroll-snap-align: start;
-  }
 }
 
 @media (max-width: 900px) {
   .experienceSection {
     padding: 5.5rem 0;
-  }
-
-  .experienceStory {
-    height: auto;
-  }
-
-  .experienceSticky {
-    position: relative;
-    height: auto;
-    min-height: auto;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .experienceViewport {
-    overflow: hidden;
-    padding-bottom: 0.75rem;
-  }
-
-  .experienceRail {
-    width: auto;
-    gap: 1rem;
-    overflow-x: auto;
-    padding: 0.5rem 0.25rem 1.2rem;
-    scroll-padding-inline: 0.25rem;
-    scroll-snap-type: x mandatory;
-    scrollbar-color: var(--accent) transparent;
-    scrollbar-width: thin;
-    transform: none !important;
-    will-change: auto;
-  }
-
-  .experienceRail::-webkit-scrollbar {
-    height: 0.3rem;
-  }
-
-  .experienceCard {
-    width: min(34rem, 84vw);
-    scroll-snap-align: start;
   }
 
   .experienceSection .sectionHeading {
@@ -2758,6 +2409,14 @@
     scroll-behavior: auto;
   }
 
+  .site[lang="zh-CN"],
+  .site[lang="zh-HK"] {
+    --type-body-lg: 1rem;
+    --type-body: 1rem;
+    --type-meta: 0.8125rem;
+    --type-button: 0.9375rem;
+  }
+
   .container,
   .containerWide,
   .headerInner {
@@ -2766,13 +2425,13 @@
 
   .headerInner {
     grid-template-columns: 1fr auto;
-    min-height: 4.1rem;
+    min-height: 3.6rem;
     position: relative;
   }
 
   .menuButton {
-    width: 2.55rem;
-    height: 2.55rem;
+    width: 2.35rem;
+    height: 2.35rem;
   }
 
   .languageSwitcher {
@@ -2827,14 +2486,16 @@
     min-height: 20rem;
   }
 
-  .heroTowerCallout {
-    right: 0.4rem;
-    bottom: 0.7rem;
-    width: min(16rem, 72%);
+  .heroTowerCanvas,
+  .heroTowerFallback {
+    transform: translate3d(-0.45rem, 0, 0) scale(1.05);
   }
 
-  .heroTowerHint {
-    display: none;
+  .heroTowerCallout {
+    right: 0.3rem;
+    bottom: 0.45rem;
+    transform: translate3d(0.2rem, 0.25rem, 0);
+    width: min(16rem, 72%);
   }
 
   .experienceSection,
@@ -2907,47 +2568,10 @@
     margin-bottom: 2rem;
   }
 
-  .experienceRail {
-    gap: 0.8rem;
-    margin-inline: -0.25rem;
-    padding-inline: 0.25rem;
-  }
-
-  .experienceCard {
-    width: calc(100vw - 2 * var(--gutter));
-    min-height: 25rem;
-    padding: 1.4rem;
-    border-radius: 1.25rem;
-  }
-
-  .experienceCard h3 {
-    margin-top: 3.4rem;
-  }
-
-  .cardTopline {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.45rem var(--space-3);
-  }
-
   .cardKicker {
     flex: 1 1 12rem;
     margin-top: 0;
     text-align: left;
-  }
-
-  .experienceControls {
-    align-items: flex-start;
-  }
-
-  .experienceStatus {
-    grid-template-columns: auto minmax(5rem, 1fr);
-    width: min(100%, 17rem);
-  }
-
-  .experienceStatus p {
-    grid-column: 1 / -1;
   }
 
   .practiceGrid {
@@ -3028,6 +2652,7 @@
   .signatureAura {
     display: none !important;
   }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3057,13 +2682,9 @@
   .site [data-reveal],
   .heroTowerCanvas,
   .heroTowerFallback,
-  .heroTowerControl,
   .heroTowerCallout,
-  .experienceCard,
-  .experienceCard::before,
   .primaryButton,
   .secondaryButton,
-  .experienceButtons button,
   .projectModule {
     transition: none !important;
   }
@@ -3077,18 +2698,6 @@
     animation: none;
   }
 
-  .experienceStory {
-    height: auto;
-  }
-
-  .experienceSticky {
-    position: relative;
-    height: auto;
-    min-height: auto;
-    padding: 6rem 0;
-    overflow: visible;
-  }
-
   .scrollText {
     --text-progress: 100% !important;
   }
@@ -3098,19 +2707,6 @@
     transition: none;
   }
 
-  .experienceRail {
-    width: auto;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: auto;
-    transform: none !important;
-    will-change: auto;
-  }
-
-  .experienceCard {
-    width: min(38rem, 78vw);
-    scroll-snap-align: start;
-  }
 }
 
 /* Final responsive mapping for the redesigned sections. */
@@ -3120,24 +2716,9 @@
     top: auto;
   }
 
-  .experienceStory {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-  }
-
-  .experienceSticky {
-    position: relative;
-    top: auto;
-  }
-
   .experienceSection .sectionHeading {
     max-width: 42rem;
     margin-bottom: 0;
-  }
-
-  .experienceTimelineItem {
-    grid-template-columns: minmax(8rem, 0.32fr) minmax(0, 1fr);
-    gap: 1.5rem;
   }
 
   .projectShowcaseLink {
@@ -3194,6 +2775,11 @@
     font-size: 1.18rem;
   }
 
+  .experienceCardHeadline {
+    max-width: 32ch;
+    font-size: var(--text-sm);
+  }
+
   .experienceAccordionDetail {
     padding-left: 2.9rem;
   }
@@ -3205,40 +2791,6 @@
   .experienceDetailTitle {
     max-width: 22ch;
     font-size: 1.65rem;
-  }
-
-  .experienceStory {
-    gap: 2.5rem;
-  }
-
-  .experienceTimeline {
-    padding-left: 1.55rem;
-  }
-
-  .experienceTimelineItem {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    padding-bottom: 2.5rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .experienceTimelineMarker {
-    left: -2.2rem;
-  }
-
-  .experienceTimelineMeta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.8rem;
-    padding-top: 0;
-  }
-
-  .experienceTimelineItem h3 {
-    max-width: none;
-  }
-
-  .experienceFocus {
-    margin-top: 1rem;
   }
 
   .projectShowcaseRail {
@@ -3302,6 +2854,19 @@
   }
 }
 
+/* 窄屏保留完整 CTA 框線，避免雙列按鈕被視口裁切。 */
+@media (max-width: 480px) {
+  .heroActions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .heroActions .primaryButton,
+  .heroActions .textButton {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .experienceSelectableCard,
   .experienceSelectableItem::before,
@@ -3312,12 +2877,6 @@
     transition: none !important;
   }
 
-  .experienceSticky {
-    position: relative;
-    top: auto;
-  }
-
-  .experienceTimelineItem,
   .projectShowcaseCard,
   .projectShowcaseButtons button {
     transition: none !important;

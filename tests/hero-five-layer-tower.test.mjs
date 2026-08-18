@@ -26,6 +26,13 @@ test("the Archive Gate hero uses the approved A five-layer tower assets", () => 
   assert.match(component, /prefers-reduced-motion/);
   assert.match(component, /aria-pressed/);
   assert.match(component, /onPointerLeave/);
+  assert.match(component, /heroTowerFallback/);
+  assert.match(component, /heroTowerAccessibleList/);
+  assert.match(component, /heroTowerKeyboardControls/);
+  assert.match(component, /tabIndex={0}/);
+  assert.match(component, /handleTowerKeyDown/);
+  assert.doesNotMatch(component, /className={styles\.heroTowerControls}/);
+  assert.doesNotMatch(component, /heroTowerStatus/);
   assert.match(page, /HeroTowerVisual/);
   assert.doesNotMatch(page, /className=\{styles\.solutionMap\}/);
 });

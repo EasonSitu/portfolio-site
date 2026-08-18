@@ -100,7 +100,7 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
       title: "我希望继续做连接业务、技术与交付的工作。",
        statement: "我关注数字化与 AI 方案交付、实施、项目协调及应用型 AI，希望参与真正能够解决问题并落地使用的项目。",
       closing: "如果你认为我的经历与你的团队正在推进的事情有关，欢迎和我聊聊。",
-      location: "香港 · 深圳",
+       location: "香港 · 大湾区",
       languages: "粤语 · 普通话 · 英语",
     },
   );
@@ -116,7 +116,7 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
       title: "我希望繼續做連接業務、技術與交付的工作。",
        statement: "我關注數碼與 AI 方案交付、實施、項目協調及應用型 AI，希望參與真正能夠解決問題並落地使用的項目。",
       closing: "如果你認為我的經歷與你的團隊正在推進的事情有關，歡迎和我聊聊。",
-      location: "香港 · 深圳",
+       location: "香港 · 大灣區",
       languages: "粵語 · 普通話 · 英語",
     },
   );

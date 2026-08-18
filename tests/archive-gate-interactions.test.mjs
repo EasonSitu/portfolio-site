@@ -86,9 +86,14 @@ test("the page renders exactly the five recruiter-facing primary sections", () =
   assert.doesNotMatch(componentSource, /id="(about|role|ai)"/);
 });
 
-test("footer keeps the identity line without the removed motion slogan", () => {
-  assert.match(componentSource, /<footer className=\{styles\.footer\}>[\s\S]*<span>ZS · Zhicheng Situ<\/span>[\s\S]*<\/footer>/);
+test("footer no longer renders the removed identity line", () => {
+  assert.doesNotMatch(componentSource, /ZS · Zhicheng Situ/);
   assert.doesNotMatch(componentSource, /copy\.footer/);
+});
+
+test("contact actions keep clean labels without decorative arrows", () => {
+  const contactBlock = componentSource.match(/<section id="contact"[\s\S]*?<\/section>/)?.[0] || "";
+  assert.doesNotMatch(contactBlock, /<span>[↗↓]<\/span>/);
 });
 
 test("the document points to the existing favicon asset", () => {
@@ -243,10 +248,12 @@ test("hero columns stay balanced with a restrained desktop inset", () => {
   assert.doesNotMatch(styleSource, /solutionPulse/);
 });
 
-test("header uses a compact fixed height without changing its controls", () => {
+test("header uses a compact fixed height and a smaller menu control", () => {
   const headerBlock = styleSource.match(/\.headerInner\s*\{[^}]*\}/)?.[0] || "";
-  assert.match(headerBlock, /min-height:\s*4\.1rem/);
-  assert.match(styleSource, /@media \(max-width:\s*700px\)[\s\S]*?\.headerInner\s*\{[\s\S]*?min-height:\s*4\.1rem/);
+  assert.match(headerBlock, /min-height:\s*3\.6rem/);
+  assert.match(styleSource, /\.menuButton\s*\{[\s\S]*?width:\s*2\.35rem[\s\S]*?height:\s*2\.35rem/);
+  assert.match(styleSource, /@media \(max-width:\s*700px\)[\s\S]*?\.headerInner\s*\{[\s\S]*?min-height:\s*3\.6rem/);
+  assert.match(styleSource, /@media \(max-width:\s*700px\)[\s\S]*?\.menuButton\s*\{[\s\S]*?width:\s*2\.35rem[\s\S]*?height:\s*2\.35rem/);
   assert.match(componentSource, /className=\{styles\.menuButton\}/);
   assert.match(componentSource, /className=\{styles\.languageSwitcher\}/);
 });
@@ -273,8 +280,8 @@ test("hero actions keep a readable size and equal mobile affordances", () => {
 });
 
 test("site typography follows one capped responsive hierarchy across languages and viewports", () => {
-  assert.match(styleSource, /--text-xs:\s*0\.75rem/);
-  assert.match(styleSource, /--text-sm:\s*0\.875rem/);
+  assert.match(styleSource, /--text-xs:\s*0\.8125rem/);
+  assert.match(styleSource, /--text-sm:\s*0\.9375rem/);
   assert.match(styleSource, /--text-base:\s*1rem/);
   assert.match(styleSource, /--space-4:/);
   assert.match(styleSource, /--container-wide:/);
@@ -297,14 +304,22 @@ test("site typography follows one capped responsive hierarchy across languages a
   assert.match(styleSource, /\.menuLink\s*\{[\s\S]*font-size:\s*var\(--type-menu-link\)/);
   assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?--type-display-xl:\s*clamp\(2\.3rem,\s*8\.4vw,\s*3rem\)/);
   assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?--type-display-lg-cjk:\s*clamp\(1\.8rem,\s*6\.8vw,\s*2\.4rem\)/);
+  assert.match(styleSource, /\.site\[lang="zh-HK"\][\s\S]*?--muted:\s*#[0-9a-fA-F]{6}/);
+  assert.match(styleSource, /\.site\[lang="zh-HK"\][\s\S]*?--type-body:\s*var\(--text-base\)/);
+  assert.match(styleSource, /\.site\[lang="zh-HK"\][\s\S]*?letter-spacing:\s*0/);
+  assert.match(styleSource, /\.site\[lang="zh-HK"\][\s\S]*?font-weight:\s*500/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.site\[lang="zh-HK"\][\s\S]*?--type-body:\s*1rem/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.site\[lang="zh-HK"\][\s\S]*?--type-meta:\s*0\.8125rem/);
 });
 
 test("experience explorer keeps recruiter scan order and detail controls visible", () => {
   assert.match(componentSource, /function ExperienceExplorer/);
-  assert.match(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(0\)/);
+  assert.match(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(null\)/);
   assert.match(componentSource, /item\.period/);
   assert.match(componentSource, /item\.company/);
   assert.match(componentSource, /item\.role/);
+  assert.match(componentSource, /item\.headline/);
+  assert.match(componentSource, /experienceCardHeadline/);
   assert.match(componentSource, /item\.focus/);
   assert.match(componentSource, /item\.tags\.map/);
   assert.match(componentSource, /aria-expanded=\{isActive\}/);
@@ -313,7 +328,10 @@ test("experience explorer keeps recruiter scan order and detail controls visible
   assert.match(componentSource, /experienceAccordionDetail/);
   assert.match(componentSource, /data-open=\{isActive\}/);
   assert.match(componentSource, /ExperienceDetailContent/);
+  assert.doesNotMatch(componentSource, /experienceDetailOverview\}>\{item\.detail\.overview\}/);
+  assert.match(componentSource, /item\.detail\.sections\.slice\(0,\s*4\)/);
   assert.match(styleSource, /\.experienceSelectableCard\s*\{/);
+  assert.match(styleSource, /\.experienceCardHeadline\s*\{/);
   assert.match(styleSource, /\.experienceAccordionDetail\s*\{/);
   assert.doesNotMatch(componentSource, /experienceDetailPanel|activeItem/);
 });

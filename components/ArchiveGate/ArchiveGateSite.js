@@ -397,14 +397,9 @@ function ExperienceDetailContent({ item, copy }) {
       </div>
 
       <section className={styles.experienceDetailBlock}>
-        <h4>{copy.experienceHeader.detailOverviewLabel}</h4>
-        <p className={styles.experienceDetailOverview}>{item.detail.overview}</p>
-      </section>
-
-      <section className={styles.experienceDetailBlock}>
         <h4>{copy.experienceHeader.detailSectionsLabel}</h4>
         <div className={styles.experienceDetailList}>
-          {item.detail.sections.map((section) => (
+          {item.detail.sections.slice(0, 4).map((section) => (
             <article key={section.title} className={styles.experienceDetailItem}>
               <h5>{section.title}</h5>
               <p>{section.body}</p>
@@ -432,7 +427,7 @@ function ExperienceDetailContent({ item, copy }) {
 }
 
 function ExperienceExplorer({ copy }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(null);
 
   const selectExperience = (index) => {
     setActiveIndex((currentIndex) => (currentIndex === index ? null : index));
@@ -483,6 +478,7 @@ function ExperienceExplorer({ copy }) {
                   <span className={styles.experienceCardPeriod}>{item.period} · {item.location}</span>
                   <strong>{item.company}</strong>
                   <span className={styles.experienceCardRole}>{item.role}</span>
+                  <span className={styles.experienceCardHeadline}>{item.headline}</span>
                 </span>
                 <span className={styles.experienceCardToggle} aria-hidden="true">
                   {isActive ? "−" : "+"}
@@ -853,12 +849,10 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                 <div className={styles.contactActions}>
                   <a className={styles.primaryButton} href={copy.contact.email} data-cursor-label="EMAIL">
                     {copy.contact.emailLabel}
-                    <span>↗</span>
                   </a>
-                  {copy.contact.linkedin && <a className={styles.secondaryButton} href={copy.contact.linkedin} data-cursor-label="LINKEDIN">LinkedIn<span>↗</span></a>}
+                  {copy.contact.linkedin && <a className={styles.secondaryButton} href={copy.contact.linkedin} data-cursor-label="LINKEDIN">LinkedIn</a>}
                   <a className={styles.secondaryButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">
                     {copy.contact.resumeLabel}
-                    <span>↓</span>
                   </a>
                 </div>
                 <a className={styles.contactEmail} href={copy.contact.email} data-cursor-label="EMAIL">
@@ -870,9 +864,6 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
         </section>
       </main>
 
-      <footer className={styles.footer}>
-        <span>ZS · Zhicheng Situ</span>
-      </footer>
     </div>
   );
 }

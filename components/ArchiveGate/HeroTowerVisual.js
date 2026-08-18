@@ -248,6 +248,29 @@ export default function HeroTowerVisual({ layers, locale }) {
     setHoveredIndex(-1);
   }, [reducedMotion]);
 
+  // The model is now the primary interaction. Arrow keys keep the same
+  // layer-selection path available without bringing the numbered controls
+  // back into the visual composition.
+  const handleTowerKeyDown = useCallback((event) => {
+    const currentIndex = selectedIndex ?? 0;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      handleTowerSelect((currentIndex + 1) % layers.length);
+    }
+    if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      handleTowerSelect((currentIndex - 1 + layers.length) % layers.length);
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleTowerSelect(currentIndex);
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setSelectedIndex(null);
+    }
+  }, [handleTowerSelect, layers.length, selectedIndex]);
+
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReducedMotion(media.matches);
@@ -277,25 +300,19 @@ export default function HeroTowerVisual({ layers, locale }) {
   const selectedLayer = selectedIndex === null ? null : layers[selectedIndex];
   const isReady = Boolean(webgl && ready && !failed);
   const localeText = locale === "en"
-    ? {
-        accessibleLabel: "Five-layer delivery workflow model",
-        controlsLabel: "Choose a delivery workflow layer",
-        hint: "Select a layer to inspect",
-        fallback: "Interactive model unavailable; workflow structure remains available below.",
-      }
-    : locale === "zh-CN"
       ? {
-          accessibleLabel: "五层数字化交付工作模型",
-          controlsLabel: "选择交付工作层级",
-          hint: "选择层级查看说明",
-          fallback: "互动模型暂时无法加载，以下仍保留完整的工作流程说明。",
+          accessibleLabel: "Five-layer delivery workflow model",
+          controlsLabel: "Choose a delivery workflow layer with the keyboard",
         }
-      : {
-          accessibleLabel: "五層數碼交付工作模型",
-          controlsLabel: "選擇交付工作層級",
-          hint: "選取層級查看說明",
-          fallback: "互動模型暫時無法載入，以下仍保留完整的工作流程說明。",
-        };
+      : locale === "zh-CN"
+        ? {
+            accessibleLabel: "五层数字化交付工作模型",
+            controlsLabel: "使用键盘选择交付工作层级",
+          }
+        : {
+            accessibleLabel: "五層數碼交付工作模型",
+            controlsLabel: "使用鍵盤選擇交付工作層級",
+          };
 
   return (
     <div className={styles.heroTower} data-reduced-motion={reducedMotion ? "true" : "false"}>
@@ -316,6 +333,8 @@ export default function HeroTowerVisual({ layers, locale }) {
               gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
               role="img"
               aria-label={localeText.accessibleLabel}
+              tabIndex={0}
+              onKeyDown={handleTowerKeyDown}
               onCreated={({ gl }) => {
                 gl.setClearColor(0x000000, 0);
                 gl.toneMapping = THREE.ACESFilmicToneMapping;
@@ -349,19 +368,18 @@ export default function HeroTowerVisual({ layers, locale }) {
           </div>
         )}
 
-        {!isReady && webgl !== null && (
-          <p className={styles.heroTowerStatus} aria-live="polite">
-            {failed ? localeText.fallback : ""}
-          </p>
-        )}
       </div>
 
-      <div className={styles.heroTowerControls} role="group" aria-label={localeText.controlsLabel}>
+      <div
+        className={styles.heroTowerKeyboardControls}
+        role="group"
+        aria-label={localeText.controlsLabel}
+      >
         {layers.map((layer, index) => (
           <button
             key={layer.id}
             type="button"
-            className={styles.heroTowerControl}
+            className={styles.heroTowerKeyboardControl}
             data-active={activeIndex === index ? "true" : "false"}
             aria-pressed={selectedIndex === index}
             aria-label={`${layer.number} ${layer.title}`}
@@ -374,7 +392,6 @@ export default function HeroTowerVisual({ layers, locale }) {
             {layer.number}
           </button>
         ))}
-        <span className={styles.heroTowerHint} aria-hidden="true">{localeText.hint}</span>
       </div>
 
       <StaticTowerDescription layers={layers} label={localeText.accessibleLabel} />

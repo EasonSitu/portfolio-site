@@ -98,10 +98,22 @@
   animation: caseStudyEnter 500ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
 
+.caseStudyHero {
+  display: grid;
+  gap: 0;
+}
+
+.heroMeta {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
 .kicker,
 .index,
-.metaLabel,
-.reportLabel {
+.metaLabel {
   margin: 0;
   color: var(--accent);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -111,19 +123,15 @@
 }
 
 .headingBlock {
-  display: grid;
-  grid-template-columns: minmax(5rem, 0.2fr) minmax(0, 1fr);
-  gap: 1.5rem;
-  align-items: start;
-  margin-top: 2rem;
-  padding-top: 1.2rem;
+  display: block;
+  margin-top: 2.6rem;
+  padding-top: 0;
   border-top: 1px solid var(--line);
 }
 
-.index {
-  padding-top: 0.65rem;
+.heroMeta .index {
+  padding-top: 0;
   color: var(--terracotta);
-  overflow-wrap: anywhere;
 }
 
 .headingBlock h1 {
@@ -179,27 +187,166 @@
   font-size: 0.75rem;
 }
 
-.report {
+.caseStudyHeroMedia {
   display: grid;
-  gap: 1.2rem;
-  max-width: 62ch;
-  margin-top: clamp(4rem, 9vw, 7rem);
-  padding: 1.5rem 0 0 1.2rem;
+  min-height: clamp(14rem, 32vw, 24rem);
+  margin-top: clamp(3rem, 8vw, 6rem);
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.caseStudySection {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.28fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  padding: clamp(3.75rem, 9vw, 7rem) 0;
   border-top: 1px solid var(--line);
-  border-left: 2px solid var(--accent);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+}
+
+.sectionNumber {
+  color: var(--terracotta);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-family: var(--font-manrope), "Avenir Next", "Segoe UI", sans-serif;
+  font-size: clamp(1.35rem, 2.6vw, 2rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.sectionBody {
+  min-width: 0;
+  max-width: 62ch;
   color: var(--muted);
   font-size: 1rem;
 }
 
-.report p {
+.sectionBody > p {
   margin: 0;
+  line-height: 1.65;
 }
 
-.report .reportLabel {
+.processList {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.processItem {
+  padding-left: 1rem;
+  border-left: 2px solid rgba(23, 78, 166, 0.28);
+}
+
+.processItem h3 {
+  margin: 0 0 0.35rem;
   color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.processItem p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.caseStudyEvidence {
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.caseStudyEvidence .sectionHeader {
+  align-items: baseline;
+}
+
+.caseStudyEvidence .sectionBody {
+  max-width: none;
+}
+
+.caseStudyPlaceholder {
+  display: grid;
+  min-height: clamp(14rem, 42vw, 28rem);
+  place-items: center;
+  padding: 2rem;
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+  color: var(--muted);
+  text-align: center;
+}
+
+.caseStudyPlaceholder span {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.placeholderNote {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.caseStudyNavigation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 0.72fr);
+  gap: 2rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+.nextProject {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transition: color 180ms ease, transform 260ms ease;
+}
+
+.nextProject:hover {
+  color: var(--accent);
+  transform: translateX(0.15rem);
+}
+
+.nextProjectLabel,
+.nextProjectHint {
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nextProject strong {
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.nextProjectHint {
+  color: var(--muted);
+  text-transform: none;
 }
 
 .returnLink {
+  align-self: start;
   justify-content: space-between;
   width: min(100%, 24rem);
   margin-top: 4rem;
@@ -236,8 +383,7 @@
   }
 
   .headingBlock {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+    margin-top: 2rem;
   }
 
   .index {
@@ -245,13 +391,29 @@
   }
 
   .headingBlock h1 {
-    max-width: 12ch;
+    max-width: 100%;
+    overflow-wrap: anywhere;
     font-size: clamp(2.25rem, 11vw, 3.6rem);
   }
 
   .metaGrid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .caseStudySection {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding-block: 3.5rem;
+  }
+
+  .caseStudyNavigation {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .returnLink {
+    margin-top: 1rem;
   }
 }
 

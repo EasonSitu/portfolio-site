@@ -68,10 +68,13 @@ test("navigation keeps the five section links accessible in the overlay", () => 
   assert.match(styleSource, /\.menuOverlay\[data-open="true"\][\s\S]*?pointer-events:\s*auto/);
 });
 
-test("the E loader only appears for a slow render and respects reduced motion", () => {
-  assert.match(componentSource, /const LOADER_SHOW_DELAY\s*=\s*220/);
+test("the E loader owns the initial Hero wait and respects reduced motion", () => {
+  assert.match(componentSource, /function PageLoader\(\{ ready \}\)/);
   assert.match(componentSource, /const LOADER_MIN_VISIBLE\s*=\s*900/);
-  assert.match(componentSource, /window\.addEventListener\("load", finish/);
+  assert.match(componentSource, /const LOADER_FAILSAFE_DURATION\s*=\s*3200/);
+  assert.match(componentSource, /<PageLoader ready=\{heroReady\}/);
+  assert.match(componentSource, /onReady=\{handleHeroReady\}/);
+  assert.match(componentSource, /loading:\s*\(\)\s*=>\s*null/);
   assert.match(componentSource, /data-phase=\{phase\}/);
   assert.match(styleSource, /@keyframes\s+pageLoaderProgress/);
   assert.match(styleSource, /\.pageLoader\[data-phase="visible"\]/);
@@ -148,6 +151,10 @@ test("hero workflow is presented as an interactive five-layer tower", () => {
 test("hero tower floats without the old frame, grid background or helper labels", () => {
   assert.doesNotMatch(componentSource, /heroVisualHeader/);
   assert.match(styleSource, /\.heroVisual\s*\{[\s\S]*?padding:\s*0;[\s\S]*?border:\s*0;[\s\S]*?border-radius:\s*0;[\s\S]*?background:\s*transparent;[\s\S]*?box-shadow:\s*none;/);
+  assert.doesNotMatch(styleSource, /\.heroTowerCanvas[\s\S]*?translate3d\(-1\.4rem/);
+  assert.doesNotMatch(styleSource, /\.heroTowerFallback[\s\S]*?scale\(1\.12\)/);
+  assert.match(styleSource, /@keyframes\s+heroTowerAnnotationIn/);
+  assert.match(styleSource, /@keyframes\s+heroTowerAnnotationOut/);
   assert.doesNotMatch(styleSource, /\.heroVisual::after\s*\{/);
 });
 
@@ -240,9 +247,10 @@ test("candidate name steps down one display level without changing the Hero stru
 
 test("hero columns stay balanced with a restrained desktop inset", () => {
   assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?align-items:\s*start/);
+  assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*0\.82fr\)\s+minmax\(0,\s*1fr\)/);
   assert.match(styleSource, /\.heroCopy\s*\{[\s\S]*?padding-top:\s*clamp\(0rem,\s*1\.4vw,\s*1\.25rem\)/);
   assert.match(styleSource, /@media \(max-width:\s*1050px\)[\s\S]*?\.heroCopy\s*\{[\s\S]*?padding-top:\s*0/);
-  assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?gap:\s*clamp\(3rem,\s*6vw,\s*6\.5rem\)/);
+  assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?gap:\s*clamp\(2\.5rem,\s*4vw,\s*5rem\)/);
   assert.match(styleSource, /\.heroVisual\s*\{[\s\S]*?background:\s*transparent;[\s\S]*?box-shadow:\s*none;/);
   assert.match(styleSource, /\.heroTowerCanvas\s*\{[\s\S]*?opacity:\s*0/);
   assert.doesNotMatch(styleSource, /solutionPulse/);

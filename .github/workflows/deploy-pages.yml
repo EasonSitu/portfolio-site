@@ -2,7 +2,7 @@ name: Deploy portfolio to GitHub Pages
 
 on:
   push:
-    branches: [agent/refine-recruiter-portfolio]
+    branches: [agent/refine-recruiter-portfolio, feat/hero-five-layer-tower]
   workflow_dispatch:
 
 permissions:

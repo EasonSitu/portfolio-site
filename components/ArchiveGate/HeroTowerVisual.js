@@ -2,6 +2,7 @@ import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { withPublicBasePath } from "../../lib/publicPath.mjs";
 import {
   createLayerRotationState,
@@ -9,11 +10,22 @@ import {
   triggerLayerBoost,
 } from "./heroTowerRotation.mjs";
 import { getLayerMaterialProfile } from "./heroTowerMaterials.mjs";
+import { getHeroTowerCameraFit } from "./heroTowerCamera.mjs";
 import styles from "./ArchiveGateSite.module.scss";
 
 const MODEL_URL = withPublicBasePath("/models/hero-delivery-system-A-editorial-light.glb");
 const PREVIEW_URL = withPublicBasePath("/models/hero-delivery-system-A-editorial-light.png");
 const LAYER_DIRECTIONS = [-1, 1, -1, 1, -1];
+const ANNOTATION_FADE_IN_DURATION = 800;
+const ANNOTATION_HOLD_DURATION = 4400;
+const ANNOTATION_FADE_DURATION = 800;
+const IDLE_LAYER_STEP_DURATION = 1400;
+const CAMERA_MIN_POLAR_ANGLE = 0.72;
+const CAMERA_MAX_POLAR_ANGLE = Math.PI / 2 - 0.12;
+const CAMERA_DEFAULT_AZIMUTH = Math.atan2(7.8, 14.2);
+const CAMERA_AZIMUTH_HALF_RANGE = 0.82;
+const CAMERA_MIN_AZIMUTH = CAMERA_DEFAULT_AZIMUTH - CAMERA_AZIMUTH_HALF_RANGE;
+const CAMERA_MAX_AZIMUTH = CAMERA_DEFAULT_AZIMUTH + CAMERA_AZIMUTH_HALF_RANGE;
 
 function workflowLayerIndex(object) {
   let current = object;
@@ -45,6 +57,13 @@ function cloneRuntimeMaterials(scene) {
     });
 
     object.material = Array.isArray(object.material) ? materials : materials[0];
+    // Reuse this list during the animation loop instead of allocating a new
+    // single-item array for every mesh on every frame.
+    object.userData.heroMaterials = Array.isArray(object.material)
+      ? object.material
+      : object.material
+        ? [object.material]
+        : [];
     object.castShadow = false;
     object.receiveShadow = false;
   });
@@ -57,13 +76,28 @@ function cachedTargetColor(material, cacheKey, hex) {
 }
 
 function applyLayerMaterialProfile(root, active, delta, reducedMotion) {
+  const profileKey = active ? "active" : "inactive";
+  const profileState = root.userData.heroMaterialProfile ?? (root.userData.heroMaterialProfile = {
+    key: null,
+    framesRemaining: 0,
+  });
+
+  if (profileState.key !== profileKey) {
+    profileState.key = profileKey;
+    profileState.framesRemaining = reducedMotion ? 1 : 18;
+  }
+
+  // Material uniforms do not need to be traversed once the short profile
+  // transition has settled. This keeps the idle render loop inexpensive.
+  if (profileState.framesRemaining <= 0) return;
+
   const profile = getLayerMaterialProfile(active);
   const blend = reducedMotion ? 1 : 1 - Math.exp(-12 * Math.max(delta, 0));
 
   root.traverse((object) => {
     if (!object.isMesh) return;
 
-    const source = Array.isArray(object.material) ? object.material : [object.material];
+    const source = object.userData.heroMaterials ?? (Array.isArray(object.material) ? object.material : [object.material]);
     source.forEach((material) => {
       if (!material) return;
 
@@ -88,17 +122,97 @@ function applyLayerMaterialProfile(root, active, delta, reducedMotion) {
         const targetRoughness = crystal ? profile.crystalRoughness : profile.graphiteRoughness;
         material.roughness = THREE.MathUtils.lerp(material.roughness, targetRoughness, blend);
       }
-      material.needsUpdate = true;
     });
   });
+
+  profileState.framesRemaining -= 1;
 }
 
-function CameraRig() {
-  const { camera } = useThree();
+function CameraRig({ modelRadius }) {
+  const { camera, gl, size } = useThree();
+  const controlsRef = useRef(null);
+  const target = useMemo(() => new THREE.Vector3(0, 0, 0), []);
+  const hasInteractedRef = useRef(false);
+  const applyingFrameRef = useRef(false);
 
   useEffect(() => {
-    camera.lookAt(0, 0, 0);
-  }, [camera]);
+    const controls = new OrbitControls(camera, gl.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enableRotate = true;
+    controls.enableZoom = true;
+    controls.enablePan = false;
+    controls.rotateSpeed = 0.72;
+    controls.zoomSpeed = 0.82;
+    controls.screenSpacePanning = false;
+    // Keep the camera above the tower's horizontal plane and within the
+    // front-facing azimuth window; the rear and underside stay inaccessible.
+    controls.minPolarAngle = CAMERA_MIN_POLAR_ANGLE;
+    controls.maxPolarAngle = CAMERA_MAX_POLAR_ANGLE;
+    controls.minAzimuthAngle = CAMERA_MIN_AZIMUTH;
+    controls.maxAzimuthAngle = CAMERA_MAX_AZIMUTH;
+    controls.touches.ONE = THREE.TOUCH.ROTATE;
+    controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
+    // OrbitControls defaults to `none`, which would also consume vertical
+    // page scrolling on mobile. One-finger rotation remains available while
+    // the page keeps ownership of the vertical pan gesture.
+    controls.domElement.style.touchAction = "pan-y";
+
+    const markInteracted = () => {
+      if (!applyingFrameRef.current) hasInteractedRef.current = true;
+    };
+
+    controls.addEventListener("change", markInteracted);
+    controlsRef.current = controls;
+
+    return () => {
+      controls.removeEventListener("change", markInteracted);
+      controls.dispose();
+      controlsRef.current = null;
+    };
+  }, [camera, gl]);
+
+  useEffect(() => {
+    const controls = controlsRef.current;
+    const viewportWidth = typeof window === "undefined" ? size.width : window.innerWidth;
+    const fit = getHeroTowerCameraFit(size.width, size.height, modelRadius, viewportWidth);
+    target.fromArray(fit.target);
+    const currentOffset = camera.position.clone().sub(target);
+    const currentDistance = currentOffset.length();
+    const defaultDirection = new THREE.Vector3(...fit.position).sub(target).normalize();
+    const currentDirection = hasInteractedRef.current && currentDistance > 0
+      ? currentOffset.normalize()
+      : defaultDirection;
+    const nextDistance = hasInteractedRef.current
+      ? THREE.MathUtils.clamp(Math.max(currentDistance, fit.initialDistance), fit.minDistance, fit.maxDistance)
+      : fit.initialDistance;
+
+    applyingFrameRef.current = true;
+    camera.fov = fit.fov;
+    camera.near = 0.1;
+    camera.far = 100;
+    camera.position.copy(target).add(currentDirection.multiplyScalar(nextDistance));
+    camera.updateProjectionMatrix();
+
+    if (controls) {
+      controls.target.copy(target);
+      controls.minDistance = fit.minDistance;
+      controls.maxDistance = fit.maxDistance;
+      controls.minPolarAngle = CAMERA_MIN_POLAR_ANGLE;
+      controls.maxPolarAngle = CAMERA_MAX_POLAR_ANGLE;
+      controls.minAzimuthAngle = CAMERA_MIN_AZIMUTH;
+      controls.maxAzimuthAngle = CAMERA_MAX_AZIMUTH;
+      controls.update();
+    } else {
+      camera.lookAt(target);
+    }
+
+    applyingFrameRef.current = false;
+  }, [camera, modelRadius, size.height, size.width, target]);
+
+  useFrame(() => {
+    controlsRef.current?.update();
+  });
 
   return null;
 }
@@ -116,10 +230,11 @@ function SceneLights() {
 
 function DeliveryTower({ activeIndex, hoveredIndex, reducedMotion, rotationState, onHover, onSelect, onReady }) {
   const gltf = useLoader(GLTFLoader, MODEL_URL);
-  const rootRef = useRef(null);
   const layerState = useRef([]);
+  const pointerState = useRef({ pointerId: null, startX: 0, startY: 0, moved: false });
+  const lastPointerWasDrag = useRef(false);
 
-  const scene = useMemo(() => {
+  const sceneData = useMemo(() => {
     const clone = gltf.scene.clone(true);
     const bounds = new THREE.Box3().setFromObject(clone);
     const center = bounds.getCenter(new THREE.Vector3());
@@ -128,7 +243,11 @@ function DeliveryTower({ activeIndex, hoveredIndex, reducedMotion, rotationState
 
     clone.scale.setScalar(scale);
     clone.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+    clone.updateMatrixWorld(true);
     cloneRuntimeMaterials(clone);
+
+    const normalizedBounds = new THREE.Box3().setFromObject(clone);
+    const normalizedSphere = normalizedBounds.getBoundingSphere(new THREE.Sphere());
 
     layerState.current = [1, 2, 3, 4, 5].map((number) => {
       const root = clone.getObjectByName(`Hero_Layer_0${number}`);
@@ -141,14 +260,17 @@ function DeliveryTower({ activeIndex, hoveredIndex, reducedMotion, rotationState
       };
     }).filter(Boolean);
 
-    return clone;
+    return { scene: clone, radius: normalizedSphere.radius };
   }, [gltf.scene]);
 
+  const { scene, radius } = sceneData;
+
   useEffect(() => {
-    onReady?.();
-  }, [onReady]);
+    onReady?.(radius);
+  }, [onReady, radius]);
 
   useFrame((_, delta) => {
+    const now = performance.now();
     layerState.current.forEach(({ root, baseY, baseRotationX, baseRotationY }, index) => {
       const isActive = index === activeIndex;
       const isHovered = index === hoveredIndex;
@@ -169,7 +291,7 @@ function DeliveryTower({ activeIndex, hoveredIndex, reducedMotion, rotationState
 
       // Click boost is temporary and isolated to the selected layer. The
       // smaller active/hover additions keep the idle interaction restrained.
-      const clickBoostedSpeed = getLayerRotationSpeed(rotationState, index, performance.now());
+      const clickBoostedSpeed = getLayerRotationSpeed(rotationState, index, now);
       const speed = clickBoostedSpeed + (isActive ? 0.055 : 0) + (isHovered ? 0.085 : 0);
       root.rotation.y += LAYER_DIRECTIONS[index] * speed * delta;
       root.rotation.x = THREE.MathUtils.damp(root.rotation.x, emphasis ? 0.035 * LAYER_DIRECTIONS[index] : 0, 5, delta);
@@ -178,21 +300,59 @@ function DeliveryTower({ activeIndex, hoveredIndex, reducedMotion, rotationState
     });
   });
 
+  const handlePointerDown = (event) => {
+    event.stopPropagation();
+    pointerState.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+    };
+    lastPointerWasDrag.current = false;
+    onHover(workflowLayerIndex(event.object));
+  };
+
   const handlePointerMove = (event) => {
     event.stopPropagation();
+    const state = pointerState.current;
+    if (state.pointerId === event.pointerId) {
+      const distance = Math.hypot(event.clientX - state.startX, event.clientY - state.startY);
+      if (distance > 8) state.moved = true;
+    }
     onHover(workflowLayerIndex(event.object));
+  };
+
+  const handlePointerUp = (event) => {
+    event.stopPropagation();
+    const state = pointerState.current;
+    if (state.pointerId !== event.pointerId) return;
+    lastPointerWasDrag.current = state.moved;
+    pointerState.current = { pointerId: null, startX: 0, startY: 0, moved: false };
+  };
+
+  const handlePointerCancel = (event) => {
+    event.stopPropagation();
+    pointerState.current = { pointerId: null, startX: 0, startY: 0, moved: true };
+    lastPointerWasDrag.current = true;
   };
 
   const handleClick = (event) => {
     event.stopPropagation();
     const index = workflowLayerIndex(event.object);
+    const movedByPointer = pointerState.current.moved || lastPointerWasDrag.current;
+    const movedByR3F = Number.isFinite(event.delta) && event.delta > 8;
+    lastPointerWasDrag.current = false;
+    if (movedByPointer || movedByR3F) return;
     if (index >= 0) onSelect(index);
   };
 
   return (
-    <group ref={rootRef} rotation={[0.02, -0.12, 0]}>
+    <group rotation={[0.02, -0.12, 0]}>
       <group
+        onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
         onPointerLeave={() => onHover(-1)}
         onClick={handleClick}
       >
@@ -231,22 +391,61 @@ function StaticTowerDescription({ layers, label }) {
   );
 }
 
-export default function HeroTowerVisual({ layers, locale }) {
+export default function HeroTowerVisual({ layers, locale, onReady }) {
   const [webgl, setWebgl] = useState(null);
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
+  const [modelRadius, setModelRadius] = useState(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
+  const [idleLayerIndex, setIdleLayerIndex] = useState(0);
+  const [annotation, setAnnotation] = useState(null);
   const rotationState = useRef(createLayerRotationState());
-  const handleTowerReady = useCallback(() => setReady(true), []);
+  const annotationTimers = useRef({ fade: 0, hide: 0 });
+  const annotationSequence = useRef(0);
+
+  const handleTowerReady = useCallback((radius) => {
+    if (Number.isFinite(radius)) setModelRadius(radius);
+    setReady(true);
+  }, []);
+
+  const clearAnnotationTimers = useCallback(() => {
+    window.clearTimeout(annotationTimers.current.fade);
+    window.clearTimeout(annotationTimers.current.hide);
+    annotationTimers.current = { fade: 0, hide: 0 };
+  }, []);
+
+  const dismissAnnotation = useCallback(() => {
+    clearAnnotationTimers();
+    setAnnotation(null);
+  }, [clearAnnotationTimers]);
+
+  const showAnnotation = useCallback((index) => {
+    clearAnnotationTimers();
+    const sequence = annotationSequence.current + 1;
+    annotationSequence.current = sequence;
+    setAnnotation({ index, phase: "visible", sequence });
+
+    const fadeAt = ANNOTATION_FADE_IN_DURATION + ANNOTATION_HOLD_DURATION;
+    annotationTimers.current.fade = window.setTimeout(() => {
+      setAnnotation((current) => current?.sequence === sequence
+        ? { ...current, phase: "fading" }
+        : current);
+    }, fadeAt);
+    annotationTimers.current.hide = window.setTimeout(() => {
+      setAnnotation((current) => current?.sequence === sequence ? null : current);
+    }, fadeAt + ANNOTATION_FADE_DURATION);
+  }, [clearAnnotationTimers]);
+
   const handleTowerSelect = useCallback((index) => {
     // Resetting the timestamp makes repeated clicks feel responsive rather
     // than waiting for the previous boost to finish.
     triggerLayerBoost(rotationState.current, index, performance.now(), reducedMotion);
     setSelectedIndex(index);
     setHoveredIndex(-1);
-  }, [reducedMotion]);
+    showAnnotation(index);
+  }, [reducedMotion, showAnnotation]);
 
   // The model is now the primary interaction. Arrow keys keep the same
   // layer-selection path available without bringing the numbered controls
@@ -268,8 +467,9 @@ export default function HeroTowerVisual({ layers, locale }) {
     if (event.key === "Escape") {
       event.preventDefault();
       setSelectedIndex(null);
+      dismissAnnotation();
     }
-  }, [handleTowerSelect, layers.length, selectedIndex]);
+  }, [dismissAnnotation, handleTowerSelect, layers.length, selectedIndex]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -278,6 +478,20 @@ export default function HeroTowerVisual({ layers, locale }) {
     media.addEventListener?.("change", update);
     return () => media.removeEventListener?.("change", update);
   }, []);
+
+  useEffect(() => {
+    // Before a click, gently sweep the active material from the first layer to
+    // the fifth. This only changes the material emphasis; it never selects a
+    // layer and therefore never opens an annotation.
+    if (reducedMotion || selectedIndex !== null || hoveredIndex >= 0) return undefined;
+
+    setIdleLayerIndex(0);
+    const timer = window.setInterval(() => {
+      setIdleLayerIndex((current) => (current + 1) % layers.length);
+    }, IDLE_LAYER_STEP_DURATION);
+
+    return () => window.clearInterval(timer);
+  }, [hoveredIndex, layers.length, reducedMotion, selectedIndex]);
 
   useEffect(() => {
     try {
@@ -290,15 +504,26 @@ export default function HeroTowerVisual({ layers, locale }) {
 
   useEffect(() => {
     const releaseSelection = (event) => {
-      if (event.key === "Escape") setSelectedIndex(null);
+      if (event.key === "Escape") {
+        setSelectedIndex(null);
+        dismissAnnotation();
+      }
     };
     window.addEventListener("keydown", releaseSelection);
-    return () => window.removeEventListener("keydown", releaseSelection);
-  }, []);
+    return () => {
+      window.removeEventListener("keydown", releaseSelection);
+      clearAnnotationTimers();
+    };
+  }, [clearAnnotationTimers, dismissAnnotation]);
 
-  const activeIndex = hoveredIndex >= 0 ? hoveredIndex : selectedIndex ?? 0;
-  const selectedLayer = selectedIndex === null ? null : layers[selectedIndex];
+  const activeIndex = hoveredIndex >= 0 ? hoveredIndex : selectedIndex ?? idleLayerIndex;
+  const annotationLayer = annotation ? layers[annotation.index] : null;
   const isReady = Boolean(webgl && ready && !failed);
+
+  useEffect(() => {
+    if (isReady) onReady?.();
+  }, [isReady, onReady]);
+
   const localeText = locale === "en"
       ? {
           accessibleLabel: "Five-layer delivery workflow model",
@@ -328,8 +553,10 @@ export default function HeroTowerVisual({ layers, locale }) {
           <TowerErrorBoundary onError={() => setFailed(true)}>
             <Canvas
               className={styles.heroTowerCanvas}
-              camera={{ position: [7.8, 4.1, 14.2], fov: 34, near: 0.1, far: 100 }}
-              dpr={[1, 1.5]}
+              camera={{ position: [7.8, 6.4, 14.2], fov: 40, near: 0.1, far: 100 }}
+              // Keep the enlarged interaction frame responsive on high-DPI
+              // displays; the model geometry itself is unchanged.
+              dpr={[1, 1.25]}
               gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
               role="img"
               aria-label={localeText.accessibleLabel}
@@ -343,7 +570,7 @@ export default function HeroTowerVisual({ layers, locale }) {
               }}
               onPointerLeave={() => setHoveredIndex(-1)}
             >
-              <CameraRig />
+              <CameraRig modelRadius={modelRadius} />
               <SceneLights />
               <Suspense fallback={null}>
                 <DeliveryTower
@@ -360,15 +587,21 @@ export default function HeroTowerVisual({ layers, locale }) {
           </TowerErrorBoundary>
         )}
 
-        {selectedLayer && (
-          <div className={styles.heroTowerCallout} role="status" aria-live="polite">
-            <span>{selectedLayer.number}</span>
-            <strong>{selectedLayer.title}</strong>
-            <p>{selectedLayer.description}</p>
-          </div>
-        )}
-
       </div>
+
+      {annotationLayer && (
+        <div
+          key={annotation.sequence}
+          className={styles.heroTowerCallout}
+          data-phase={annotation.phase}
+          role="status"
+          aria-live="polite"
+        >
+          <span>{annotationLayer.number}</span>
+          <strong>{annotationLayer.title}</strong>
+          <p>{annotationLayer.description}</p>
+        </div>
+      )}
 
       <div
         className={styles.heroTowerKeyboardControls}

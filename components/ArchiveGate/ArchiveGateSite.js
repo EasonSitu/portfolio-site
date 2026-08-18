@@ -1,12 +1,14 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./ArchiveGateSite.module.scss";
 import { withPublicBasePath } from "../../lib/publicPath.mjs";
 
 const HeroTowerVisual = dynamic(() => import("./HeroTowerVisual"), {
   ssr: false,
-  loading: () => <div className={styles.heroTowerLoading} aria-hidden="true"><span /></div>,
+  // The full-screen E loader owns the initial wait. Do not flash a second
+  // small spinner before the complete Hero scene is ready.
+  loading: () => null,
 });
 
 const localeLabels = [
@@ -315,55 +317,56 @@ function EBrandMark({ className, inverted = false }) {
   );
 }
 
-// 只有頁面載入較慢時才顯示，快速載入不會被固定開場動畫打斷。
-const LOADER_SHOW_DELAY = 220;
+// The E mark is the single initial loading state. It stays over the page
+// until the complete Hero scene reports ready, with a failsafe for WebGL
+// failures or resources that never resolve.
 const LOADER_MIN_VISIBLE = 900;
 const LOADER_EXIT_DURATION = 180;
+const LOADER_FAILSAFE_DURATION = 3200;
 
-function PageLoader() {
-  const [phase, setPhase] = useState("hidden");
+function PageLoader({ ready }) {
+  const [phase, setPhase] = useState("visible");
+  const shownAtRef = useRef(0);
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return undefined;
+    if (reduced) {
+      setPhase("hidden");
+      return undefined;
+    }
 
-    let showTimer = 0;
     let hideTimer = 0;
     let exitTimer = 0;
-    let shownAt = 0;
-    let hasShown = false;
-    let pageReady = document.readyState === "complete";
+    let failsafeTimer = 0;
+    const shownAt = shownAtRef.current || performance.now();
+    shownAtRef.current = shownAt;
 
-    const finish = () => {
-      pageReady = true;
-      window.clearTimeout(showTimer);
-
-      if (!hasShown) return;
-
-      const remaining = Math.max(0, LOADER_MIN_VISIBLE - (performance.now() - shownAt));
+    const exit = (respectMinimum = true) => {
+      window.clearTimeout(failsafeTimer);
+      const remaining = respectMinimum
+        ? Math.max(0, LOADER_MIN_VISIBLE - (performance.now() - shownAt))
+        : 0;
       hideTimer = window.setTimeout(() => {
         setPhase("exiting");
         exitTimer = window.setTimeout(() => setPhase("hidden"), LOADER_EXIT_DURATION);
       }, remaining);
     };
 
-    if (!pageReady) {
-      showTimer = window.setTimeout(() => {
-        if (pageReady) return;
-        hasShown = true;
-        shownAt = performance.now();
-        setPhase("visible");
-      }, LOADER_SHOW_DELAY);
-      window.addEventListener("load", finish, { once: true });
+    if (ready) {
+      exit(true);
+    } else {
+      setPhase("visible");
+      // A failed WebGL context should reveal the static fallback instead of
+      // leaving the E overlay permanently stuck.
+      failsafeTimer = window.setTimeout(() => exit(false), LOADER_FAILSAFE_DURATION);
     }
 
     return () => {
-      window.clearTimeout(showTimer);
       window.clearTimeout(hideTimer);
       window.clearTimeout(exitTimer);
-      window.removeEventListener("load", finish);
+      window.clearTimeout(failsafeTimer);
     };
-  }, []);
+  }, [ready]);
 
   if (phase === "hidden") return null;
 
@@ -689,6 +692,8 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
   const cursorRef = useRef(null);
   const cursorFollowerRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
+  const handleHeroReady = useCallback(() => setHeroReady(true), []);
   useReveal(rootRef);
   usePointerCursor(rootRef, cursorRef, cursorFollowerRef);
   useScrollTextReveal(rootRef);
@@ -728,7 +733,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
 
   return (
     <div ref={rootRef} className={styles.site} lang={locale} data-menu-open={mobileMenuOpen}>
-      <PageLoader />
+      <PageLoader ready={heroReady} />
       <span ref={cursorRef} className={styles.cursor} aria-hidden="true" />
       <span ref={cursorFollowerRef} className={styles.cursorFollower} aria-hidden="true" />
       <span className={styles.signatureAura} aria-hidden="true" />
@@ -813,7 +818,11 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                 </div>
               </div>
               <div className={styles.heroVisual} data-reveal aria-label={locale === "en" ? "Five-layer delivery workflow model" : locale === "zh-CN" ? "五层数字化交付工作模型" : "五層數碼交付工作模型"}>
-                <HeroTowerVisual layers={copy.hero.workflowLayers} locale={locale} />
+                <HeroTowerVisual
+                  layers={copy.hero.workflowLayers}
+                  locale={locale}
+                  onReady={handleHeroReady}
+                />
               </div>
             </div>
           </div>

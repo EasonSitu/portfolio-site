@@ -33,6 +33,8 @@ test("B foundation uses a pointer-aware editorial hero without loading the 3D he
   assert.match(componentSource, /usePointerCursor/);
   assert.match(componentSource, /signatureAura/);
   assert.match(componentSource, /data-cursor-label/);
+  assert.match(styleSource, /\.cursor\s*\{[\s\S]*?mix-blend-mode:\s*difference/);
+  assert.match(styleSource, /\.cursorFollower\s*\{[\s\S]*?mix-blend-mode:\s*difference/);
 });
 
 test("header keeps the menu while reserving the E mark for the conditional loader", () => {
@@ -247,10 +249,10 @@ test("candidate name steps down one display level without changing the Hero stru
 
 test("hero columns stay balanced with a restrained desktop inset", () => {
   assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?align-items:\s*start/);
-  assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*0\.82fr\)\s+minmax\(0,\s*1fr\)/);
+  assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*0\.82fr\)\s+minmax\(0,\s*1\.08fr\)/);
   assert.match(styleSource, /\.heroCopy\s*\{[\s\S]*?padding-top:\s*clamp\(0rem,\s*1\.4vw,\s*1\.25rem\)/);
   assert.match(styleSource, /@media \(max-width:\s*1050px\)[\s\S]*?\.heroCopy\s*\{[\s\S]*?padding-top:\s*0/);
-  assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?gap:\s*clamp\(2\.5rem,\s*4vw,\s*5rem\)/);
+  assert.match(styleSource, /\.heroGrid\s*\{[\s\S]*?gap:\s*clamp\(2\.25rem,\s*3\.5vw,\s*4\.5rem\)/);
   assert.match(styleSource, /\.heroVisual\s*\{[\s\S]*?background:\s*transparent;[\s\S]*?box-shadow:\s*none;/);
   assert.match(styleSource, /\.heroTowerCanvas\s*\{[\s\S]*?opacity:\s*0/);
   assert.doesNotMatch(styleSource, /solutionPulse/);
@@ -400,6 +402,7 @@ test("selected work is a concise horizontal draggable showcase", () => {
   assert.doesNotMatch(componentSource, /ProjectEvidenceCard/);
   assert.doesNotMatch(componentSource, /projectSignalFlow/);
   assert.match(styleSource, /\.projectShowcaseRail\s*\{[\s\S]*overflow-x:\s*auto/);
+  assert.match(styleSource, /\.projectShowcaseRail\s*\{[\s\S]*scroll-snap-type:\s*none/);
   assert.match(styleSource, /\.projectShowcaseLink\s*\{[\s\S]*scroll-snap-align:\s*start/);
   assert.match(styleSource, /\.projectShowcaseLink\s*\{[\s\S]*flex:\s*0 0/);
   assert.match(styleSource, /\.projectShowcaseLink:focus-visible/);

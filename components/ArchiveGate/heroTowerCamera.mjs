@@ -40,7 +40,9 @@ export function getHeroTowerCameraFit(width, height, modelRadius = DEFAULT_MODEL
   const directionLength = Math.hypot(...DEFAULT_DIRECTION);
   const direction = DEFAULT_DIRECTION.map((value) => value / directionLength);
   const target = [
-    mode === "mobile" ? Math.max(0, (1.45 - aspect) * 2.6) : 0,
+    mode === "mobile"
+      ? Math.max(0, (1.45 - aspect) * 2.6)
+      : mode === "desktop" ? 0.15 : 0,
     mode === "desktop" ? 0 : mode === "tablet" ? -0.5 : 0,
     0,
   ];

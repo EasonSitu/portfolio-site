@@ -20,6 +20,14 @@ const ANNOTATION_FADE_IN_DURATION = 800;
 const ANNOTATION_HOLD_DURATION = 4400;
 const ANNOTATION_FADE_DURATION = 800;
 const IDLE_LAYER_STEP_DURATION = 1400;
+const HOTSPOT_VISIBLE_OPACITY = 0.5;
+const HOTSPOT_SCREEN_OFFSETS = [
+  { x: -3, y: -21 },
+  { x: 0, y: 0 },
+  { x: -34, y: 30 },
+  { x: -36, y: 32 },
+  { x: -26, y: 39 },
+];
 const CAMERA_MIN_POLAR_ANGLE = 0.72;
 const CAMERA_MAX_POLAR_ANGLE = Math.PI / 2 - 0.12;
 const CAMERA_DEFAULT_AZIMUTH = Math.atan2(7.8, 14.2);
@@ -228,7 +236,37 @@ function SceneLights() {
   );
 }
 
-function DeliveryTower({ activeIndex, hoveredIndex, reducedMotion, rotationState, onHover, onSelect, onReady }) {
+function LayerHotspotProjector({ layerState, hotspotRefs }) {
+  const { camera, size } = useThree();
+  const worldCenter = useMemo(() => new THREE.Vector3(), []);
+  const projected = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame(() => {
+    layerState.current.forEach(({ root }, index) => {
+      const node = hotspotRefs.current[index];
+      if (!node) return;
+
+      root.getWorldPosition(worldCenter);
+      projected.copy(worldCenter).project(camera);
+
+      const baseX = (projected.x * 0.5 + 0.5) * size.width;
+      const baseY = (-projected.y * 0.5 + 0.5) * size.height;
+      const offset = HOTSPOT_SCREEN_OFFSETS[index] || { x: 0, y: 0 };
+      const offsetScale = Math.min(1, size.width / 720);
+      const x = baseX + offset.x * offsetScale;
+      const y = baseY + offset.y * offsetScale;
+      const visible = projected.z > -1 && projected.z < 1 && x > -24 && x < size.width + 24 && y > -24 && y < size.height + 24;
+
+      node.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      node.style.opacity = visible ? String(HOTSPOT_VISIBLE_OPACITY) : "0";
+      node.style.pointerEvents = visible ? "auto" : "none";
+    });
+  });
+
+  return null;
+}
+
+function DeliveryTower({ activeIndex, hoveredIndex, reducedMotion, rotationState, onHover, onSelect, onReady, hotspotRefs }) {
   const gltf = useLoader(GLTFLoader, MODEL_URL);
   const layerState = useRef([]);
   const pointerState = useRef({ pointerId: null, startX: 0, startY: 0, moved: false });
@@ -358,6 +396,7 @@ function DeliveryTower({ activeIndex, hoveredIndex, reducedMotion, rotationState
       >
         <primitive object={scene} />
       </group>
+      <LayerHotspotProjector layerState={layerState} hotspotRefs={hotspotRefs} />
     </group>
   );
 }
@@ -400,6 +439,7 @@ export default function HeroTowerVisual({ layers, locale, onReady }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [idleLayerIndex, setIdleLayerIndex] = useState(0);
+  const hotspotRefs = useRef([]);
   const [annotation, setAnnotation] = useState(null);
   const rotationState = useRef(createLayerRotationState());
   const annotationTimers = useRef({ fade: 0, hide: 0 });
@@ -528,15 +568,21 @@ export default function HeroTowerVisual({ layers, locale, onReady }) {
       ? {
           accessibleLabel: "Five-layer delivery workflow model",
           controlsLabel: "Choose a delivery workflow layer with the keyboard",
+          hotspotsLabel: "Choose a delivery workflow layer",
+          closeAnnotation: "Close annotation",
         }
       : locale === "zh-CN"
         ? {
             accessibleLabel: "五层数字化交付工作模型",
             controlsLabel: "使用键盘选择交付工作层级",
+            hotspotsLabel: "选择交付工作层级",
+            closeAnnotation: "关闭标注",
           }
         : {
             accessibleLabel: "五層數碼交付工作模型",
             controlsLabel: "使用鍵盤選擇交付工作層級",
+            hotspotsLabel: "選擇交付工作層級",
+            closeAnnotation: "關閉標註"
           };
 
   return (
@@ -581,12 +627,39 @@ export default function HeroTowerVisual({ layers, locale, onReady }) {
                   onHover={(index) => setHoveredIndex((current) => current === index ? current : index)}
                   onSelect={handleTowerSelect}
                   onReady={handleTowerReady}
+                  hotspotRefs={hotspotRefs}
                 />
               </Suspense>
             </Canvas>
           </TowerErrorBoundary>
         )}
 
+        <div
+          className={styles.heroTowerHotspots}
+          role="group"
+          aria-label={localeText.hotspotsLabel}
+        >
+          {layers.map((layer, index) => (
+            <button
+              key={layer.id}
+              ref={(node) => { hotspotRefs.current[index] = node; }}
+              className={styles.heroTowerHotspot}
+              type="button"
+              data-active={activeIndex === index ? "true" : "false"}
+              data-hovered={hoveredIndex === index ? "true" : "false"}
+              aria-label={`${layer.number} ${layer.title}`}
+              tabIndex={-1}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(-1)}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleTowerSelect(index);
+              }}
+            >
+              <span aria-hidden="true" />
+            </button>
+          ))}
+        </div>
       </div>
 
       {annotationLayer && (
@@ -594,9 +667,17 @@ export default function HeroTowerVisual({ layers, locale, onReady }) {
           key={annotation.sequence}
           className={styles.heroTowerCallout}
           data-phase={annotation.phase}
-          role="status"
+          role="group"
           aria-live="polite"
         >
+          <button
+            className={styles.heroTowerCalloutClose}
+            type="button"
+            aria-label={localeText.closeAnnotation}
+            onClick={dismissAnnotation}
+          >
+            <span aria-hidden="true">×</span>
+          </button>
           <span>{annotationLayer.number}</span>
           <strong>{annotationLayer.title}</strong>
           <p>{annotationLayer.description}</p>

@@ -8,6 +8,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const componentPath = path.join(projectRoot, "components", "ArchiveGate", "HeroTowerVisual.js");
+const stylesPath = path.join(projectRoot, "components", "ArchiveGate", "ArchiveGateSite.module.scss");
 const archiveGatePath = path.join(projectRoot, "components", "ArchiveGate", "ArchiveGateSite.js");
 const rotationPath = path.join(projectRoot, "components", "ArchiveGate", "heroTowerRotation.mjs");
 const rotationModuleUrl = pathToFileURL(rotationPath).href;
@@ -23,6 +24,7 @@ test("the Archive Gate hero uses the approved A five-layer tower assets", () => 
   assert.ok(fs.statSync(previewPath).size > 100000, "A static preview should be present for fallback/loading");
 
   const component = fs.readFileSync(componentPath, "utf8");
+  const styles = fs.readFileSync(stylesPath, "utf8");
   const page = fs.readFileSync(archiveGatePath, "utf8");
 
   assert.match(component, /hero-delivery-system-A-editorial-light\.glb/);
@@ -47,9 +49,16 @@ test("the Archive Gate hero uses the approved A five-layer tower assets", () => 
   assert.match(component, /ANNOTATION_HOLD_DURATION\s*=\s*4400/);
   assert.match(component, /ANNOTATION_FADE_DURATION\s*=\s*800/);
   assert.match(component, /IDLE_LAYER_STEP_DURATION\s*=\s*1400/);
+  assert.match(component, /function LayerHotspotProjector/);
+  assert.match(component, /heroTowerHotspot/);
+  assert.match(component, /HOTSPOT_VISIBLE_OPACITY\s*=\s*0\.5/);
+  assert.match(component, /HOTSPOT_SCREEN_OFFSETS/);
+  assert.match(component, /heroTowerCalloutClose/);
+  assert.match(component, /onClick=\{dismissAnnotation\}/);
   assert.match(component, /never opens an annotation/);
   assert.match(component, /setIdleLayerIndex/);
   assert.match(component, /data-phase=\{annotation\.phase\}/);
+  assert.match(styles, /\.heroActions \.primaryButton,[\s\S]*?justify-content:\s*center/);
   assert.doesNotMatch(component, /className={styles\.heroTowerControls}/);
   assert.doesNotMatch(component, /heroTowerStatus/);
   assert.doesNotMatch(component, /translate3d\(-1\.4rem/);
@@ -135,7 +144,7 @@ test("camera fit changes with the real Canvas aspect and keeps a safe distance",
   assert.ok(Math.abs(mobile.initialDistance / mobile.distance - 0.5) < 0.001);
   assert.ok(Math.abs(mobile.minDistance / mobile.distance - 0.31) < 0.001);
   assert.ok(mobile.maxDistance > mobile.distance);
-  assert.deepEqual(desktop.target, [0, 0, 0]);
+  assert.deepEqual(desktop.target, [0.15, 0, 0]);
 });
 
 test("active layer material profile is visibly distinct from inactive layers", async () => {

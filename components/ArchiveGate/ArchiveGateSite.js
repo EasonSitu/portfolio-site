@@ -412,12 +412,19 @@ function ExperienceDetailContent({ item, copy }) {
       </section>
 
       {item.detail.cases.length > 0 && (
-        <details className={styles.experienceDetailCases}>
+        <details className={styles.experienceDetailCases} open>
           <summary>{copy.experienceHeader.detailCasesLabel}</summary>
           <div className={styles.experienceDetailList}>
             {item.detail.cases.map((selectedCase) => (
-              <article key={selectedCase.title} className={styles.experienceDetailItem}>
-                <h5>{selectedCase.title}</h5>
+              <article key={`${selectedCase.project || "case"}-${selectedCase.title}`} className={styles.experienceDetailItem}>
+                {selectedCase.project ? (
+                  <>
+                    <h5 className={styles.experienceDetailProject}>{selectedCase.project}</h5>
+                    <h6 className={styles.experienceDetailCaseTitle}>{selectedCase.title}</h6>
+                  </>
+                ) : (
+                  <h5>{selectedCase.title}</h5>
+                )}
                 <p>{selectedCase.body}</p>
               </article>
             ))}
@@ -844,7 +851,11 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
             <div className={styles.contactLayout} data-reveal>
               <div className={styles.contactCopy}>
                 <h2 className={styles.contactKicker}>{copy.contact.kicker}</h2>
-                <p className={styles.contactOpportunity}>{copy.contact.title}</p>
+                <p className={styles.contactOpportunity}>
+                  {copy.contact.titleLines
+                    ? copy.contact.titleLines.map((line) => <span className={styles.contactOpportunityLine} key={line}>{line}</span>)
+                    : copy.contact.title}
+                </p>
                 <p className={styles.contactStatement}>{copy.contact.statement}</p>
                 <p className={styles.contactClosing}>{copy.contact.closing}</p>
                 <div className={styles.contactMeta}>

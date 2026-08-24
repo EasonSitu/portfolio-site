@@ -225,10 +225,10 @@ test("experience chronology and Questwork date are accurate", () => {
   assert.deepEqual(
     experience.map((item) => item.company),
     [
-      "isBIM Limited",
-      "Questwork Consulting Company",
+      "ISBIM LIMITED",
+      "Questwork Consulting Limited",
       "K Compact Company Limited",
-      "Kingame Corporation Limited",
+      "Zhuhai Kingsoft Shiyou Technology Co., Ltd.",
     ],
   );
   assert.match(experience[1].period, /Mar 2025/);
@@ -255,6 +255,7 @@ test("experience entries provide concise cards and detailed reports in every loc
       if (["k-compact", "kingame"].includes(item.id)) assert.equal(item.detail.cases.length, 0);
       else assert.ok(item.detail.cases.length >= 1);
       assert.ok(item.detail.cases.every((selectedCase) => selectedCase.title && selectedCase.body));
+      if (item.id === "isbim") assert.ok(item.detail.cases.every((selectedCase) => selectedCase.project));
     }
   }
 
@@ -277,7 +278,7 @@ test("copy keeps ownership, role titles and factual boundaries aligned across la
     assert.match(kingame.focus, /8/);
     assert.match(siteContent[locale].aiProject.boundary, /prototype|原型/i);
     assert.match(siteContent[locale].aiProject.boundary, /not|并非|並非/i);
-    assert.match(siteContent[locale].nav.projects, /Selected Work|代表项目|代表項目/);
+    assert.match(siteContent[locale].nav.projects, /Recent Work|近期项目|近期項目/);
     assert.match(siteContent[locale].skillsHeader.title, /What I Do|我能做什么|我能做什麼/);
     assert.match(siteContent[locale].aiPracticeHeader.title, /How I Use AI|我怎样用 AI|我怎樣用 AI/);
     assert.match(siteContent[locale].contact.kicker, /CONTACT|联系我|聯絡我/);
@@ -289,6 +290,50 @@ test("copy keeps ownership, role titles and factual boundaries aligned across la
   assert.match(siteContent.en.experience[2].focus, /already been paused before I joined/);
   assert.match(siteContent["zh-CN"].experience[2].focus, /接手前任团队留下、当时已经暂停/);
   assert.match(siteContent["zh-HK"].experience[2].focus, /接手前任團隊留下、當時已暫停/);
+});
+
+test("experience company names use legal-name formatting in every locale", () => {
+  const chineseCompanies = [
+    "香港互聯立方有限公司（ISBIM LIMITED）",
+    "匯研顧問有限公司（Questwork Consulting Limited）",
+    "伽瑪有限公司（K Compact Company Limited）",
+    "珠海金山世遊科技有限公司（Zhuhai Kingsoft Shiyou Technology Co., Ltd.）",
+  ];
+  const englishCompanies = [
+    "ISBIM LIMITED",
+    "Questwork Consulting Limited",
+    "K Compact Company Limited",
+    "Zhuhai Kingsoft Shiyou Technology Co., Ltd.",
+  ];
+  assert.deepEqual(siteContent["zh-HK"].experience.map((item) => item.company), chineseCompanies);
+  assert.deepEqual(siteContent["zh-CN"].experience.map((item) => item.company), chineseCompanies);
+  assert.deepEqual(siteContent.en.experience.map((item) => item.company), englishCompanies);
+});
+
+test("recent work is framed as active software and AI delivery", () => {
+  assert.equal(siteContent["zh-HK"].projectHeader.kicker, "近期項目");
+  assert.equal(siteContent["zh-CN"].projectHeader.kicker, "近期项目");
+  assert.equal(siteContent.en.projectHeader.kicker, "RECENT WORK");
+  assert.match(siteContent["zh-HK"].projectHeader.title, /能運行、能驗證/);
+  assert.match(siteContent["zh-CN"].projectHeader.title, /能运行、能验证/);
+  assert.match(siteContent.en.projectHeader.title, /working, testable products and prototypes/i);
+});
+
+test("isBIM project cases keep separate contract, theme and body layers", () => {
+  const expectedProjects = {
+    en: ["ND/2024/06", "3/WSD/23", "J9064"],
+    "zh-CN": ["ND/2024/06", "3/WSD/23", "J9064"],
+    "zh-HK": ["ND/2024/06", "3/WSD/23", "J9064"],
+  };
+  for (const locale of locales) {
+    const item = siteContent[locale].experience[0];
+    assert.equal(siteContent[locale].experienceHeader.detailCasesLabel, locale === "en" ? "Project Cases" : locale === "zh-CN" ? "项目案例" : "項目案例");
+    assert.deepEqual(item.detail.cases.map((selectedCase) => selectedCase.project.split(" · ")[0]), expectedProjects[locale]);
+    assert.ok(item.detail.cases.every((selectedCase) => selectedCase.project && selectedCase.title && selectedCase.body));
+  }
+  assert.match(siteContent.en.experience[0].detail.cases[0].title, /Remote Site Connectivity/);
+  assert.match(siteContent.en.experience[0].detail.cases[1].title, /Underground Network Infrastructure/);
+  assert.match(siteContent.en.experience[0].detail.cases[2].title, /Integrated 4S \/ IoT/);
 });
 
 test("selected work keeps the CIC prototype first and the portfolio project second", () => {

@@ -434,3 +434,18 @@ for (const locale of ["en", "zh-CN", "zh-HK"]) {
     assert.ok(project.boundary);
   });
 }
+
+test("experience project cases open by default with a separate project hierarchy", () => {
+  assert.match(componentSource, /className=\{styles\.experienceDetailCases\} open/);
+  assert.match(componentSource, /styles\.experienceDetailProject/);
+  assert.match(componentSource, /styles\.experienceDetailCaseTitle/);
+});
+
+test("section typography shares one level and CJK headings use explicit font stacks", () => {
+  assert.match(styleSource, /\.sectionHeading h2,\s*\.skillsHeader h2,/);
+  assert.doesNotMatch(styleSource, /\.skillsHeader h2\s*\{[^}]*clamp\(3rem,\s*6vw,\s*5\.4rem\)/);
+  assert.match(styleSource, /\.site\[lang="zh-CN"\][\s\S]*?font-family:\s*var\(--font-cjk-sc\)/);
+  assert.match(styleSource, /\.site\[lang="zh-HK"\][\s\S]*?font-family:\s*var\(--font-cjk-tc\)/);
+  assert.match(componentSource, /copy\.contact\.titleLines/);
+  assert.match(styleSource, /\.contactOpportunityLine\s*\{[^}]*display:\s*block/);
+});

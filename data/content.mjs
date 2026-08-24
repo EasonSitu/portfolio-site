@@ -7,7 +7,7 @@ const sharedLinks = {
 export const siteContent = {
   en: {
     localeName: "English",
-    nav: { experience: "Experience", projects: "Selected Work", skills: "What I Do", contact: "Contact" },
+    nav: { experience: "Experience", projects: "Recent Work", skills: "What I Do", contact: "Contact" },
     loader: ["BUSINESS", "TECHNOLOGY", "DELIVERY"],
     hero: {
       eyebrow: "Hello, it’s good to meet you",
@@ -60,13 +60,13 @@ export const siteContent = {
       title: "From product research and requirements analysis to software project coordination and digital solution delivery in real-world environments.",
       detailOverviewLabel: "Overview",
       detailSectionsLabel: "What I worked on",
-      detailCasesLabel: "Selected cases",
+      detailCasesLabel: "Project Cases",
     },
-    projectHeader: { kicker: "SELECTED WORK", title: "From requirements and prototypes to real-world delivery, these projects show how I work end to end.", intro: "" },
+    projectHeader: { kicker: "RECENT WORK", title: "Recent software and AI projects, built from concrete problems into working, testable products and prototypes.", intro: "" },
     experience: [
       {
         id: "isbim",
-        company: "isBIM Limited",
+        company: "ISBIM LIMITED",
         role: "Digital Solution Engineer",
         period: "Aug 2025 — Present",
         location: "Hong Kong",
@@ -82,16 +82,28 @@ export const siteContent = {
             { title: "Testing and delivery", body: "Coordinated device testing, system integration, client UAT, training and acceptance, bringing the relevant teams together to resolve issues through delivery." },
             { title: "Process improvement", body: "Used generative AI tools to organise SOPs, technical documentation and recurring issues so project information was easier to find and reuse." },
           ],
-          cases: [
-            { title: "Network and device delivery at a remote site", body: "ND/2024/06 · Northern Metropolis | Fanling North New Development Area. The outdoor construction site had limited fixed-network access, while mobile coverage varied with terrain and device location. Led vendors, technical teams and site personnel in defining and validating the connectivity approach across carriers, antennas, routers and deployment positions, then drove on-site implementation to maintain stable CCTV and IoT data transmission." },
-            { title: "Network deployment in underground and confined spaces", body: "3/WSD/23 · WSD large-diameter fresh-water-main improvement works | Tuen Mun. Underground and pipeline works could not rely on normal mobile coverage. Based on the work area and underground structure, led the technical team in planning fibre routes and network points, coordinated installation of fibre and communications equipment, and followed installation, testing and device onboarding to establish reliable connectivity for CCTV, IoT devices and site systems." },
-            { title: "Multi-system and multi-device solution integration", body: "J9064 · Underground pedestrian tunnel works in Admiralty’s core business district. Defined an integrated 4S/IoT solution around client use cases, site conditions and system requirements in an underground construction environment. Led device selection and coordinated the client, technical teams and vendors across production, installation, network and power provision, system integration, testing and deployment, bringing CCTV, wearables, gas monitoring and other IoT devices into one site-ready solution." },
-          ],
+          cases:       [
+        {
+          "project": "ND/2024/06 · Northern Metropolis | Fanling North New Development Area",
+          "title": "Remote Site Connectivity and Device Delivery",
+          "body": "Led vendors, technical teams and site personnel in evaluating and validating a connectivity solution for a remote outdoor construction environment with limited fixed-network access and unstable mobile coverage, then drove implementation to maintain reliable CCTV and IoT data transmission."
+        },
+        {
+          "project": "3/WSD/23 · WSD Large-Diameter Fresh Water Main Improvement Works | Tuen Mun",
+          "title": "Underground Network Infrastructure Deployment",
+          "body": "Led the technical team in planning fibre routes and network points for underground and pipeline works where normal mobile coverage was unreliable, and drove network infrastructure installation and testing to establish stable connectivity for CCTV, IoT devices and site systems."
+        },
+        {
+          "project": "J9064 · Underground Pedestrian Tunnel Works | Core Business District, Admiralty",
+          "title": "Integrated 4S / IoT Solution",
+          "body": "Defined an integrated 4S/IoT solution around client use cases, underground site conditions and system requirements. Led device selection and coordinated production, installation, network and power provision, system integration, testing and deployment to deliver a site-ready multi-device solution."
+        }
+      ],
         },
       },
       {
         id: "questwork",
-        company: "Questwork Consulting Company",
+        company: "Questwork Consulting Limited",
         role: "Project Coordinator (Software Delivery)",
         period: "Mar 2025 — Jul 2025",
         location: "Hong Kong / Guangzhou",
@@ -137,7 +149,7 @@ export const siteContent = {
       },
       {
         id: "kingame",
-        company: "Kingame Corporation Limited",
+        company: "Zhuhai Kingsoft Shiyou Technology Co., Ltd.",
         role: "Product Assistant Intern",
         period: "May 2022 — Nov 2022",
         location: "Hong Kong",
@@ -214,7 +226,7 @@ export const siteContent = {
 
   "zh-CN": {
     localeName: "简体中文",
-    nav: { experience: "工作经历", projects: "代表项目", skills: "我能做什么", contact: "联系我" },
+    nav: { experience: "工作经历", projects: "近期项目", skills: "我能做什么", contact: "联系我" },
     loader: ["业务", "技术", "交付"],
     hero: {
       eyebrow: "你好，很高兴认识你",
@@ -267,13 +279,13 @@ export const siteContent = {
       title: "从产品研究与需求分析，到软件项目协调，再到真实环境中的数字化方案交付。",
       detailOverviewLabel: "概览",
       detailSectionsLabel: "工作内容",
-      detailCasesLabel: "现场案例",
+      detailCasesLabel: "项目案例",
     },
-    projectHeader: { kicker: "代表项目", title: "从需求、原型到实际交付，这几个项目比较完整地体现了我的工作方式。", intro: "" },
+    projectHeader: { kicker: "近期项目", title: "最近主要在做软件与 AI 项目，把具体问题做成能运行、能验证的产品和原型。", intro: "" },
     experience: [
       {
         id: "isbim",
-        company: "香港互联立方有限公司（isBIM Limited）",
+        company: "香港互聯立方有限公司（ISBIM LIMITED）",
         role: "数字化方案工程师",
         period: "2025年8月 — 至今",
         location: "香港",
@@ -289,16 +301,28 @@ export const siteContent = {
             { title: "测试与交付", body: "统筹设备测试、系统联调、客户 UAT、培训和验收，协调相关团队排查问题并跟进至完成交付。" },
             { title: "流程改善", body: "运用生成式 AI 工具整理 SOP、技术文档及常见问题，让项目资料更容易查找和复用。" },
           ],
-          cases: [
-            { title: "偏远场地的网络与设备交付", body: "ND/2024/06 · 北部都会区｜粉岭北新发展区。项目位于粉岭北新发展区的户外施工环境，现场固定网络条件有限，移动网络覆盖也受到地形及部署位置影响。主导协调供应商、技术团队及现场人员评估网络方案，从运营商、天线、路由设备到部署位置逐步验证，确定可行配置后推动现场实施，确保 CCTV 画面及 IoT 设备数据稳定回传。" },
-            { title: "地下及密闭空间的网络部署", body: "3/WSD/23 · 水务署大直径食水管改善工程｜屯门。地下及管道作业环境难以依靠一般移动网络提供稳定覆盖。根据施工范围及地下结构，主导协调技术团队规划光纤传输路径及网络点位，推动光纤、网络设备及相关通信设施的布设，并跟进安装、测试和设备上线，为 CCTV、IoT 设备及现场作业系统建立稳定的通信环境。" },
-            { title: "多系统、多设备方案整合", body: "J9064 · 金钟核心商业区地下行人隧道工程。面对地下施工环境及多类设备同时运行的需求，根据客户使用场景、现场条件及系统要求制定整体 4S／IoT 方案。主导设备选型，并协调客户、技术团队及供应商跟进设备生产、安装、网络与供电配套、系统整合、测试及部署，将 CCTV、穿戴设备、气体监测及其他 IoT 设备整合为配合现场实际作业的完整方案。" },
-          ],
+          cases:       [
+        {
+          "project": "ND/2024/06 · 北部都会区｜粉岭北新发展区",
+          "title": "偏远场地的网络与设备交付",
+          "body": "户外场地固定网络条件有限，移动网络覆盖亦不稳定。主导协调供应商、技术团队及现场人员评估和验证网络方案，并推动现场实施，确保 CCTV 影像及 IoT 设备数据稳定回传。"
+        },
+        {
+          "project": "3/WSD/23 · 水务署大直径食水管改善工程｜屯门",
+          "title": "地下及密闭空间的网络部署",
+          "body": "地下及管道作业难以依赖一般移动网络。主导协调技术团队规划光纤传输路径及网络点位，并推动相关网络设施的布设、安装和测试，为 CCTV、IoT 设备及现场系统建立稳定的通信环境。"
+        },
+        {
+          "project": "J9064 · 金钟地下行人隧道工程｜核心商业区",
+          "title": "多系统、多设备方案整合",
+          "body": "根据客户使用场景、地下施工条件及系统要求制定整体 4S／IoT 方案，主导设备选型，并协调生产、安装、网络与供电、系统整合、测试及部署，将 CCTV、穿戴设备、气体监测等设备整合为可在现场实际使用的完整方案。"
+        }
+      ],
         },
       },
       {
         id: "questwork",
-        company: "汇研顾问有限公司",
+        company: "匯研顧問有限公司（Questwork Consulting Limited）",
         role: "项目协调员（软件交付）",
         period: "2025年3月 — 2025年7月",
         location: "香港／广州",
@@ -321,7 +345,7 @@ export const siteContent = {
       },
       {
         id: "k-compact",
-        company: "伽玛有限公司（K Compact）",
+        company: "伽瑪有限公司（K Compact Company Limited）",
         role: "IT 项目专员",
         period: "2023年5月 — 2024年7月",
         location: "香港",
@@ -344,7 +368,7 @@ export const siteContent = {
       },
       {
         id: "kingame",
-        company: "Kingame Corporation Limited",
+        company: "珠海金山世遊科技有限公司（Zhuhai Kingsoft Shiyou Technology Co., Ltd.）",
         role: "产品助理实习生",
         period: "2022年5月 — 2022年11月",
         location: "香港",
@@ -406,6 +430,7 @@ export const siteContent = {
       ...sharedLinks,
       kicker: "联系我",
       title: "我希望继续做连接业务、技术与交付的工作。",
+      titleLines: ["我希望继续做连接","业务、技术与交付的工作。"],
       statement: "我比较擅长把还不够清晰的需求整理成可以执行的方案，再协调客户、技术团队和供应商一路推进到测试和交付。近年也持续把 AI 用在原型、方案验证和日常工作流程中。",
       closing: "如果你的团队正在做类似的事情，欢迎找我聊聊。",
       location: "香港 · 大湾区",
@@ -421,7 +446,7 @@ export const siteContent = {
 
   "zh-HK": {
     localeName: "繁體中文",
-    nav: { experience: "工作經歷", projects: "代表項目", skills: "我能做什麼", contact: "聯絡我" },
+    nav: { experience: "工作經歷", projects: "近期項目", skills: "我能做什麼", contact: "聯絡我" },
     loader: ["業務", "技術", "交付"],
     hero: {
       eyebrow: "你好，很高興認識你",
@@ -474,13 +499,13 @@ export const siteContent = {
       title: "從產品研究與需求分析，到軟件項目協調，再到真實環境中的數碼方案交付。",
       detailOverviewLabel: "概覽",
       detailSectionsLabel: "工作內容",
-      detailCasesLabel: "現場案例",
+      detailCasesLabel: "項目案例",
     },
-    projectHeader: { kicker: "代表項目", title: "從需求、原型到實際交付，這幾個項目比較完整地反映了我的工作方式。", intro: "" },
+    projectHeader: { kicker: "近期項目", title: "最近主要在做軟件與 AI 項目，把具體問題做成能運行、能驗證的產品和原型。", intro: "" },
     experience: [
       {
         id: "isbim",
-        company: "香港互聯立方有限公司（isBIM Limited）",
+        company: "香港互聯立方有限公司（ISBIM LIMITED）",
         role: "數碼方案工程師",
         period: "2025年8月 — 至今",
         location: "香港",
@@ -496,16 +521,28 @@ export const siteContent = {
             { title: "測試與交付", body: "統籌設備測試、系統聯調、客戶 UAT、培訓和驗收，協調相關團隊排查問題並跟進至完成交付。" },
             { title: "流程改善", body: "運用生成式 AI 工具整理 SOP、技術文件及常見問題，讓項目資料更容易查找和重用。" },
           ],
-          cases: [
-            { title: "偏遠場地的網絡與設備交付", body: "ND/2024/06 · 北部都會區｜粉嶺北新發展區。項目位處粉嶺北新發展區的戶外施工環境，現場固定網絡條件有限，流動網絡覆蓋亦受地形及部署位置影響。主導協調供應商、技術團隊及現場人員評估網絡方案，從營運商、天線、路由設備到部署位置逐步驗證，確定可行配置後推動現場實施，確保 CCTV 影像及 IoT 設備數據穩定回傳。" },
-            { title: "地下及密閉空間的網絡部署", body: "3/WSD/23 · 水務署大直徑食水管改善工程｜屯門。地下及管道作業環境難以依靠一般流動網絡提供穩定覆蓋。根據施工範圍及地下結構，主導協調技術團隊規劃光纖傳輸路徑及網絡點位，推動光纖、網絡設備及相關通訊設施的布設，並跟進安裝、測試和設備上線，為 CCTV、IoT 設備及現場作業系統建立穩定的通訊環境。" },
-            { title: "多系統、多設備方案整合", body: "J9064 · 金鐘核心商業區地下行人隧道工程。面對地下施工環境及多類設備同時運作的需求，根據客戶使用場景、現場條件及系統要求制定整體 4S／IoT 方案。主導設備選型，並協調客戶、技術團隊及供應商跟進設備生產、安裝、網絡與供電配套、系統整合、測試及部署，將 CCTV、穿戴設備、氣體監測及其他 IoT 設備整合成配合現場實際作業的完整方案。" },
-          ],
+          cases:       [
+        {
+          "project": "ND/2024/06 · 北部都會區｜粉嶺北新發展區",
+          "title": "偏遠場地的網絡與設備交付",
+          "body": "戶外場地固定網絡條件有限，流動網絡覆蓋亦不穩定。主導協調供應商、技術團隊及現場人員評估和驗證網絡方案，並推動現場實施，確保 CCTV 影像及 IoT 設備數據穩定回傳。"
+        },
+        {
+          "project": "3/WSD/23 · 水務署大直徑食水管改善工程｜屯門",
+          "title": "地下及密閉空間的網絡部署",
+          "body": "地下及管道作業難以依賴一般流動網絡。主導協調技術團隊規劃光纖傳輸路徑及網絡點位，並推動相關網絡設施的布設、安裝和測試，為 CCTV、IoT 設備及現場系統建立穩定的通訊環境。"
+        },
+        {
+          "project": "J9064 · 金鐘地下行人隧道工程｜核心商業區",
+          "title": "多系統、多設備方案整合",
+          "body": "根據客戶使用場景、地下施工條件及系統要求制定整體 4S／IoT 方案，主導設備選型，並協調生產、安裝、網絡與供電、系統整合、測試及部署，將 CCTV、穿戴設備、氣體監測等設備整合成可在現場實際使用的完整方案。"
+        }
+      ],
         },
       },
       {
         id: "questwork",
-        company: "匯研顧問有限公司",
+        company: "匯研顧問有限公司（Questwork Consulting Limited）",
         role: "項目協調員（軟件交付）",
         period: "2025年3月 — 2025年7月",
         location: "香港／廣州",
@@ -528,7 +565,7 @@ export const siteContent = {
       },
       {
         id: "k-compact",
-        company: "伽瑪有限公司（K Compact）",
+        company: "伽瑪有限公司（K Compact Company Limited）",
         role: "IT 項目專員",
         period: "2023年5月 — 2024年7月",
         location: "香港",
@@ -551,7 +588,7 @@ export const siteContent = {
       },
       {
         id: "kingame",
-        company: "Kingame Corporation Limited",
+        company: "珠海金山世遊科技有限公司（Zhuhai Kingsoft Shiyou Technology Co., Ltd.）",
         role: "產品助理實習生",
         period: "2022年5月 — 2022年11月",
         location: "香港",
@@ -613,6 +650,7 @@ export const siteContent = {
       ...sharedLinks,
       kicker: "聯絡我",
       title: "我希望繼續做連接業務、技術與交付的工作。",
+      titleLines: ["我希望繼續做連接","業務、技術與交付的工作。"],
       statement: "我比較擅長把還不夠清晰的需求整理成可以執行的方案，再協調客戶、技術團隊和供應商一路推進到測試和交付。近年也持續把 AI 用在原型、方案驗證和日常工作流程中。",
       closing: "如果你的團隊正在做類似的事情，歡迎找我聊聊。",
       location: "香港 · 大灣區",

@@ -630,6 +630,7 @@
 }
 
 .sectionHeading h2,
+.skillsHeader h2,
 .sectionLead,
 .projectCopy h2,
 .contactContent h2,
@@ -1164,6 +1165,7 @@
 }
 
 .sectionHeading h2,
+.skillsHeader h2,
 .contactContent h2 {
   font-size: var(--type-display-lg);
   line-height: 0.94;
@@ -1186,10 +1188,12 @@
 }
 
 .site[lang="zh-CN"] .sectionHeading h2,
-.site[lang="zh-HK"] .sectionHeading h2 {
+.site[lang="zh-CN"] .skillsHeader h2,
+.site[lang="zh-HK"] .sectionHeading h2,
+.site[lang="zh-HK"] .skillsHeader h2 {
   font-size: var(--type-display-lg-cjk);
-  letter-spacing: -0.02em;
-  line-height: 0.96;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
 }
 
 .site[lang="zh-CN"] .sectionLead,
@@ -1201,17 +1205,55 @@
   line-height: 1.08;
 }
 
+.site[lang="zh-CN"] .sectionHeading h2,
+.site[lang="zh-CN"] .skillsHeader h2,
 .site[lang="zh-CN"] .contactOpportunity,
+.site[lang="zh-CN"] .projectShowcaseCard h3,
+.site[lang="zh-CN"] .practiceHeader h3,
+.site[lang="zh-CN"] .practiceCard h3,
+.site[lang="zh-CN"] .skillsIndexGroup h3,
+.site[lang="zh-CN"] .experienceDetailTitle,
+.site[lang="zh-CN"] .experienceDetailProject,
+.site[lang="zh-CN"] .experienceDetailCaseTitle {
+  font-family: var(--font-cjk-sc);
+}
+
+.site[lang="zh-HK"] .sectionHeading h2,
+.site[lang="zh-HK"] .skillsHeader h2,
 .site[lang="zh-HK"] .contactOpportunity,
+.site[lang="zh-HK"] .projectShowcaseCard h3,
+.site[lang="zh-HK"] .practiceHeader h3,
+.site[lang="zh-HK"] .practiceCard h3,
+.site[lang="zh-HK"] .skillsIndexGroup h3,
+.site[lang="zh-HK"] .experienceDetailTitle,
+.site[lang="zh-HK"] .experienceDetailProject,
+.site[lang="zh-HK"] .experienceDetailCaseTitle {
+  font-family: var(--font-cjk-tc);
+}
+
+.site[lang="zh-CN"] .contactOpportunity,
+.site[lang="zh-HK"] .contactOpportunity {
+  letter-spacing: -0.01em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
 .site[lang="zh-CN"] .projectShowcaseCard h3,
 .site[lang="zh-HK"] .projectShowcaseCard h3,
+.site[lang="zh-CN"] .practiceHeader h3,
+.site[lang="zh-HK"] .practiceHeader h3,
 .site[lang="zh-CN"] .practiceCard h3,
 .site[lang="zh-HK"] .practiceCard h3,
 .site[lang="zh-CN"] .skillsIndexGroup h3,
 .site[lang="zh-HK"] .skillsIndexGroup h3,
 .site[lang="zh-CN"] .experienceDetailTitle,
-.site[lang="zh-HK"] .experienceDetailTitle {
-  letter-spacing: -0.02em;
+.site[lang="zh-HK"] .experienceDetailTitle,
+.site[lang="zh-CN"] .experienceDetailProject,
+.site[lang="zh-HK"] .experienceDetailProject,
+.site[lang="zh-CN"] .experienceDetailCaseTitle,
+.site[lang="zh-HK"] .experienceDetailCaseTitle {
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .sectionIntro {
@@ -1781,10 +1823,10 @@
   max-width: 19ch;
   margin: 1.45rem 0 0;
   font-family: var(--font-display);
-  font-size: var(--type-card-title);
+  font-size: var(--type-display-md);
   font-weight: 600;
-  letter-spacing: -0.05em;
-  line-height: 1.04;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
 }
 
 .experienceDetailRole {
@@ -1856,6 +1898,22 @@
   line-height: 1.35;
 }
 
+.experienceDetailProject {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.experienceDetailCaseTitle {
+  margin: 0.35rem 0 0.55rem;
+  color: var(--accent);
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .experienceDetailCases {
   margin-top: 2rem;
   padding-top: 1rem;
@@ -1876,7 +1934,7 @@
   margin-top: 1rem;
 }
 
-/* Selected Work redesign: a concise, draggable horizontal card rail. */
+/* Recent Work: a concise, continuously draggable horizontal card rail. */
 .projectSection {
   padding: clamp(8rem, 11vw, 11rem) 0;
   background: #101622;
@@ -2138,11 +2196,6 @@
 
 .skillsHeader h2 {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 6vw, 5.4rem);
-  font-weight: 500;
-  letter-spacing: -0.06em;
-  line-height: 0.92;
 }
 
 .skillsHeader .sectionIntro {
@@ -2174,10 +2227,10 @@
 .skillsIndexGroup h3 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: var(--type-display-md);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  font-size: var(--type-card-label);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .skillsIndexItems {
@@ -2356,8 +2409,13 @@
   width: min(100%, 54rem);
   max-width: 100%;
   margin-top: clamp(2rem, 4vw, 4rem);
-  font-size: clamp(2rem, 4vw, 3.65rem);
+  font-size: clamp(2rem, 3.4vw, 2.65rem);
   line-height: 1.08;
+  text-wrap: balance;
+}
+
+.contactOpportunityLine {
+  display: block;
 }
 
 .contactStatement,
@@ -2761,13 +2819,16 @@
   }
 
   .sectionHeading h2,
+  .skillsHeader h2,
   .contactContent h2 {
     line-height: 0.96;
   }
 
   .site[lang="zh-CN"] .sectionHeading h2,
-  .site[lang="zh-HK"] .sectionHeading h2 {
-    line-height: 1;
+  .site[lang="zh-CN"] .skillsHeader h2,
+  .site[lang="zh-HK"] .sectionHeading h2,
+  .site[lang="zh-HK"] .skillsHeader h2 {
+    line-height: 1.08;
   }
 
   .sectionLead,

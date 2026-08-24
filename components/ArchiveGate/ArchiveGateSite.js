@@ -520,7 +520,7 @@ function ProjectShowcaseCard({ project, index, onClick }) {
           <p className={styles.kicker}>{project.kicker}</p>
           <span>{String(index + 1).padStart(2, "0")}</span>
         </div>
-        <h3>{project.title}</h3>
+        <h3>{project.cardTitle || project.title}</h3>
         <p className={styles.projectShowcaseSummary}>{project.summary}</p>
         <div className={styles.projectShowcaseTags}>
           {project.tags.map((tag) => <span key={tag}>{tag}</span>)}

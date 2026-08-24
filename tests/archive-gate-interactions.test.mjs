@@ -394,6 +394,7 @@ test("experience removes the former horizontal scroll implementation", () => {
 test("selected work is a concise horizontal draggable showcase", () => {
   assert.match(componentSource, /projectShowcaseRail/);
   assert.match(componentSource, /projectShowcaseCard/);
+  assert.match(componentSource, /project\.cardTitle \|\| project\.title/);
   assert.match(componentSource, /onPointerDown/);
   assert.match(componentSource, /onPointerMove/);
   assert.match(componentSource, /import Link from "next\/link"/);

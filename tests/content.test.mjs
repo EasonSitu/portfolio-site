@@ -82,8 +82,8 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
     },
     {
       title: "I want to keep working where business needs, technology and delivery come together.",
-       statement: "I’m interested in digital and AI solution delivery, implementation, project coordination and applied AI, especially work that solves real problems and gets used in practice.",
-      closing: "If my experience connects with something your team is working on, I’d be glad to talk.",
+      statement: "I’m strongest when turning requirements that are still unclear into an executable plan, then coordinating clients, technical teams and vendors through testing and delivery. In recent years, I have also used AI in prototypes, solution validation and day-to-day work.",
+      closing: "If your team is working on similar problems, I’d be glad to talk.",
       location: "Hong Kong",
       languages: "Cantonese · Mandarin · English",
     },
@@ -98,8 +98,8 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
     },
     {
       title: "我希望继续做连接业务、技术与交付的工作。",
-       statement: "我关注数字化与 AI 方案交付、实施、项目协调及应用型 AI，希望参与真正能够解决问题并落地使用的项目。",
-      closing: "如果你认为我的经历与你的团队正在推进的事情有关，欢迎和我聊聊。",
+      statement: "我比较擅长把还不够清晰的需求整理成可以执行的方案，再协调客户、技术团队和供应商一路推进到测试和交付。近年也持续把 AI 用在原型、方案验证和日常工作流程中。",
+      closing: "如果你的团队正在做类似的事情，欢迎找我聊聊。",
        location: "香港 · 大湾区",
       languages: "粤语 · 普通话 · 英语",
     },
@@ -114,8 +114,8 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
     },
     {
       title: "我希望繼續做連接業務、技術與交付的工作。",
-       statement: "我關注數碼與 AI 方案交付、實施、項目協調及應用型 AI，希望參與真正能夠解決問題並落地使用的項目。",
-      closing: "如果你認為我的經歷與你的團隊正在推進的事情有關，歡迎和我聊聊。",
+      statement: "我比較擅長把還不夠清晰的需求整理成可以執行的方案，再協調客戶、技術團隊和供應商一路推進到測試和交付。近年也持續把 AI 用在原型、方案驗證和日常工作流程中。",
+      closing: "如果你的團隊正在做類似的事情，歡迎找我聊聊。",
        location: "香港 · 大灣區",
       languages: "粵語 · 普通話 · 英語",
     },
@@ -124,19 +124,19 @@ test("contact copy follows the approved recruiter-facing message hierarchy", () 
 
 test("hero typewriter copy is concise and role-accurate in every locale", () => {
   assert.deepEqual(siteContent.en.hero.typewriter, [
-    "30+ AI/IoT and digital projects",
-    "From product requirements to real-world delivery",
-    "Applied AI for faster validation and clearer workflows",
+    "30+ AI/IoT and digital projects across my career",
+    "From requirements analysis and software delivery to real-world implementation",
+    "Applied AI prototypes for faster validation and clearer communication",
   ]);
   assert.deepEqual(siteContent["zh-CN"].hero.typewriter, [
-    "参与 30+ 个 AI/IoT 及数字化项目",
-    "从产品需求、软件交付到真实环境实施",
-    "持续探索 AI 在工作中的实际应用",
+    "累计参与 30+ 个 AI/IoT 及数字化项目",
+    "从需求分析、软件交付到真实环境实施",
+    "以应用型 AI 原型加快方案验证与沟通",
   ]);
   assert.deepEqual(siteContent["zh-HK"].hero.typewriter, [
-    "參與 30+ 個 AI/IoT 及數碼項目",
-    "由產品需求、軟件交付到真實環境實施",
-    "持續探索 AI 在工作中的實際應用",
+    "累積參與 30+ 個 AI/IoT 及數碼項目",
+    "由需求分析、軟件交付到真實環境實施",
+    "以應用型 AI 原型加快方案驗證與溝通",
   ]);
 });
 
@@ -144,7 +144,7 @@ test("skills index uses three recruiter-readable groups and verified evidence", 
   assert.deepEqual(siteContent.en.skills, [
     {
       title: "Solution Delivery",
-      items: ["Requirements", "Deployment & Debugging", "Testing & UAT", "Client & Vendor Coordination"],
+      items: ["Requirements Clarification", "Solution Planning", "Deployment & Debugging", "Testing & UAT", "Client & Vendor Coordination"],
     },
     {
       title: "Product & Software",
@@ -177,9 +177,9 @@ test("AI practice frames applied AI as a three-step validation capability", () =
     assert.ok(copy.aiPracticeHeader.intro);
     assert.ok(copy.aiPracticeClosing);
   }
-  assert.match(siteContent.en.aiPractice[1].description, /knowledge bases/i);
+  assert.match(siteContent.en.aiPractice[1].description, /test its effect and feasibility/i);
   assert.match(siteContent["zh-CN"].aiPractice[2].description, /客户、业务和技术团队/);
-  assert.match(siteContent["zh-HK"].aiPractice[0].description, /業務問題/);
+  assert.match(siteContent["zh-HK"].aiPractice[0].description, /實際問題/);
 });
 
 test("hero greeting is concise and unpunctuated in every locale", () => {
@@ -216,7 +216,7 @@ test("archive gate design tokens keep background, stone, glass and energy distin
 test("metrics retain verified resume values", () => {
   assert.deepEqual(
     siteContent.en.metrics.map((metric) => metric.value),
-    ["20+", "10+", "30+", "8"],
+    ["30+", "10+", "30+", "8"],
   );
 });
 
@@ -226,7 +226,7 @@ test("experience chronology and Questwork date are accurate", () => {
     experience.map((item) => item.company),
     [
       "isBIM Limited",
-      "Questwork Consultation Company",
+      "Questwork Consulting Company",
       "K Compact Company Limited",
       "Kingame Corporation Limited",
     ],
@@ -252,7 +252,8 @@ test("experience entries provide concise cards and detailed reports in every loc
       assert.ok(item.detail?.overview);
       assert.ok(item.detail.sections.length >= 2);
       assert.ok(item.detail.sections.every((section) => section.title && section.body));
-      assert.ok(item.detail.cases.length >= 1);
+      if (["k-compact", "kingame"].includes(item.id)) assert.equal(item.detail.cases.length, 0);
+      else assert.ok(item.detail.cases.length >= 1);
       assert.ok(item.detail.cases.every((selectedCase) => selectedCase.title && selectedCase.body));
     }
   }
@@ -260,9 +261,34 @@ test("experience entries provide concise cards and detailed reports in every loc
   assert.equal(siteContent.en.experience[0].headline, "Construction technology IoT solution delivery");
   assert.equal(siteContent["zh-CN"].experience[0].headline, "建筑科技 IoT 方案交付");
   assert.equal(siteContent["zh-HK"].experience[0].headline, "建造科技 IoT 方案交付");
-  assert.match(siteContent.en.experience[0].detail.overview, /site surveys/i);
-  assert.match(siteContent["zh-CN"].experience[0].detail.overview, /现场勘测/);
-  assert.match(siteContent["zh-HK"].experience[0].detail.overview, /現場勘測/);
+  assert.match(siteContent.en.experience[0].detail.overview, /Led 20\+/i);
+  assert.match(siteContent["zh-CN"].experience[0].detail.overview, /主导 20\+/);
+  assert.match(siteContent["zh-HK"].experience[0].detail.overview, /主導 20\+/);
+});
+
+test("copy keeps ownership, role titles and factual boundaries aligned across languages", () => {
+  for (const locale of locales) {
+    const [isbim, questwork, kCompact, kingame] = siteContent[locale].experience;
+    assert.match(isbim.focus, /20\+/);
+    assert.match(isbim.detail.sections[1].body, /10\+/);
+    assert.equal(kCompact.detail.cases.length, 0);
+    assert.equal(kingame.detail.cases.length, 0);
+    assert.match(kingame.focus, /30\+/);
+    assert.match(kingame.focus, /8/);
+    assert.match(siteContent[locale].aiProject.boundary, /prototype|原型/i);
+    assert.match(siteContent[locale].aiProject.boundary, /not|并非|並非/i);
+    assert.match(siteContent[locale].nav.projects, /Selected Work|代表项目|代表項目/);
+    assert.match(siteContent[locale].skillsHeader.title, /What I Do|我能做什么|我能做什麼/);
+    assert.match(siteContent[locale].aiPracticeHeader.title, /How I Use AI|我怎样用 AI|我怎樣用 AI/);
+    assert.match(siteContent[locale].contact.kicker, /CONTACT|联系我|聯絡我/);
+    assert.match(questwork.role, /Software Delivery|软件交付|軟件交付/);
+  }
+  assert.match(siteContent.en.experience[0].focus, /^Led .*20\+/);
+  assert.match(siteContent["zh-CN"].experience[0].focus, /^主导 20\+/);
+  assert.match(siteContent["zh-HK"].experience[0].focus, /^主導 20\+/);
+  assert.match(siteContent.en.experience[2].focus, /already been paused before I joined/);
+  assert.match(siteContent["zh-CN"].experience[2].focus, /接手前任团队留下、当时已经暂停/);
+  assert.match(siteContent["zh-HK"].experience[2].focus, /接手前任團隊留下、當時已暫停/);
 });
 
 test("selected work keeps the CIC prototype first and the portfolio project second", () => {
@@ -271,6 +297,7 @@ test("selected work keeps the CIC prototype first and the portfolio project seco
     assert.equal(projects[0].id, "cic-ai-assessment");
     assert.equal(projects[1].id, "portfolio-site");
     assert.match(projects[0].kicker, /CIC/i);
+    assert.ok(projects[0].cardTitle);
     assert.match(projects[1].summary, /AI|AI-assisted|AI 輔助|AI 辅助/i);
   }
 });

@@ -34,7 +34,7 @@ const labels = {
     nextHint: "View the next case study",
   },
   "zh-CN": {
-    back: "返回精选项目",
+    back: "返回代表项目",
     role: "参与角色",
     boundary: "范围说明",
     explore: "项目案例",
@@ -55,7 +55,7 @@ const labels = {
     nextHint: "查看下一个案例",
   },
   "zh-HK": {
-    back: "返回精選項目",
+    back: "返回代表項目",
     role: "參與角色",
     boundary: "範圍說明",
     explore: "項目案例",

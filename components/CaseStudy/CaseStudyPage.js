@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { siteContent } from "../../data/content.mjs";
 import { DEFAULT_LOCALE } from "../../lib/pageContract.mjs";
-import { withPublicBasePath } from "../../lib/publicPath.mjs";
 import styles from "./CaseStudyPage.module.scss";
 
 const localeOptions = [
@@ -137,7 +136,7 @@ export default function CaseStudyPage({ slug }) {
     <main className={styles.page} lang={locale}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link className={styles.backLink} href={withPublicBasePath("/#project")}>
+          <Link className={styles.backLink} href="/#project">
             <span aria-hidden="true">←</span>
             {localeLabels.back}
           </Link>
@@ -254,12 +253,12 @@ export default function CaseStudyPage({ slug }) {
         </section>
 
         <nav className={styles.caseStudyNavigation} aria-label={localeLabels.next}>
-          <Link className={styles.returnLink} href={withPublicBasePath("/#project")}>
+          <Link className={styles.returnLink} href="/#project">
             <span>{localeLabels.back}</span>
             <span aria-hidden="true">↗</span>
           </Link>
           {nextProject && (
-            <Link className={styles.nextProject} href={withPublicBasePath(`/work/${nextProject.id}/`)}>
+            <Link className={styles.nextProject} href={`/work/${nextProject.id}/`}>
               <span className={styles.nextProjectLabel}>{localeLabels.next}</span>
               <strong>{nextProject.title}</strong>
               <span className={styles.nextProjectHint}>{localeLabels.nextHint} <span aria-hidden="true">→</span></span>

@@ -1,0 +1,140 @@
+name: Deploy portfolio to Vultr
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vultr-production
+  cancel-in-progress: false
+
+# The build runs on every main push. The production deploy is enabled only
+# after the repository variable VULTR_DEPLOY_ENABLED is set to "true".
+env:
+  DEPLOY_TARGET: vultr
+  NEXT_PUBLIC_BASE_PATH: ""
+  VULTR_DEPLOY_ROOT: ${{ vars.VULTR_DEPLOY_ROOT || '/var/www/eason.sanhehangjm.cn' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build root-path static site
+        run: pnpm build
+
+      - name: Upload static artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vultr-static-${{ github.sha }}
+          path: out
+          if-no-files-found: error
+          retention-days: 3
+
+  deploy:
+    if: ${{ vars.VULTR_DEPLOY_ENABLED == 'true' }}
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: vultr-production
+      url: https://eason.sanhehangjm.cn
+    env:
+      VULTR_HOST: ${{ secrets.VULTR_HOST }}
+      VULTR_PORT: ${{ secrets.VULTR_PORT || '22' }}
+      VULTR_USER: ${{ secrets.VULTR_USER }}
+
+    steps:
+      - name: Download static artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vultr-static-${{ github.sha }}
+          path: out
+
+      - name: Validate deployment inputs
+        env:
+          VULTR_SSH_PRIVATE_KEY: ${{ secrets.VULTR_SSH_PRIVATE_KEY }}
+          VULTR_KNOWN_HOSTS: ${{ secrets.VULTR_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for name in VULTR_HOST VULTR_USER VULTR_SSH_PRIVATE_KEY VULTR_KNOWN_HOSTS; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Missing required Vultr deployment input: ${name}"
+              exit 1
+            fi
+          done
+          if [[ ! "$VULTR_DEPLOY_ROOT" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+            echo "::error::VULTR_DEPLOY_ROOT must be an absolute, shell-safe path"
+            exit 1
+          fi
+
+      - name: Configure SSH
+        env:
+          VULTR_SSH_PRIVATE_KEY: ${{ secrets.VULTR_SSH_PRIVATE_KEY }}
+          VULTR_KNOWN_HOSTS: ${{ secrets.VULTR_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$VULTR_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$VULTR_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Upload release and switch current symlink
+        run: |
+          set -euo pipefail
+          ssh_opts=(-i "$HOME/.ssh/id_ed25519" -p "$VULTR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes)
+          release="$VULTR_DEPLOY_ROOT/releases/$GITHUB_SHA"
+
+          ssh "${ssh_opts[@]}" "$VULTR_USER@$VULTR_HOST" "mkdir -p '$release'"
+          rsync -az --delete \
+            -e "ssh -i $HOME/.ssh/id_ed25519 -p $VULTR_PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes" \
+            out/ "$VULTR_USER@$VULTR_HOST:$release/"
+
+          ssh "${ssh_opts[@]}" "$VULTR_USER@$VULTR_HOST" "bash -s -- '$VULTR_DEPLOY_ROOT' '$GITHUB_SHA'" <<'REMOTE'
+          set -euo pipefail
+          root="$1"
+          sha="$2"
+          release="$root/releases/$sha"
+          test -f "$release/index.html"
+          ln -sfn "$release" "$root/.current-$sha"
+          mv -Tf "$root/.current-$sha" "$root/current"
+
+          # Keep the current release and one rollback release.
+          find "$root/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
+            | sort -nr \
+            | tail -n +3 \
+            | cut -d' ' -f2- \
+            | while IFS= read -r old_release; do
+                [[ -z "$old_release" ]] || rm -rf -- "$old_release"
+              done
+          REMOTE
+
+      - name: Verify public site
+        run: |
+          set -euo pipefail
+          for path in / /work/cic-ai-assessment/ /work/portfolio-site/ /Zhicheng-Situ-CV.pdf /models/hero-delivery-system.glb; do
+            curl --fail --silent --show-error --location --max-time 30 \
+              "https://eason.sanhehangjm.cn${path}" -o /dev/null
+          done

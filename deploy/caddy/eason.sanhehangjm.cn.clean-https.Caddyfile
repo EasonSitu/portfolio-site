@@ -1,0 +1,6 @@
+# Clean HTTPS after moving the IPv4 Xray inbound away from 443.
+# Keep the IPv6 Xray listener separate; DNS currently publishes IPv4 only.
+eason.sanhehangjm.cn {
+    bind 45.77.39.192
+    reverse_proxy 127.0.0.1:8080
+}

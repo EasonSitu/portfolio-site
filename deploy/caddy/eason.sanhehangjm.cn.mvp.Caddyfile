@@ -1,0 +1,5 @@
+# MVP HTTPS: Caddy terminates TLS on 8443 and proxies to Nginx on 8080.
+# Keep this block in the existing Caddyfile while Xray owns 443.
+eason.sanhehangjm.cn:8443 {
+    reverse_proxy 127.0.0.1:8080
+}

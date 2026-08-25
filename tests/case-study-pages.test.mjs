@@ -26,7 +26,8 @@ test("case-study page uses the existing locale content without inventing project
   assert.match(source, /project\.role/);
   assert.match(source, /project\.tags/);
   assert.match(source, /project\.boundary/);
-  assert.match(source, /withPublicBasePath/);
+  assert.match(source, /href="\/#project"/);
+  assert.match(source, /href=\{`\/work\/\$\{nextProject\.id\}\/`\}/);
   assert.match(source, /localeLabels\.context/);
   assert.match(source, /localeLabels\.role/);
   assert.match(source, /localeLabels\.approach/);

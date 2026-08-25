@@ -36,7 +36,7 @@ jobs:
       - name: Build static site
         run: pnpm build
         env:
-          GITHUB_ACTIONS: true
+          DEPLOY_TARGET: github-pages
           NEXT_PUBLIC_BASE_PATH: /portfolio-site
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

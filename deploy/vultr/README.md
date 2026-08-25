@@ -8,6 +8,23 @@
 - Vultr：`DEPLOY_TARGET=vultr`、`NEXT_PUBLIC_BASE_PATH` 为空，网站从 `/` 提供
 - `GITHUB_ACTIONS=true` 不再决定 base path；Vultr 在 GitHub Actions runner 上构建也不会带 `/portfolio-site`
 
+## 版本归档
+
+生产根路径始终由 `current` 指向最新 release：
+
+```text
+https://eason.sanhehangjm.cn/
+```
+
+每次 `main` push 还会生成可直接打开的历史预览：
+
+```text
+https://eason.sanhehangjm.cn/versions/<commit-sha>/
+https://eason.sanhehangjm.cn/versions/
+```
+
+预览构建使用 `/versions/<commit-sha>` base path，CSS、JS、图片、PDF、GLB 和案例页链接会随版本一起工作。服务器永久保留 `releases/<commit-sha>` 和 `versions/<commit-sha>`；`current` 切换不会覆盖旧版本。
+
 ## 需要先提供/确认的信息
 
 目前还不能直接连接服务器或修改 DNS。需要确认：

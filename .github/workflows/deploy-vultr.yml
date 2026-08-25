@@ -12,8 +12,6 @@ concurrency:
   group: vultr-production
   cancel-in-progress: false
 
-# The build runs on every main push. The production deploy is enabled only
-# after the repository variable VULTR_DEPLOY_ENABLED is set to "true".
 env:
   DEPLOY_TARGET: vultr
   NEXT_PUBLIC_BASE_PATH: ""
@@ -43,13 +41,30 @@ jobs:
       - name: Run tests
         run: pnpm test
 
-      - name: Build root-path static site
+      - name: Build production root site
         run: pnpm build
 
-      - name: Upload static artifact
+      - name: Save production artifact
+        run: mv out out-production
+
+      - name: Build version preview site
+        env:
+          DEPLOY_TARGET: preview
+          NEXT_PUBLIC_BASE_PATH: /versions/${{ github.sha }}
+        run: pnpm build
+
+      - name: Upload production artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vultr-static-${{ github.sha }}
+          name: vultr-static-${{ github.sha }}-production
+          path: out-production
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload version preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vultr-static-${{ github.sha }}-preview
           path: out
           if-no-files-found: error
           retention-days: 3
@@ -67,11 +82,17 @@ jobs:
       VULTR_USER: ${{ secrets.VULTR_USER }}
 
     steps:
-      - name: Download static artifact
+      - name: Download production artifact
         uses: actions/download-artifact@v4
         with:
-          name: vultr-static-${{ github.sha }}
-          path: out
+          name: vultr-static-${{ github.sha }}-production
+          path: out-production
+
+      - name: Download version preview artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vultr-static-${{ github.sha }}-preview
+          path: out-preview
 
       - name: Validate deployment inputs
         env:
@@ -101,40 +122,71 @@ jobs:
           printf '%s\n' "$VULTR_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
 
-      - name: Upload release and switch current symlink
+      - name: Upload release, version preview, and switch current
         run: |
           set -euo pipefail
           ssh_opts=(-i "$HOME/.ssh/id_ed25519" -p "$VULTR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes)
           release="$VULTR_DEPLOY_ROOT/releases/$GITHUB_SHA"
+          version="$VULTR_DEPLOY_ROOT/versions/$GITHUB_SHA"
 
-          ssh "${ssh_opts[@]}" "$VULTR_USER@$VULTR_HOST" "mkdir -p '$release'"
+          ssh "${ssh_opts[@]}" "$VULTR_USER@$VULTR_HOST" "mkdir -p '$release' '$version'"
           rsync -az --delete \
             -e "ssh -i $HOME/.ssh/id_ed25519 -p $VULTR_PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes" \
-            out/ "$VULTR_USER@$VULTR_HOST:$release/"
+            out-production/ "$VULTR_USER@$VULTR_HOST:$release/"
+          rsync -az --delete \
+            -e "ssh -i $HOME/.ssh/id_ed25519 -p $VULTR_PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes" \
+            out-preview/ "$VULTR_USER@$VULTR_HOST:$version/"
 
           ssh "${ssh_opts[@]}" "$VULTR_USER@$VULTR_HOST" "bash -s -- '$VULTR_DEPLOY_ROOT' '$GITHUB_SHA'" <<'REMOTE'
           set -euo pipefail
           root="$1"
           sha="$2"
           release="$root/releases/$sha"
+          version="$root/versions/$sha"
           test -f "$release/index.html"
+          test -f "$version/index.html"
           ln -sfn "$release" "$root/.current-$sha"
           mv -Tf "$root/.current-$sha" "$root/current"
 
-          # Keep the current release and one rollback release.
-          find "$root/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
-            | sort -nr \
-            | tail -n +3 \
-            | cut -d' ' -f2- \
-            | while IFS= read -r old_release; do
-                [[ -z "$old_release" ]] || rm -rf -- "$old_release"
-              done
+          versions="$root/versions"
+          index_tmp="$versions/.index-$sha.html"
+          {
+            cat <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Portfolio versions</title>
+            <style>body{max-width:52rem;margin:3rem auto;padding:0 1.25rem;font:16px/1.6 system-ui,sans-serif;color:#17212b}a{color:#174ea6}li{margin:.75rem 0}</style>
+          </head>
+          <body>
+            <h1>Portfolio versions</h1>
+            <p>Immutable preview builds deployed from <code>main</code>.</p>
+            <ul>
+          HTML
+            while IFS=' ' read -r _ version_name; do
+              [[ "$version_name" =~ ^[0-9a-f]{40}$ ]] || continue
+              deployed_at=$(date -u -r "$versions/$version_name" '+%Y-%m-%d %H:%M UTC')
+              printf '              <li><a href="/versions/%s/">%s</a> <time>%s</time></li>\n' "$version_name" "${version_name:0:7}" "$deployed_at"
+            done < <(find "$versions" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %f\n' | sort -nr)
+            cat <<'HTML'
+            </ul>
+          </body>
+          </html>
+          HTML
+          } > "$index_tmp"
+          mv -f "$index_tmp" "$versions/index.html"
           REMOTE
 
-      - name: Verify public site
+      - name: Verify public production and version site
         run: |
           set -euo pipefail
           for path in / /work/cic-ai-assessment/ /work/portfolio-site/ /Zhicheng-Situ-CV.pdf /models/hero-delivery-system.glb; do
             curl --fail --silent --show-error --location --max-time 30 \
               "https://eason.sanhehangjm.cn${path}" -o /dev/null
           done
+          curl --fail --silent --show-error --location --max-time 30 \
+            "https://eason.sanhehangjm.cn/versions/${GITHUB_SHA}/" -o /dev/null
+          curl --fail --silent --show-error --location --max-time 30 \
+            "https://eason.sanhehangjm.cn/versions/" -o /dev/null

@@ -145,6 +145,7 @@ jobs:
           version="$root/versions/$sha"
           test -f "$release/index.html"
           test -f "$version/index.html"
+          ln -sfn "$root/versions" "$release/versions"
           ln -sfn "$release" "$root/.current-$sha"
           mv -Tf "$root/.current-$sha" "$root/current"
 

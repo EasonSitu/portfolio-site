@@ -17,7 +17,7 @@ concurrency:
 env:
   DEPLOY_TARGET: vultr
   NEXT_PUBLIC_BASE_PATH: ""
-  VULTR_DEPLOY_ROOT: ${{ vars.VULTR_DEPLOY_ROOT || '/var/www/eason.sanhehangjm.cn' }}
+  VULTR_DEPLOY_ROOT: /var/www/eason.sanhehangjm.cn
 
 jobs:
   build:

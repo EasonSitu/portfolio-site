@@ -41,7 +41,7 @@ export const siteContent = {
     },
     skillsHeader: {
       title: "What I Do",
-      intro: "My role is rarely limited to one stage; I connect requirements, technology and real-world delivery.",
+      intro: "I usually connect requirements, technology and real-world delivery rather than working on just one stage.",
     },
     skills: [
       { title: "Solution Delivery", items: ["Requirements Clarification", "Solution Planning", "Deployment & Debugging", "Testing & UAT", "Client & Vendor Coordination"] },
@@ -50,10 +50,10 @@ export const siteContent = {
     ],
     skillsEvidence: ["20+ ConTech IoT projects", "30+ PRDs", "8 product iterations"],
     metrics: [
-      { value: "30+", label: "career AI/IoT & digital projects" },
-      { value: "10+", label: "IoT device categories" },
-      { value: "30+", label: "PRDs written" },
-      { value: "8", label: "Product iterations" },
+      { value: "30+", label: "Projects Delivered" },
+      { value: "20+", label: "Projects Led" },
+      { value: "10+", label: "Hardware & System Integrations" },
+      { value: "8", label: "Prototype Iterations" },
     ],
     experienceHeader: {
       kicker: "EXPERIENCE",
@@ -260,7 +260,7 @@ export const siteContent = {
     },
     skillsHeader: {
       title: "我能做什么",
-      intro: "我的工作通常不只负责其中一环，而是把需求、技术和实际交付串联起来。",
+      intro: "我通常会把需求、技术和实际交付串起来，而不是只负责其中一环。",
     },
     skills: [
       { title: "方案交付", items: ["需求澄清", "方案规划", "部署与调试", "测试与 UAT", "客户及供应商协调"] },
@@ -269,10 +269,10 @@ export const siteContent = {
     ],
     skillsEvidence: ["20+ ConTech IoT 项目", "30+ PRD", "8 次产品迭代"],
     metrics: [
-      { value: "30+", label: "职业经历累计 AI/IoT 及数字化项目" },
-      { value: "10+", label: "类 IoT 设备" },
-      { value: "30+", label: "份 PRD" },
-      { value: "8", label: "次产品迭代" },
+      { value: "30+", label: "参与项目" },
+      { value: "20+", label: "主导项目" },
+      { value: "10+", label: "硬件与系统整合" },
+      { value: "8", label: "次原型迭代" },
     ],
     experienceHeader: {
       kicker: "工作经历",
@@ -480,7 +480,7 @@ export const siteContent = {
     },
     skillsHeader: {
       title: "我能做什麼",
-      intro: "我的工作通常不是只負責其中一環，而是把需求、技術和實際交付串起來。",
+      intro: "我通常會把需求、技術和實際交付串起來，而不是只負責其中一環。",
     },
     skills: [
       { title: "方案交付", items: ["需求釐清", "方案規劃", "部署與調試", "測試與 UAT", "客戶及供應商協調"] },
@@ -489,10 +489,10 @@ export const siteContent = {
     ],
     skillsEvidence: ["20+ 建造科技 IoT 項目", "30+ PRD", "8 次產品迭代"],
     metrics: [
-      { value: "30+", label: "職涯累積 AI/IoT 及數碼項目" },
-      { value: "10+", label: "類 IoT 設備" },
-      { value: "30+", label: "份 PRD" },
-      { value: "8", label: "次產品迭代" },
+      { value: "30+", label: "參與項目" },
+      { value: "20+", label: "主導項目" },
+      { value: "10+", label: "硬件與系統整合" },
+      { value: "8", label: "次原型迭代" },
     ],
     experienceHeader: {
       kicker: "工作經歷",

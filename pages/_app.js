@@ -5,7 +5,7 @@ const App = ({ Component, pageProps }) => {
   return (
     <>
       <div
-        className={`${calibre.variable} ${manrope.variable} font-sans`}
+        className={`${calibre.variable} ${manrope.variable} app-root`}
       >
         <Component {...pageProps} />
       </div>

@@ -70,6 +70,23 @@ test("navigation keeps the five section links accessible in the overlay", () => 
   assert.match(styleSource, /\.menuOverlay\[data-open="true"\][\s\S]*?pointer-events:\s*auto/);
 });
 
+test("experience opens isBIM by default and aligns the selected company", () => {
+  assert.match(componentSource, /item\.id === "isbim"/);
+  assert.match(componentSource, /experienceItemRefs/);
+  assert.match(componentSource, /window\.scrollTo\(\{/);
+  assert.match(componentSource, /prefers-reduced-motion/);
+  assert.match(componentSource, /inert=\{!isActive \? "" : undefined\}/);
+  assert.match(componentSource, /aria-expanded=\{isActive\}/);
+  assert.doesNotMatch(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(null\)/);
+});
+
+test("menu overlay closes when clicking non-interactive backdrop space", () => {
+  assert.match(componentSource, /handleMenuOverlayClick/);
+  assert.match(componentSource, /event\.target === event\.currentTarget/);
+  assert.match(componentSource, /!event\.target\.closest\?\.\("a, button"\)/);
+  assert.match(componentSource, /onClick=\{handleMenuOverlayClick\}/);
+});
+
 test("the E loader owns the initial Hero wait and respects reduced motion", () => {
   assert.match(componentSource, /function PageLoader\(\{ ready \}\)/);
   assert.match(componentSource, /const LOADER_MIN_VISIBLE\s*=\s*900/);
@@ -89,6 +106,19 @@ test("the page renders exactly the five recruiter-facing primary sections", () =
   const sectionIds = [...componentSource.matchAll(/<section id="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual([...sectionIds].sort(), ["contact", "experience", "home", "project", "skills"]);
   assert.doesNotMatch(componentSource, /id="(about|role|ai)"/);
+});
+
+test("metrics band bridges the Hero and experience sections", () => {
+  assert.match(componentSource, /function MetricsBand\(\{ metrics \}\)/);
+  assert.match(componentSource, /metrics\.map\(\(\{ value, label \}\)/);
+  assert.match(componentSource, /<MetricsBand metrics=\{copy\.metrics\} \/>/);
+  assert.match(componentSource, /<MetricsBand metrics=\{copy\.metrics\} \/>[\s\S]*?<section id="experience"/);
+  assert.match(componentSource, /className=\{styles\.metricsBand\} data-reveal/);
+  assert.match(styleSource, /\.metricsBand\s*\{[\s\S]*?border-top:\s*1px solid var\(--line\)[\s\S]*?border-bottom:\s*1px solid var\(--line\)/);
+  assert.match(styleSource, /\.metricsValue\s*\{[\s\S]*?font-size:\s*clamp\(2\.4rem,\s*4vw,\s*3\.4rem\)[\s\S]*?font-family:\s*var\(--font-display\)[\s\S]*?font-weight:\s*500/);
+  assert.match(styleSource, /\.metricsLabel\s*\{[\s\S]*?font-size:\s*var\(--type-meta\)[\s\S]*?color:\s*var\(--muted\)/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*768px\)[\s\S]*?\.metricsGrid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(styleSource, /\.metricsItem:nth-child\(even\)\s*\{[\s\S]*?border-left:\s*1px solid var\(--line\)/);
 });
 
 test("footer no longer renders the removed identity line", () => {
@@ -229,7 +259,7 @@ test("contact uses a two-column message and action layout with a lighter talk an
   assert.match(componentSource, /contactEmail/);
   assert.match(styleSource, /\.contactLayout\s*\{[\s\S]*display:\s*grid/);
   assert.match(styleSource, /\.contactTalk\s*\{[\s\S]*font-weight:\s*400/);
-  assert.match(styleSource, /\.contactTalk\s*\{[\s\S]*opacity:\s*0\.78/);
+  assert.match(styleSource, /\.contactTalk\s*\{[\s\S]*opacity:\s*0\.64/);
   assert.match(styleSource, /\.contactEmail\s*\{/);
   assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.contactLayout/);
 });
@@ -324,7 +354,8 @@ test("site typography follows one capped responsive hierarchy across languages a
 
 test("experience explorer keeps recruiter scan order and detail controls visible", () => {
   assert.match(componentSource, /function ExperienceExplorer/);
-  assert.match(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(null\)/);
+  assert.match(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(\(\) =>/);
+  assert.match(componentSource, /defaultIndex = copy\.experience\.findIndex/);
   assert.match(componentSource, /item\.period/);
   assert.match(componentSource, /item\.company/);
   assert.match(componentSource, /item\.role/);
@@ -391,12 +422,25 @@ test("experience removes the former horizontal scroll implementation", () => {
   assert.doesNotMatch(globalStyleSource, /overflow-x:\s*hidden/);
 });
 
+test("contact uses a shared section title and a lower statement hierarchy", () => {
+  assert.match(componentSource, /contactSectionHeader/);
+  assert.doesNotMatch(componentSource, /styles\.contactKicker/);
+  assert.match(componentSource, /copy\.contact\.titleLines/);
+  assert.match(styleSource, /\.contactSectionHeader h2/);
+  assert.match(styleSource, /\.site\[lang="zh-CN"\] \.contactSectionHeader h2[\s\S]*?var\(--font-cjk-sc\)/);
+  assert.match(styleSource, /\.site\[lang="zh-HK"\] \.contactSectionHeader h2[\s\S]*?var\(--font-cjk-tc\)/);
+  assert.match(styleSource, /\.contactOpportunity[\s\S]*?font-size:\s*clamp\(1\.5rem,\s*1\.8vw,\s*1\.9rem\)/);
+  assert.match(styleSource, /\.contactTalk[\s\S]*?opacity:\s*0\.64/);
+});
+
 test("selected work is a concise horizontal draggable showcase", () => {
   assert.match(componentSource, /projectShowcaseRail/);
   assert.match(componentSource, /projectShowcaseCard/);
   assert.match(componentSource, /project\.cardTitle \|\| project\.title/);
   assert.match(componentSource, /onPointerDown/);
   assert.match(componentSource, /onPointerMove/);
+  assert.match(componentSource, /draggable=\{false\}/);
+  assert.match(componentSource, /event\.preventDefault\(\)/);
   assert.match(componentSource, /import Link from "next\/link"/);
   assert.match(componentSource, /href=\{`\/work\/\$\{project\.id\}\/`\}/);
   assert.match(componentSource, /scrollBy/);
@@ -404,8 +448,8 @@ test("selected work is a concise horizontal draggable showcase", () => {
   assert.doesNotMatch(componentSource, /projectSignalFlow/);
   assert.match(styleSource, /\.projectShowcaseRail\s*\{[\s\S]*overflow-x:\s*auto/);
   assert.match(styleSource, /\.projectShowcaseRail\s*\{[\s\S]*scroll-snap-type:\s*none/);
-  assert.match(styleSource, /\.projectShowcaseLink\s*\{[\s\S]*scroll-snap-align:\s*start/);
-  assert.match(styleSource, /\.projectShowcaseLink\s*\{[\s\S]*flex:\s*0 0/);
+  assert.match(styleSource, /\.projectShowcaseItem\s*\{[\s\S]*scroll-snap-align:\s*start/);
+  assert.match(styleSource, /\.projectShowcaseItem\s*\{[\s\S]*flex:\s*0 0/);
   assert.match(styleSource, /\.projectShowcaseLink:focus-visible/);
   assert.match(styleSource, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.projectShowcaseRail/);
 });
@@ -420,7 +464,7 @@ test("the consolidated skills section keeps one reduced-motion-safe synthesis st
 test("responsive layout uses a shared gutter and narrow fallback", () => {
   assert.match(styleSource, /--gutter:\s*clamp\(1\.125rem,\s*4vw,\s*2\.5rem\)/);
   assert.match(styleSource, /width:\s*min\(calc\(100%\s*-\s*2\s*\*\s*var\(--gutter\)\)/);
-  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.projectShowcaseLink\s*\{[^}]*flex:\s*0 0 calc\(100vw\s*-\s*4\s*\*\s*var\(--gutter\)\)/);
+  assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.projectShowcaseItem\s*\{[^}]*flex:\s*0 0 calc\(100vw\s*-\s*4\s*\*\s*var\(--gutter\)\)/);
   assert.match(styleSource, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.projectShowcaseRail\s*\{[\s\S]*scroll-padding-inline:\s*var\(--gutter\)/);
 });
 

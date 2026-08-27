@@ -38,6 +38,7 @@ jobs:
         env:
           DEPLOY_TARGET: github-pages
           NEXT_PUBLIC_BASE_PATH: /portfolio-site
+          NEXT_PUBLIC_SITE_URL: https://${{ github.repository_owner }}.github.io/portfolio-site
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

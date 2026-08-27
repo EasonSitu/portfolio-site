@@ -10,6 +10,12 @@
   --ink: #17212b;
   --muted: #67727a;
   --line: rgba(23, 33, 43, 0.14);
+  /*
+   * Hairline 收斂：深色 surface 上只使用兩檔 1px 細線，
+   * 常規分隔 / 卡片邊線用 --hairline-dark，展簽通欄線和 Contact 框線用 --hairline-dark-strong。
+   */
+  --hairline-dark: rgba(245, 243, 238, 0.16);
+  --hairline-dark-strong: rgba(245, 243, 238, 0.26);
   --accent: #174ea6;
   --accent-soft: #dbe6f4;
   --terracotta: #c75a34;
@@ -115,6 +121,22 @@
 .site button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
+}
+
+/*
+ * 質感層：全站極淡紙張噪點（約 2–3%）。內聯 SVG feTurbulence 灰階顆粒，
+ * 無外部資源；固定定位 + pointer-events: none，不遮擋互動，light/dark surface 都適用。
+ * 顆粒本身為靜態，reduced-motion 下沒有額外動效需要關閉。
+ */
+.site::after {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  content: "";
+  opacity: 0.028;
+  pointer-events: none;
 }
 
 .container,
@@ -284,7 +306,7 @@
   align-items: baseline;
   gap: var(--space-5);
   padding: 0.6rem 0;
-  border-bottom: 1px solid rgba(244, 240, 231, 0.16);
+  border-bottom: 1px solid var(--hairline-dark);
   color: var(--paper);
   font-size: var(--type-menu-link);
   font-weight: 500;
@@ -293,7 +315,7 @@
 }
 
 .menuLink:first-child {
-  border-top: 1px solid rgba(244, 240, 231, 0.16);
+  border-top: 1px solid var(--hairline-dark);
 }
 
 .menuOverlay .menuLink {
@@ -633,7 +655,6 @@
 .skillsHeader h2,
 .sectionLead,
 .projectCopy h2,
-.contactContent h2,
 .contactOpportunity {
   margin: 0;
   font-family: var(--font-display);
@@ -826,8 +847,6 @@
 /* 中文小字不使用英文式字母間距；保留 monospace 只給真正的技術編號。 */
 .site[lang="zh-CN"] .cardKicker,
 .site[lang="zh-HK"] .cardKicker,
-.site[lang="zh-CN"] .contactKicker,
-.site[lang="zh-HK"] .contactKicker,
 .site[lang="zh-CN"] .contactMeta,
 .site[lang="zh-HK"] .contactMeta,
 .site[lang="zh-CN"] .skillsEvidence,
@@ -1159,14 +1178,111 @@
   background: var(--paper);
 }
 
+/* 區塊展簽：編號與細線保持同一行，標題沿用原有層級。 */
+.sectionIndexHeader {
+  min-width: 0;
+}
+
+.sectionIndexBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: clamp(1.35rem, 2.5vw, 2rem);
+}
+
+.sectionIndexBar > span:first-child {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--type-meta);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sectionIndexRule {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 1px;
+  background: var(--line);
+}
+
+/* 指標展簽：上下細線貫穿頁面，桌面四欄、窄屏收成 2×2。 */
+.metricsBand {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: clamp(2rem, 4.5vw, 3.5rem) 0;
+  background: var(--paper);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metricsItem {
+  display: flex;
+  min-width: 0;
+  min-height: 8rem;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 clamp(0.85rem, 2.2vw, 1.5rem);
+  border-left: 1px solid var(--line);
+}
+
+.metricsItem:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.metricsItem:last-child {
+  padding-right: 0;
+}
+
+.metricsValue {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+}
+
+.metricsLabel {
+  display: block;
+  max-width: 18rem;
+  margin-top: 0.8rem;
+  color: var(--muted);
+  font-size: var(--type-meta);
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.site[lang="en"] .metricsLabel {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* 數字保持拉丁字體，即使頁面正文使用 CJK 字體棧。 */
+.site[lang="zh-CN"] .metricsValue,
+.site[lang="zh-HK"] .metricsValue {
+  font-family: var(--font-display);
+}
+
 .sectionHeading {
   width: min(100%, 68rem);
   max-width: 100%;
 }
 
 .sectionHeading h2,
-.skillsHeader h2,
-.contactContent h2 {
+.skillsHeader h2 {
   font-size: var(--type-display-lg);
   line-height: 0.94;
 }
@@ -1390,7 +1506,7 @@
 
 .projectCard + .projectCard {
   padding-top: clamp(4rem, 7vw, 6rem);
-  border-top: 1px solid rgba(245, 243, 238, 0.14);
+  border-top: 1px solid var(--hairline-dark);
 }
 
 .projectLayout {
@@ -1418,7 +1534,7 @@
   max-width: 34rem;
   margin: 2rem 0 0;
   padding-top: 1rem;
-  border-top: 1px solid rgba(245, 243, 238, 0.18);
+  border-top: 1px solid var(--hairline-dark);
   color: rgba(245, 243, 238, 0.55);
   font-size: var(--text-sm);
 }
@@ -1438,7 +1554,7 @@
   align-items: center;
   min-height: 30rem;
   padding: 1.75rem;
-  border: 1px solid rgba(245, 243, 238, 0.2);
+  border: 1px solid var(--hairline-dark);
   border-radius: var(--radius-card);
   background:
     radial-gradient(circle at 78% 48%, rgba(23, 78, 166, 0.26), transparent 12rem),
@@ -1464,7 +1580,7 @@
 .projectSignalHeader {
   align-self: start;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(245, 243, 238, 0.12);
+  border-bottom: 1px solid var(--hairline-dark);
 }
 
 .projectSignalInputs {
@@ -1515,12 +1631,12 @@
   align-self: end;
   justify-content: flex-start;
   padding-top: 1rem;
-  border-top: 1px solid rgba(245, 243, 238, 0.12);
+  border-top: 1px solid var(--hairline-dark);
 }
 
 .projectTechRail span {
   padding: 0.28rem 0.5rem;
-  border: 1px solid rgba(245, 243, 238, 0.17);
+  border: 1px solid var(--hairline-dark);
   border-radius: 999px;
 }
 
@@ -1530,7 +1646,7 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 1.15rem;
-  border: 1px solid rgba(245, 243, 238, 0.17);
+  border: 1px solid var(--hairline-dark);
   border-radius: 0.9rem;
   background: rgba(245, 243, 238, 0.04);
   transition: border-color 180ms ease, transform 180ms ease;
@@ -1941,6 +2057,14 @@
   color: var(--paper);
 }
 
+.projectSection .sectionIndexBar > span:first-child {
+  color: rgba(245, 243, 238, 0.68);
+}
+
+.projectSection .sectionIndexRule {
+  background: var(--hairline-dark-strong);
+}
+
 .projectSection .sectionHeading {
   width: min(100%, 68rem);
   max-width: 100%;
@@ -1996,13 +2120,18 @@
   background: rgba(245, 243, 238, 0.5);
 }
 
-.projectShowcaseLink {
+.projectShowcaseItem {
   display: block;
   flex: 0 0 min(48rem, 78vw);
   min-width: 0;
+  scroll-snap-align: start;
+}
+
+.projectShowcaseLink {
+  display: block;
+  height: 100%;
   color: inherit;
   text-decoration: none;
-  scroll-snap-align: start;
 }
 
 .projectShowcaseLink:focus-visible {
@@ -2023,7 +2152,7 @@
   flex-direction: column;
   padding: clamp(1.5rem, 2.4vw, 2.4rem);
   overflow: hidden;
-  border: 1px solid rgba(245, 243, 238, 0.2);
+  border: 1px solid var(--hairline-dark);
   border-radius: var(--radius-card);
   background: var(--project-surface);
   color: var(--ink);
@@ -2361,6 +2490,50 @@
   color: var(--paper);
 }
 
+.contactSectionHeader {
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.site[lang="zh-CN"] .skillsSection,
+.site[lang="zh-HK"] .skillsSection {
+  --muted: #58656e;
+}
+
+.skillsSection .practiceNumber {
+  color: #974126;
+}
+
+.contactSection .sectionIndexBar > span:first-child {
+  color: rgba(245, 243, 238, 0.78);
+}
+
+.contactSection .sectionIndexRule {
+  background: var(--hairline-dark-strong);
+}
+
+.contactSectionHeader h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--type-display-lg);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 0.94;
+}
+
+.site[lang="zh-CN"] .contactSectionHeader h2 {
+  font-family: var(--font-cjk-sc);
+  font-size: var(--type-display-lg-cjk);
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+}
+
+.site[lang="zh-HK"] .contactSectionHeader h2 {
+  font-family: var(--font-cjk-tc);
+  font-size: var(--type-display-lg-cjk);
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+}
+
 .contactGlow {
   position: absolute;
   top: -20rem;
@@ -2370,11 +2543,6 @@
   border-radius: 50%;
   background: radial-gradient(circle, rgba(23, 78, 166, 0.48), transparent 66%);
   opacity: 0.65;
-}
-
-.contactContent {
-  position: relative;
-  max-width: 58rem;
 }
 
 /*
@@ -2387,30 +2555,20 @@
   grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
   gap: clamp(3rem, 8vw, 8rem);
   padding: clamp(2rem, 4vw, 4rem) 0;
-  border-top: 1px solid rgba(245, 243, 238, 0.34);
-  border-bottom: 1px solid rgba(245, 243, 238, 0.34);
+  border-top: 1px solid var(--hairline-dark-strong);
+  border-bottom: 1px solid var(--hairline-dark-strong);
 }
 
 .contactCopy {
   max-width: 43rem;
 }
 
-.contactKicker {
-  margin: 0;
-  color: rgba(245, 243, 238, 0.68);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--type-meta);
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
 .contactOpportunity {
   width: min(100%, 54rem);
   max-width: 100%;
-  margin-top: clamp(2rem, 4vw, 4rem);
-  font-size: clamp(2rem, 3.4vw, 2.65rem);
-  line-height: 1.08;
+  margin: 0;
+  font-size: clamp(1.5rem, 1.8vw, 1.9rem);
+  line-height: 1.2;
   text-wrap: balance;
 }
 
@@ -2447,7 +2605,7 @@
   flex-direction: column;
   align-items: flex-start;
   padding-left: clamp(1.5rem, 4vw, 4rem);
-  border-left: 1px solid rgba(245, 243, 238, 0.24);
+  border-left: 1px solid var(--hairline-dark-strong);
 }
 
 .contactTalk {
@@ -2459,7 +2617,7 @@
   font-weight: 400;
   letter-spacing: -0.06em;
   line-height: 0.86;
-  opacity: 0.78;
+  opacity: 0.64;
   white-space: pre-line;
 }
 
@@ -2496,11 +2654,6 @@
 .site[lang="zh-CN"] .projectShowcaseControls p,
 .site[lang="zh-HK"] .projectShowcaseControls p {
   color: rgba(245, 243, 238, 0.74);
-}
-
-.site[lang="zh-CN"] .contactKicker,
-.site[lang="zh-HK"] .contactKicker {
-  color: rgba(245, 243, 238, 0.82);
 }
 
 .site[lang="zh-CN"] .contactStatement,
@@ -2678,6 +2831,25 @@
 }
 
 @media (max-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metricsItem {
+    min-height: 7rem;
+    padding: 1.25rem 0.85rem;
+  }
+
+  .metricsItem:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .metricsItem:nth-child(even) {
+    padding-right: 0;
+    border-left: 1px solid var(--line);
+  }
+
   .heroTowerStage {
     height: clamp(24rem, 90vw, 28rem);
     min-height: 24rem;
@@ -2819,8 +2991,7 @@
   }
 
   .sectionHeading h2,
-  .skillsHeader h2,
-  .contactContent h2 {
+  .skillsHeader h2 {
     line-height: 0.96;
   }
 
@@ -3050,7 +3221,7 @@
     margin-bottom: 0;
   }
 
-  .projectShowcaseLink {
+  .projectShowcaseItem {
     flex-basis: min(38rem, 84vw);
   }
 
@@ -3062,7 +3233,7 @@
   .contactAside {
     padding-top: 3rem;
     padding-left: 0;
-    border-top: 1px solid rgba(245, 243, 238, 0.24);
+    border-top: 1px solid var(--hairline-dark-strong);
     border-left: 0;
   }
 
@@ -3130,7 +3301,7 @@
     scroll-padding-inline: var(--gutter);
   }
 
-  .projectShowcaseLink {
+  .projectShowcaseItem {
     flex: 0 0 calc(100vw - 4 * var(--gutter));
     min-height: 25rem;
   }
@@ -3157,8 +3328,9 @@
   .contactOpportunity {
     width: 100%;
     max-width: 100%;
-    margin-top: 1.75rem;
-    font-size: clamp(1.8rem, 7.2vw, 2.7rem);
+    margin-top: 0;
+    font-size: clamp(1.5rem, 6.2vw, 1.9rem);
+    line-height: 1.2;
   }
 
   .contactStatement,
@@ -3203,6 +3375,7 @@
   .experienceSelectableItem::before,
   .experienceAccordionDetail,
   .experienceAccordionDetailInner,
+  .projectShowcaseItem,
   .projectShowcaseLink,
   .projectShowcaseCard {
     transition: none !important;

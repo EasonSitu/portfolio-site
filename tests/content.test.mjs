@@ -140,6 +140,12 @@ test("hero typewriter copy is concise and role-accurate in every locale", () => 
   ]);
 });
 
+test("skills intro uses the concise connected-delivery wording", () => {
+  assert.equal(siteContent["zh-HK"].skillsHeader.intro, "我通常會把需求、技術和實際交付串起來，而不是只負責其中一環。");
+  assert.equal(siteContent["zh-CN"].skillsHeader.intro, "我通常会把需求、技术和实际交付串起来，而不是只负责其中一环。");
+  assert.equal(siteContent.en.skillsHeader.intro, "I usually connect requirements, technology and real-world delivery rather than working on just one stage.");
+});
+
 test("skills index uses three recruiter-readable groups and verified evidence", () => {
   assert.deepEqual(siteContent.en.skills, [
     {
@@ -213,11 +219,25 @@ test("archive gate design tokens keep background, stone, glass and energy distin
   assert.equal(new Set(Object.values(DESIGN_TOKENS)).size, Object.keys(DESIGN_TOKENS).length);
 });
 
-test("metrics retain verified resume values", () => {
-  assert.deepEqual(
-    siteContent.en.metrics.map((metric) => metric.value),
-    ["30+", "10+", "30+", "8"],
-  );
+test("metrics keep the four verified delivery indicators in every locale", () => {
+  assert.deepEqual(siteContent.en.metrics, [
+    { value: "30+", label: "Projects Delivered" },
+    { value: "20+", label: "Projects Led" },
+    { value: "10+", label: "Hardware & System Integrations" },
+    { value: "8", label: "Prototype Iterations" },
+  ]);
+  assert.deepEqual(siteContent["zh-CN"].metrics, [
+    { value: "30+", label: "参与项目" },
+    { value: "20+", label: "主导项目" },
+    { value: "10+", label: "硬件与系统整合" },
+    { value: "8", label: "次原型迭代" },
+  ]);
+  assert.deepEqual(siteContent["zh-HK"].metrics, [
+    { value: "30+", label: "參與項目" },
+    { value: "20+", label: "主導項目" },
+    { value: "10+", label: "硬件與系統整合" },
+    { value: "8", label: "次原型迭代" },
+  ]);
 });
 
 test("experience chronology and Questwork date are accurate", () => {

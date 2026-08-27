@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { withPublicBasePath } from "../lib/publicPath.mjs";
+import { withPublicBasePath, withPublicSiteUrl } from "../lib/publicPath.mjs";
 
 const robotsSource = readFileSync(new URL("../public/robots.txt", import.meta.url), "utf8");
 const manifestSource = readFileSync(new URL("../public/manifest.json", import.meta.url), "utf8");
@@ -29,6 +29,13 @@ test("404 is a lightweight recruiter-site fallback in Traditional Chinese", () =
   assert.doesNotMatch(notFoundSource, /components\/(Button|Cursor)|from "gsap"/);
 });
 
+test("the document primes the saved locale before React hydration", () => {
+  assert.match(documentSource, /INITIAL_LOCALE_SCRIPT/);
+  assert.match(documentSource, /localStorage\.getItem\("portfolio-locale"\)/);
+  assert.match(documentSource, /portfolioLocale/);
+  assert.match(documentSource, /zh-Hant-HK/);
+});
+
 test("the active favicon and manifest mark the current candidate, not the source template", () => {
   assert.match(indexSource, /withPublicBasePath\("\/brand-mark\.svg"\)/);
   assert.match(manifestSource, /"src"\s*:\s*"\.\/brand-mark\.svg"/);
@@ -39,7 +46,9 @@ test("the active favicon and manifest mark the current candidate, not the source
 test("social metadata points to a local recruiter-facing preview without inventing a domain", () => {
   assert.match(indexSource, /property="og:title"/);
   assert.match(indexSource, /property="og:description"/);
-  assert.match(indexSource, /withPublicBasePath\("\/og-card\.svg"\)/);
+  assert.match(indexSource, /withPublicSiteUrl\("\/og-card\.png"\)/);
+  assert.match(indexSource, /property="og:url"/);
+  assert.match(indexSource, /property="og:locale"/);
   assert.match(indexSource, /name="twitter:card" content="summary_large_image"/);
   assert.match(ogCardSource, /Zhicheng Situ/);
   assert.match(ogCardSource, /Solution Delivery/);
@@ -50,9 +59,21 @@ test("public assets resolve from both the root site and the GitHub Pages project
   assert.equal(withPublicBasePath("/brand-mark.svg", "/portfolio-site"), "/portfolio-site/brand-mark.svg");
   assert.equal(withPublicBasePath("Zhicheng-Situ-CV.pdf", "/portfolio-site"), "/portfolio-site/Zhicheng-Situ-CV.pdf");
   assert.match(indexSource, /withPublicBasePath\("\/brand-mark\.svg"\)/);
-  assert.match(indexSource, /withPublicBasePath\("\/og-card\.svg"\)/);
+  assert.match(indexSource, /withPublicSiteUrl\("\/og-card\.png"\)/);
   assert.match(documentSource, /withPublicBasePath\("\/manifest\.json"\)/);
   assert.match(componentSource, /withPublicBasePath\(copy\.contact\.resume\)/);
+});
+
+test("public site URLs add the configured origin without breaking local or project paths", () => {
+  assert.equal(withPublicSiteUrl("/og-card.png", ""), "/og-card.png");
+  assert.equal(
+    withPublicSiteUrl("/og-card.png", "https://example.com/portfolio-site/"),
+    "https://example.com/portfolio-site/og-card.png",
+  );
+  assert.equal(
+    withPublicSiteUrl("/", "https://example.com/portfolio-site/"),
+    "https://example.com/portfolio-site/",
+  );
 });
 
 test("Next.js is configured for a GitHub Pages static project site", () => {

@@ -276,6 +276,35 @@ function TypewriterLine({ phrases }) {
   );
 }
 
+function SectionIndexHeader({ index, children }) {
+  return (
+    <div className={styles.sectionIndexHeader}>
+      <div className={styles.sectionIndexBar}>
+        <span>{index}</span>
+        <span className={styles.sectionIndexRule} aria-hidden="true" />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function MetricsBand({ metrics }) {
+  return (
+    <section className={styles.metricsBand} data-reveal aria-label="Key metrics">
+      <div className={styles.containerWide}>
+        <div className={styles.metricsGrid}>
+          {metrics.map(({ value, label }) => (
+            <div className={styles.metricsItem} key={`${value}-${label}`}>
+              <strong className={styles.metricsValue}>{value}</strong>
+              <span className={styles.metricsLabel}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SectionHeading({ kicker, title, intro }) {
   return (
     <div className={styles.sectionHeading} data-reveal>
@@ -437,11 +466,55 @@ function ExperienceDetailContent({ item, copy }) {
 }
 
 function ExperienceExplorer({ copy }) {
-  const [activeIndex, setActiveIndex] = useState(null);
+  const experienceItemRefs = useRef([]);
+  const pendingScrollIndexRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(() => {
+    const defaultIndex = copy.experience.findIndex((item) => item.id === "isbim");
+    return defaultIndex >= 0 ? defaultIndex : 0;
+  });
 
   const selectExperience = (index) => {
-    setActiveIndex((currentIndex) => (currentIndex === index ? null : index));
+    setActiveIndex((currentIndex) => {
+      const nextIndex = currentIndex === index ? null : index;
+      pendingScrollIndexRef.current = nextIndex === null ? null : index;
+      return nextIndex;
+    });
   };
+
+  useEffect(() => {
+    const index = pendingScrollIndexRef.current;
+    if (index === null) return undefined;
+    pendingScrollIndexRef.current = null;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frame = 0;
+    let timeout = 0;
+    let settleTimeout = 0;
+    const alignExperience = () => {
+      const item = experienceItemRefs.current[index];
+      if (!item) return;
+      const header = document.querySelector("header");
+      const headerHeight = header?.getBoundingClientRect().height || 0;
+      const top = item.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior: reduced ? "auto" : "smooth",
+      });
+    };
+
+    frame = window.requestAnimationFrame(() => {
+      timeout = window.setTimeout(() => {
+        alignExperience();
+        if (!reduced) settleTimeout = window.setTimeout(alignExperience, 320);
+      }, reduced ? 0 : 280);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+      window.clearTimeout(settleTimeout);
+    };
+  }, [activeIndex]);
 
   const handleExperienceKeyDown = (event, index) => {
     const key = event.key?.toLowerCase();
@@ -453,10 +526,12 @@ function ExperienceExplorer({ copy }) {
   return (
     <div className={styles.experienceExplorer}>
       <div className={styles.experienceExplorerHeading}>
-        <SectionHeading
-          kicker={copy.experienceHeader.kicker}
-          title={copy.experienceHeader.title}
-        />
+        <SectionIndexHeader index="01">
+          <SectionHeading
+            kicker={copy.experienceHeader.kicker}
+            title={copy.experienceHeader.title}
+          />
+        </SectionIndexHeader>
       </div>
 
       <div className={styles.experienceCardList} role="list" aria-label={copy.experienceHeader.title}>
@@ -464,10 +539,13 @@ function ExperienceExplorer({ copy }) {
           const isActive = index === activeIndex;
           const experienceDetailId = `experience-detail-${item.id || index}`;
           return (
-            <article
+            <div
               className={styles.experienceSelectableItem}
               key={item.id || `${item.company}-${item.period}`}
               role="listitem"
+              ref={(element) => {
+                experienceItemRefs.current[index] = element;
+              }}
               data-active={isActive}
               data-reveal
             >
@@ -500,12 +578,13 @@ function ExperienceExplorer({ copy }) {
                 data-open={isActive}
                 aria-hidden={!isActive}
                 aria-label={`${item.company} detail`}
+                inert={!isActive ? "" : undefined}
               >
                 <div className={styles.experienceAccordionDetailInner}>
                   <ExperienceDetailContent item={item} copy={copy} />
                 </div>
               </div>
-            </article>
+            </div>
           );
         })}
       </div>
@@ -515,26 +594,29 @@ function ExperienceExplorer({ copy }) {
 
 function ProjectShowcaseCard({ project, index, onClick }) {
   return (
-    <Link
-      href={`/work/${project.id}/`}
-      className={styles.projectShowcaseLink}
-      role="listitem"
-      data-cursor-label="↗"
-      onClick={onClick}
-    >
-      <article className={styles.projectShowcaseCard} data-reveal data-tone={index % 2 === 0 ? "blue" : "clay"}>
-        <div className={styles.projectShowcaseTopline}>
-          <p className={styles.kicker}>{project.kicker}</p>
-          <span>{String(index + 1).padStart(2, "0")}</span>
-        </div>
-        <h3>{project.cardTitle || project.title}</h3>
-        <p className={styles.projectShowcaseSummary}>{project.summary}</p>
-        <div className={styles.projectShowcaseTags}>
-          {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
-        </div>
-        <span className={styles.projectShowcaseArrow} aria-hidden="true">↗</span>
-      </article>
-    </Link>
+    <div className={styles.projectShowcaseItem} role="listitem">
+      <Link
+        href={`/work/${project.id}/`}
+        className={styles.projectShowcaseLink}
+        data-cursor-label="↗"
+        draggable={false}
+        onDragStart={(event) => event.preventDefault()}
+        onClick={onClick}
+      >
+        <article className={styles.projectShowcaseCard} data-reveal data-tone={index % 2 === 0 ? "blue" : "clay"}>
+          <div className={styles.projectShowcaseTopline}>
+            <p className={styles.kicker}>{project.kicker}</p>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+          </div>
+          <h3>{project.cardTitle || project.title}</h3>
+          <p className={styles.projectShowcaseSummary}>{project.summary}</p>
+          <div className={styles.projectShowcaseTags}>
+            {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
+          </div>
+          <span className={styles.projectShowcaseArrow} aria-hidden="true">↗</span>
+        </article>
+      </Link>
+    </div>
   );
 }
 
@@ -562,6 +644,7 @@ function SelectedProjectsSection({ projects, locale, header }) {
 
   const handlePointerDown = (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (event.pointerType === "mouse") event.preventDefault();
     const rail = railRef.current;
     if (!rail) return;
     suppressClickRef.current = false;
@@ -580,6 +663,7 @@ function SelectedProjectsSection({ projects, locale, header }) {
     const state = dragStateRef.current;
     const rail = railRef.current;
     if (!state.active || !rail) return;
+    if (event.pointerType === "mouse") event.preventDefault();
     if (Math.abs(event.clientX - state.startX) > 6) {
       state.moved = true;
       suppressClickRef.current = true;
@@ -600,7 +684,9 @@ function SelectedProjectsSection({ projects, locale, header }) {
   return (
     <section id="project" className={styles.projectSection}>
       <div className={styles.containerWide}>
-        <SectionHeading kicker={header.kicker} title={header.title} intro={header.intro} />
+        <SectionIndexHeader index="02">
+          <SectionHeading kicker={header.kicker} title={header.title} intro={header.intro} />
+        </SectionIndexHeader>
         <div className={styles.projectShowcase}>
           <div
             className={styles.projectShowcaseRail}
@@ -652,8 +738,10 @@ function SkillsSection({ copy }) {
     <section id="skills" className={styles.skillsSection}>
       <div className={styles.container}>
         <div className={styles.skillsHeader} data-reveal>
-          <h2>{copy.skillsHeader.title}</h2>
-          <p className={styles.sectionIntro}>{copy.skillsHeader.intro}</p>
+          <SectionIndexHeader index="03">
+            <h2>{copy.skillsHeader.title}</h2>
+            <p className={styles.sectionIntro}>{copy.skillsHeader.intro}</p>
+          </SectionIndexHeader>
         </div>
 
         <div className={styles.skillsIndex} data-reveal>
@@ -732,6 +820,11 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
   }, [mobileMenuOpen]);
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
+  const handleMenuOverlayClick = (event) => {
+    if (event.target === event.currentTarget || !event.target.closest?.("a, button")) {
+      closeMobileMenu();
+    }
+  };
   const menuLabels = locale === "en"
     ? { open: "Open menu", close: "Close menu", navigation: "Site navigation", home: "Home", kicker: "Navigate" }
     : locale === "zh-CN"
@@ -772,6 +865,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
         className={styles.menuOverlay}
         data-open={mobileMenuOpen}
         aria-hidden={!mobileMenuOpen}
+        onClick={handleMenuOverlayClick}
       >
         <div className={styles.menuOverlayInner}>
           <p className={styles.menuKicker}>{menuLabels.kicker}</p>
@@ -835,6 +929,8 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
           </div>
         </section>
 
+        <MetricsBand metrics={copy.metrics} />
+
         <section id="experience" className={styles.experienceSection}>
           <div className={styles.containerWide}>
             <ExperienceExplorer copy={copy} />
@@ -848,9 +944,13 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
         <section id="contact" className={styles.contactSection}>
           <div className={styles.contactGlow} aria-hidden="true" />
           <div className={styles.container}>
+            <header className={styles.contactSectionHeader}>
+              <SectionIndexHeader index="04">
+                <h2>{copy.contact.kicker}</h2>
+              </SectionIndexHeader>
+            </header>
             <div className={styles.contactLayout} data-reveal>
               <div className={styles.contactCopy}>
-                <h2 className={styles.contactKicker}>{copy.contact.kicker}</h2>
                 <p className={styles.contactOpportunity}>
                   {copy.contact.titleLines
                     ? copy.contact.titleLines.map((line) => <span className={styles.contactOpportunityLine} key={line}>{line}</span>)

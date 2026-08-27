@@ -15,6 +15,7 @@ concurrency:
 env:
   DEPLOY_TARGET: vultr
   NEXT_PUBLIC_BASE_PATH: ""
+  NEXT_PUBLIC_SITE_URL: https://eason.sanhehangjm.cn
   VULTR_DEPLOY_ROOT: /var/www/eason.sanhehangjm.cn
 
 jobs:
@@ -51,6 +52,7 @@ jobs:
         env:
           DEPLOY_TARGET: preview
           NEXT_PUBLIC_BASE_PATH: /versions/${{ github.sha }}
+          NEXT_PUBLIC_SITE_URL: https://eason.sanhehangjm.cn/versions/${{ github.sha }}
         run: pnpm build
 
       - name: Upload production artifact

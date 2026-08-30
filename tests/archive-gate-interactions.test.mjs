@@ -131,6 +131,15 @@ test("contact actions keep clean labels without decorative arrows", () => {
   assert.doesNotMatch(contactBlock, /<span>[↗↓]<\/span>/);
 });
 
+test("contact exposes a GitHub link to the portfolio repository", () => {
+  const contactBlock = componentSource.match(/<section id="contact"[\s\S]*?<\/section>/)?.[0] || "";
+  assert.match(contactBlock, /copy\.contact\.github/);
+  assert.match(contactBlock, /target="_blank" rel="noreferrer"/);
+  for (const locale of ["en", "zh-CN", "zh-HK"]) {
+    assert.match(siteContent[locale].contact.github, /^https:\/\/github\.com\/EasonSitu\//);
+  }
+});
+
 test("the document points to the existing favicon asset", () => {
   assert.match(indexSource, /withPublicBasePath\("\/brand-mark\.svg"\)/);
 });

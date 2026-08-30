@@ -970,7 +970,8 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                   <a className={styles.primaryButton} href={copy.contact.email} data-cursor-label="EMAIL">
                     {copy.contact.emailLabel}
                   </a>
-                  {copy.contact.linkedin && <a className={styles.secondaryButton} href={copy.contact.linkedin} data-cursor-label="LINKEDIN">LinkedIn</a>}
+                  {copy.contact.linkedin && <a className={styles.secondaryButton} href={copy.contact.linkedin} data-cursor-label="LINKEDIN" target="_blank" rel="noreferrer">LinkedIn</a>}
+                  {copy.contact.github && <a className={styles.secondaryButton} href={copy.contact.github} data-cursor-label="GITHUB" target="_blank" rel="noreferrer">GitHub</a>}
                   <a className={styles.secondaryButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">
                     {copy.contact.resumeLabel}
                   </a>

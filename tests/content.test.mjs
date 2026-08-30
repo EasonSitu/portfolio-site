@@ -34,7 +34,7 @@ for (const locale of locales) {
     assert.ok(copy.positioning.primary);
     assert.equal(copy.positioning.secondary, undefined);
     assert.equal(copy.metrics.length, 4);
-    assert.equal(copy.experience.length, 4);
+    assert.equal(copy.experience.length, 5);
     assert.equal(copy.aiPractice.length, 3);
     assert.ok(copy.aiPracticeHeader.title);
     assert.ok(copy.aiPracticeHeader.intro);
@@ -62,7 +62,8 @@ for (const locale of locales) {
   test(`${locale} exposes valid contact links`, () => {
     const { contact } = siteContent[locale];
     assert.match(contact.email, /^mailto:/);
-    assert.equal(contact.linkedin, "");
+    assert.match(contact.linkedin, /^https:\/\/www\.linkedin\.com\/in\/eason-situ-/);
+    assert.match(contact.github, /^https:\/\/github\.com\/EasonSitu\/portfolio-site$/);
     assert.equal(contact.resume, "/Zhicheng-Situ-CV.pdf");
     assert.equal(contact.emailAddress, "situeason@gmail.com");
     assert.ok(contact.location);
@@ -249,14 +250,16 @@ test("experience chronology and Questwork date are accurate", () => {
       "Questwork Consulting Limited",
       "K Compact Company Limited",
       "Zhuhai Kingsoft Shiyou Technology Co., Ltd.",
+      "Australian National University",
     ],
   );
   assert.match(experience[1].period, /Mar 2025/);
   assert.match(experience[3].period, /May 2022/);
+  assert.match(experience[4].period, /2018.*2022/);
 });
 
 test("experience entries provide concise cards and detailed reports in every locale", () => {
-  const expectedIds = ["isbim", "questwork", "k-compact", "kingame"];
+  const expectedIds = ["isbim", "questwork", "k-compact", "kingame", "anu"];
 
   for (const locale of locales) {
     const copy = siteContent[locale];
@@ -272,7 +275,7 @@ test("experience entries provide concise cards and detailed reports in every loc
       assert.ok(item.detail?.overview);
       assert.ok(item.detail.sections.length >= 2);
       assert.ok(item.detail.sections.every((section) => section.title && section.body));
-      if (["k-compact", "kingame"].includes(item.id)) assert.equal(item.detail.cases.length, 0);
+      if (["k-compact", "kingame", "anu"].includes(item.id)) assert.equal(item.detail.cases.length, 0);
       else assert.ok(item.detail.cases.length >= 1);
       assert.ok(item.detail.cases.every((selectedCase) => selectedCase.title && selectedCase.body));
       if (item.id === "isbim") assert.ok(item.detail.cases.every((selectedCase) => selectedCase.project));
@@ -318,15 +321,20 @@ test("experience company names use legal-name formatting in every locale", () =>
     "匯研顧問有限公司（Questwork Consulting Limited）",
     "伽瑪有限公司（K Compact Company Limited）",
     "珠海金山世遊科技有限公司（Zhuhai Kingsoft Shiyou Technology Co., Ltd.）",
+    "澳洲國立大學（Australian National University）",
   ];
   const englishCompanies = [
     "ISBIM LIMITED",
     "Questwork Consulting Limited",
     "K Compact Company Limited",
     "Zhuhai Kingsoft Shiyou Technology Co., Ltd.",
+    "Australian National University",
   ];
   assert.deepEqual(siteContent["zh-HK"].experience.map((item) => item.company), chineseCompanies);
-  assert.deepEqual(siteContent["zh-CN"].experience.map((item) => item.company), chineseCompanies);
+  assert.deepEqual(
+    siteContent["zh-CN"].experience.map((item) => item.company),
+    chineseCompanies.map((company) => company.replace("澳洲國立大學", "澳大利亚国立大学")),
+  );
   assert.deepEqual(siteContent.en.experience.map((item) => item.company), englishCompanies);
 });
 

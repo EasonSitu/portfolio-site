@@ -1,22 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
-  <title id="title">Zhicheng Situ — Solution Delivery</title>
-  <desc id="description">Recruiter-facing portfolio preview for solution delivery and project coordination.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Zhicheng Situ Eason — Digital and AI Solution Delivery</title>
+  <desc id="description">Portfolio preview for project coordination, software delivery and AI or IoT implementation.</desc>
   <rect width="1200" height="630" fill="#F4F0E7"/>
-  <circle cx="1040" cy="-10" r="300" fill="#DBE6F4"/>
-  <circle cx="1070" cy="520" r="230" fill="#EAD5C6"/>
-  <path d="M72 86h1056" stroke="#17212B" stroke-opacity=".14"/>
-  <text x="72" y="142" fill="#174EA6" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">AI &amp; DIGITAL SOLUTION DELIVERY</text>
-  <text x="72" y="280" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="92" font-weight="700">Zhicheng Situ</text>
-  <text x="72" y="346" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="500">Solution Delivery · Project Coordination</text>
-  <text x="72" y="414" fill="#67727A" font-family="Arial, Helvetica, sans-serif" font-size="24">Requirements → Coordination → Testing → Delivery</text>
-  <g transform="translate(72 508)">
-    <circle cx="0" cy="0" r="10" fill="#C75A34"/>
-    <path d="M10 0h172" stroke="#C75A34" stroke-width="3"/>
-    <circle cx="194" cy="0" r="10" fill="#174EA6"/>
-    <path d="M204 0h172" stroke="#174EA6" stroke-width="3"/>
-    <circle cx="398" cy="0" r="10" fill="#C75A34"/>
-    <path d="M408 0h172" stroke="#C75A34" stroke-width="3"/>
-    <circle cx="602" cy="0" r="10" fill="#174EA6"/>
+  <path d="M72 72h1056" stroke="#17212B" stroke-opacity=".16"/>
+  <text x="72" y="54" fill="#67727A" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="3">PERSONAL PORTFOLIO · HONG KONG</text>
+
+  <text x="72" y="205" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="700" letter-spacing="-2">ZHICHENG SITU</text>
+  <text x="74" y="254" fill="#174EA6" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="7">EASON</text>
+
+  <text x="72" y="337" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="500">Digital &amp; AI Solution Delivery</text>
+  <text x="72" y="383" fill="#5A6670" font-family="Arial, Helvetica, sans-serif" font-size="22">Project Coordination · Software · AI / IoT</text>
+
+  <g transform="translate(72 462)">
+    <path d="M0 0h590" stroke="#17212B" stroke-opacity=".14"/>
+    <text x="0" y="42" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1">30+ PROJECTS</text>
+    <circle cx="167" cy="36" r="4" fill="#C75A34"/>
+    <text x="188" y="42" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1">20+ LED</text>
+    <circle cx="323" cy="36" r="4" fill="#174EA6"/>
+    <text x="344" y="42" fill="#17212B" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1">3 LANGUAGES</text>
   </g>
-  <text x="72" y="578" fill="#67727A" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="2">ZHICHENG SITU / PORTFOLIO</text>
+
+  <g transform="translate(766 96)">
+    <rect x="0" y="0" width="362" height="438" rx="26" fill="#E9E6DE" stroke="#17212B" stroke-opacity=".12"/>
+    <text x="30" y="48" fill="#C75A34" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="2">DELIVERY MODEL</text>
+
+    <g transform="translate(48 82)">
+      <g transform="translate(0 0)">
+        <path d="M20 0h220l24 18-24 30H20L0 24Z" fill="#D8E4F2" stroke="#174EA6" stroke-opacity=".35"/>
+        <text x="18" y="30" fill="#174EA6" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">01 · BUSINESS CONTEXT</text>
+      </g>
+      <g transform="translate(12 60)">
+        <path d="M20 0h220l24 18-24 30H20L0 24Z" fill="#C9D9EB" stroke="#174EA6" stroke-opacity=".45"/>
+        <text x="18" y="30" fill="#174EA6" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">02 · REQUIREMENTS</text>
+      </g>
+      <g transform="translate(24 120)">
+        <path d="M20 0h220l24 18-24 30H20L0 24Z" fill="#174EA6"/>
+        <text x="18" y="30" fill="#F4F0E7" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">03 · COORDINATION</text>
+      </g>
+      <g transform="translate(36 180)">
+        <path d="M20 0h220l24 18-24 30H20L0 24Z" fill="#E9CDBB" stroke="#C75A34" stroke-opacity=".55"/>
+        <text x="18" y="30" fill="#8B3E25" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">04 · TESTING</text>
+      </g>
+      <g transform="translate(48 240)">
+        <path d="M20 0h220l24 18-24 30H20L0 24Z" fill="#C75A34"/>
+        <text x="18" y="30" fill="#F4F0E7" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">05 · DELIVERY</text>
+      </g>
+    </g>
+  </g>
+
+  <text x="72" y="582" fill="#67727A" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="2">EASON.SANHEHANGJM.CN</text>
 </svg>

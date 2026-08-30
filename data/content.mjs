@@ -247,7 +247,7 @@ export const siteContent = {
 
   "zh-CN": {
     localeName: "简体中文",
-    nav: { experience: "工作经历", projects: "近期项目", skills: "我能做什么", contact: "联系我" },
+    nav: { experience: "工作经历", projects: "近期项目", skills: "擅长领域", contact: "欢迎联系" },
     loader: ["业务", "技术", "交付"],
     hero: {
       eyebrow: "你好，很高兴认识你",
@@ -487,7 +487,7 @@ export const siteContent = {
 
   "zh-HK": {
     localeName: "繁體中文",
-    nav: { experience: "工作經歷", projects: "近期項目", skills: "我能做什麼", contact: "聯絡我" },
+    nav: { experience: "工作經歷", projects: "近期項目", skills: "擅長領域", contact: "歡迎聯絡" },
     loader: ["業務", "技術", "交付"],
     hero: {
       eyebrow: "你好，很高興認識你",

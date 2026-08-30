@@ -828,8 +828,8 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
   const menuLabels = locale === "en"
     ? { open: "Open menu", close: "Close menu", navigation: "Site navigation", home: "Home", kicker: "Navigate" }
     : locale === "zh-CN"
-      ? { open: "打开菜单", close: "关闭菜单", navigation: "网站导航", home: "首页", kicker: "页面导航" }
-      : { open: "開啟選單", close: "關閉選單", navigation: "網站導覽", home: "首頁", kicker: "頁面導覽" };
+      ? { open: "打开菜单", close: "关闭菜单", navigation: "网站导航", home: "个人介绍", kicker: "页面导航" }
+      : { open: "開啟選單", close: "關閉選單", navigation: "網站導覽", home: "個人介紹", kicker: "頁面導覽" };
 
   return (
     <div ref={rootRef} className={styles.site} lang={locale} data-menu-open={mobileMenuOpen}>

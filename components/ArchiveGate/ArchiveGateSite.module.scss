@@ -107,6 +107,31 @@
   --type-button: 0.9375rem;
 }
 
+/* Windows 的 CJK monospace fallback 筆畫偏細；中文小標籤改回 CJK 字體並略加字重。 */
+.site[lang="zh-CN"] .kicker,
+.site[lang="zh-CN"] .menuKicker {
+  font-family: var(--font-cjk-sc);
+}
+
+.site[lang="zh-HK"] .kicker,
+.site[lang="zh-HK"] .menuKicker {
+  font-family: var(--font-cjk-tc);
+}
+
+.site[lang="zh-CN"] .kicker,
+.site[lang="zh-HK"] .kicker,
+.site[lang="zh-CN"] .menuKicker,
+.site[lang="zh-HK"] .menuKicker,
+.site[lang="zh-CN"] .menuLink,
+.site[lang="zh-HK"] .menuLink {
+  font-weight: 600;
+}
+
+.site[lang="zh-CN"] .projectShowcaseTags span,
+.site[lang="zh-HK"] .projectShowcaseTags span {
+  font-weight: 500;
+}
+
 .site a {
   color: inherit;
   text-decoration: none;

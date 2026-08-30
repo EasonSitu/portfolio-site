@@ -59,6 +59,22 @@ test("the menu opens an overlay with a rotating close control at every viewport"
   assert.doesNotMatch(styleSource, /var\(--menu-pink\)/);
 });
 
+test("Chinese navigation keeps five aligned four-character labels", () => {
+  for (const label of ["个人介绍", "工作经历", "近期项目", "擅长领域", "欢迎联系"]) {
+    assert.ok(label.length === 4);
+  }
+  for (const label of ["個人介紹", "工作經歷", "近期項目", "擅長領域", "歡迎聯絡"]) {
+    assert.ok(label.length === 4);
+  }
+  assert.match(componentSource, /home: "个人介绍"/);
+  assert.match(componentSource, /home: "個人介紹"/);
+  assert.equal(siteContent["zh-CN"].nav.skills, "擅长领域");
+  assert.equal(siteContent["zh-CN"].nav.contact, "欢迎联系");
+  assert.equal(siteContent["zh-HK"].nav.skills, "擅長領域");
+  assert.equal(siteContent["zh-HK"].nav.contact, "歡迎聯絡");
+  assert.match(styleSource, /\.site\[lang="zh-HK"\] \.kicker[\s\S]*?font-weight:\s*600/);
+});
+
 test("navigation keeps the five section links accessible in the overlay", () => {
   assert.match(componentSource, /aria-expanded=\{mobileMenuOpen\}/);
   assert.match(componentSource, /aria-controls="site-navigation"/);

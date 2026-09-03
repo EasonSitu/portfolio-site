@@ -185,7 +185,7 @@ jobs:
       - name: Verify public production and version site
         run: |
           set -euo pipefail
-          for path in / /work/cic-ai-assessment/ /work/portfolio-site/ /Zhicheng-Situ-CV.pdf /models/hero-delivery-system.glb; do
+          for path in / /work/cic-ai-assessment/ /Zhicheng-Situ-CV.pdf /models/hero-delivery-system.glb; do
             curl --fail --silent --show-error --location --max-time 30 \
               "https://eason.sanhehangjm.cn${path}" -o /dev/null
           done

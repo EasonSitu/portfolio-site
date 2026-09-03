@@ -1,6 +1,6 @@
 # 司徒智成 · Portfolio
 
-三語（English／简体／繁體）靜態作品集，給招聘者看的。定位、資訊架構、三語內容、互動設計到前端實作和部署都是我一個人做的，開發過程用 AI-accelerated iterations 加速迭代。
+三語（English／简体／繁體）靜態作品集，包括了定位、資訊架構、三語內容、互動設計，目前完成了前端實作和部署，開發過程用 AI-accelerated iterations 加速迭代。
 
 - 主站：https://eason.sanhehangjm.cn/
 - GitHub Pages：https://easonsitu.github.io/portfolio-site/

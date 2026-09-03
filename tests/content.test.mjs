@@ -46,10 +46,10 @@ for (const locale of locales) {
     assert.equal(copy.evidence, undefined);
     assert.equal(copy.aiHeader, undefined);
     assert.ok(copy.selectedProjects.length >= 1);
-    assert.equal(copy.selectedProjects.length, 2);
+    assert.equal(copy.selectedProjects.length, 4);
     assert.deepEqual(
       copy.selectedProjects.map((project) => project.id),
-      ["cic-ai-assessment", "portfolio-site"],
+      ["cic-ai-assessment", "frameshift", "hankou-walking-guide", "portfolio-site"],
     );
     assert.ok(copy.selectedProjects.every((project) => project.title && project.summary && project.tags?.length >= 3));
     assert.equal(copy.experienceHeader.intro, undefined);
@@ -63,7 +63,7 @@ for (const locale of locales) {
     const { contact } = siteContent[locale];
     assert.match(contact.email, /^mailto:/);
     assert.match(contact.linkedin, /^https:\/\/www\.linkedin\.com\/in\/eason-situ-/);
-    assert.match(contact.github, /^https:\/\/github\.com\/EasonSitu\/portfolio-site$/);
+    assert.match(contact.github, /^https:\/\/github\.com\/EasonSitu\?tab=repositories$/);
     assert.equal(contact.resume, "/Zhicheng-Situ-CV.pdf");
     assert.equal(contact.emailAddress, "situeason@gmail.com");
     assert.ok(contact.location);
@@ -300,7 +300,7 @@ test("copy keeps ownership, role titles and factual boundaries aligned across la
     assert.match(kingame.focus, /30\+/);
     assert.match(kingame.focus, /8/);
     assert.match(siteContent[locale].aiProject.boundary, /prototype|原型/i);
-    assert.match(siteContent[locale].aiProject.boundary, /not|并非|並非/i);
+    assert.match(siteContent[locale].aiProject.boundary, /not|does not|并非|並非|不会|不會/i);
     assert.match(siteContent[locale].nav.projects, /Recent Work|近期项目|近期項目/);
     assert.match(siteContent[locale].skillsHeader.title, /What I Do|我能做什么|我能做什麼/);
     assert.match(siteContent[locale].aiPracticeHeader.title, /How I Use AI|我怎样用 AI|我怎樣用 AI/);
@@ -364,13 +364,65 @@ test("isBIM project cases keep separate contract, theme and body layers", () => 
   assert.match(siteContent.en.experience[0].detail.cases[2].title, /Integrated 4S \/ IoT/);
 });
 
-test("selected work keeps the CIC prototype first and the portfolio project second", () => {
+test("selected work links the external projects and keeps only real case studies on site", () => {
+  for (const locale of locales) {
+    const [cic, frameshift, hankou, portfolio] = siteContent[locale].selectedProjects;
+    assert.equal(frameshift.id, "frameshift");
+    assert.equal(hankou.id, "hankou-walking-guide");
+    assert.equal(frameshift.caseStudy, false);
+    assert.equal(hankou.caseStudy, false);
+    assert.match(frameshift.cardHref, /^https:\/\/easonsitu\.github\.io\/Gesture-change-face\/\?demo$/);
+    assert.match(hankou.cardHref, /^https:\/\/easonsitu\.github\.io\/Hankou-20-thousand\/$/);
+    assert.equal(frameshift.external, true);
+    assert.equal(hankou.external, true);
+    assert.ok(frameshift.thumbnail);
+    assert.ok(hankou.thumbnail);
+    assert.ok(frameshift.tags.length >= 3);
+    assert.ok(hankou.tags.length >= 3);
+    const onSite = siteContent[locale].selectedProjects.filter((project) => project.caseStudy === true);
+    assert.deepEqual(onSite.map((project) => project.id), [cic.id]);
+    assert.notEqual(portfolio.caseStudy, true);
+  }
+});
+
+test("selected work links the CIC case study on site and the portfolio to GitHub", () => {
   for (const locale of locales) {
     const projects = siteContent[locale].selectedProjects;
-    assert.equal(projects[0].id, "cic-ai-assessment");
-    assert.equal(projects[1].id, "portfolio-site");
-    assert.match(projects[0].kicker, /CIC/i);
-    assert.ok(projects[0].cardTitle);
-    assert.match(projects[1].summary, /AI|AI-assisted|AI 輔助|AI 辅助/i);
+    const [cic, , , portfolio] = projects;
+    assert.equal(cic.id, "cic-ai-assessment");
+    assert.equal(portfolio.id, "portfolio-site");
+    assert.match(cic.kicker, /CIC/i);
+    assert.ok(cic.cardTitle);
+    assert.equal(cic.cardHref, "/work/cic-ai-assessment/");
+    assert.equal(cic.caseStudy, true);
+    assert.ok(cic.thumbnail);
+    assert.ok(cic.heroImage);
+    assert.equal(cic.evidenceImages.length, 1);
+    assert.match(cic.summary, /project lead|led the project|项目负责人|項目負責人/i);
+    assert.doesNotMatch(`${cic.summary} ${cic.role}`, /personally|亲自|親自/i);
+    assert.match(`${cic.role} ${cic.roleDetail}`, /gesture(?:-| )recognition|手势识别|手勢識別/i);
+    assert.match(cic.roleDetail, /gesture(?:-| )recognition|手势识别|手勢識別/i);
+    assert.match(cic.technologies, /OpenCV|computer vision|计算机视觉|電腦視覺/i);
+    assert.match(cic.technologies, /speech|voice|语音|語音/i);
+    assert.ok(cic.validation.metrics.length >= 3);
+    assert.doesNotMatch(JSON.stringify(cic), /LSTM|GRU|Point-History|90\.0%|93\.3%|3 ms/);
+    assert.match(cic.technologies, /OpenCV/);
+    assert.match(cic.technologies, /MediaPipe/);
+    assert.match(cic.technologies, /Flask\/FastAPI|Flask／FastAPI/);
+    assert.match(cic.boundary, /does not score|不会自动|不會自動/);
+    assert.match(portfolio.cardHref, /^https:\/\/github\.com\/EasonSitu\/portfolio-site$/);
+    assert.equal(portfolio.external, true);
+    assert.ok(portfolio.thumbnail);
   }
+  assert.equal(siteContent["zh-CN"].aiProject.summary, "探索 AI 如何帮助考官辅助对考核进行统一标准，可追溯的评分。在项目中，我担任项目负责人，一边与CIC合作，梳理考核流程和对应的评分要求，挖掘潜在需求和应用场景；同时参与语音、吊物状态与手势识别技术层面的开发工作，推进原型测试和客户演示。");
+  assert.equal(siteContent["zh-CN"].aiProject.background, "吊运讯号员考核会分阶段进行手势和语音指挥。考官还要同时留意吊物、辅助人员、考生的位置和动作，以及当时发出的指令。现场变化很快，事后不容易复核，且可能导致标准不一致。我们因此做了这个原型，把关键画面、指令和状态放在同一条记录里，辅助考官完成高效，准确的评分。");
+  assert.equal(siteContent["zh-CN"].aiProject.role, "在项目中，我作为项目负责人，一边与CIC合作，深入真实考试场景，梳理系统需求和原型的能力边界，同时维护客户关系；也完成了面向客户的现场演示。");
+  assert.equal(siteContent["zh-CN"].aiProject.roleDetail, "在开发上，根据客户的需求和我们制定的计划，我负责了手势识别的开发和测试工作，考生的语音指令识别及吊物状态识别由团队共同完成，共同进行了不同模块的调试和对接后，最终符合预期地完成了原型开发。");
+  assert.equal(siteContent["zh-CN"].aiProject.outcome, "原型通过AI模型和服务，能识别考试所作出的吊运手势和语音指令；也可以通过吊物状态，考试指令等信息定位当前的考核进度；并比对考试内容和流程，进行评分辅助并留下时间记录；供考官回看。");
+  assert.equal(siteContent["zh-HK"].aiProject.background, "吊運訊號員考核會分階段進行手勢和語音指揮。考官還要同時留意吊物、輔助人員、考生的位置和動作，以及當時發出的指令。現場變化很快，事後不容易覆核，而且可能導致標準不一致。我們因此做了這個原型，把關鍵畫面、指令和狀態放在同一條記錄裡，協助考官高效、準確地評分。");
+  assert.equal(siteContent["zh-CN"].portfolioProject.title, "个人简历及作品集");
+  assert.equal(siteContent["zh-HK"].portfolioProject.title, "個人履歷及作品集");
+  assert.equal(siteContent.en.portfolioProject.title, "Personal CV & Portfolio");
+  assert.equal(siteContent["zh-CN"].portfolioProject.summary, "建立一个比简历更清楚的方式，整理了自己的项目和交付经历。网站的内容架构、三语前端、3D 视觉、测试、部署和版本记录都由我完成。");
+  assert.equal(siteContent["zh-HK"].portfolioProject.summary, "建立一個比履歷更清楚的方式，整理了自己的項目和交付經歷。網站的內容架構、三語前端、3D 視覺、測試、部署和版本記錄都由我完成。");
 });

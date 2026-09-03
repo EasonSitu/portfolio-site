@@ -152,7 +152,7 @@ test("contact exposes a GitHub link to the portfolio repository", () => {
   assert.match(contactBlock, /copy\.contact\.github/);
   assert.match(contactBlock, /target="_blank" rel="noreferrer"/);
   for (const locale of ["en", "zh-CN", "zh-HK"]) {
-    assert.match(siteContent[locale].contact.github, /^https:\/\/github\.com\/EasonSitu\//);
+    assert.match(siteContent[locale].contact.github, /^https:\/\/github\.com\/EasonSitu(\/|\?tab=repositories$)/);
   }
 });
 
@@ -395,9 +395,12 @@ test("experience explorer keeps recruiter scan order and detail controls visible
   assert.match(componentSource, /data-open=\{isActive\}/);
   assert.match(componentSource, /ExperienceDetailContent/);
   assert.doesNotMatch(componentSource, /experienceDetailOverview\}>\{item\.detail\.overview\}/);
+  assert.doesNotMatch(componentSource, /experienceDetailTopline|experienceDetailTitle|experienceDetailRole/);
   assert.match(componentSource, /item\.detail\.sections\.slice\(0,\s*4\)/);
   assert.match(styleSource, /\.experienceSelectableCard\s*\{/);
-  assert.match(styleSource, /\.experienceCardHeadline\s*\{/);
+  assert.match(styleSource, /\.experienceCardPeriod,[\s\S]*?font-size:\s*var\(--text-sm\)/);
+  assert.match(styleSource, /\.experienceCardHeadline\s*\{[\s\S]*?font-size:\s*var\(--text-lg\)/);
+  assert.match(styleSource, /\.experienceCardBody\s+strong\s*\{[\s\S]*?font-size:\s*var\(--type-card-label\)/);
   assert.match(styleSource, /\.experienceAccordionDetail\s*\{/);
   assert.doesNotMatch(componentSource, /experienceDetailPanel|activeItem/);
 });
@@ -465,9 +468,23 @@ test("selected work is a concise horizontal draggable showcase", () => {
   assert.match(componentSource, /onPointerDown/);
   assert.match(componentSource, /onPointerMove/);
   assert.match(componentSource, /draggable=\{false\}/);
-  assert.match(componentSource, /event\.preventDefault\(\)/);
-  assert.match(componentSource, /import Link from "next\/link"/);
-  assert.match(componentSource, /href=\{`\/work\/\$\{project\.id\}\/`\}/);
+  const pointerDownBlock = componentSource.match(/const handlePointerDown[\s\S]*?(?=const handlePointerMove)/)?.[0] || "";
+  const pointerMoveBlock = componentSource.match(/const handlePointerMove[\s\S]*?(?=const endDrag)/)?.[0] || "";
+  assert.doesNotMatch(pointerDownBlock, /preventDefault|setPointerCapture/);
+  assert.match(pointerMoveBlock, /Math\.abs\(distance\) <= 6/);
+  assert.match(pointerMoveBlock, /setPointerCapture/);
+  assert.match(pointerMoveBlock, /event\.preventDefault\(\)/);
+  assert.doesNotMatch(componentSource, /import Link from "next\/link"/);
+  assert.match(componentSource, /project\.cardHref/);
+  assert.match(componentSource, /project\.thumbnail/);
+  assert.match(componentSource, /withPublicBasePath\(project\.thumbnail\)/);
+  assert.match(componentSource, /target="_blank"/);
+  assert.match(componentSource, /projectShowcaseAction/);
+  assert.match(componentSource, /actionLabel=\{getActionLabel\(project\)\}/);
+  assert.match(styleSource, /\.projectShowcaseAction\s*\{/);
+  assert.match(styleSource, /\.projectShowcaseLink:hover \.projectShowcaseCard/);
+  assert.doesNotMatch(styleSource, /\.projectShowcaseArrow/);
+  assert.match(componentSource, /projectShowcaseStatic/);
   assert.match(componentSource, /scrollBy/);
   assert.doesNotMatch(componentSource, /ProjectEvidenceCard/);
   assert.doesNotMatch(componentSource, /projectSignalFlow/);
@@ -499,8 +516,10 @@ for (const locale of ["en", "zh-CN", "zh-HK"]) {
     assert.ok(project?.title);
     assert.ok(project?.background);
     assert.ok(project?.role);
-    assert.equal(project.modules.length, 4);
+    assert.equal(project.modules.length, 5);
     assert.ok(project.boundary);
+    assert.ok(project.process?.length >= 3);
+    assert.ok(project.roleHighlights?.length >= 3);
   });
 }
 

@@ -14,18 +14,18 @@ export default function WorkCaseStudy({ slug }) {
   );
 }
 
-export function getStaticPaths() {
-  const projects = siteContent.en.selectedProjects || [];
+// Only projects with caseStudy: true get an on-site detail page; purely external projects stay link-out only.
+const caseStudyProjects = (siteContent.en.selectedProjects || []).filter((project) => project.caseStudy === true);
 
+export function getStaticPaths() {
   return {
-    paths: projects.map((project) => ({ params: { slug: project.id } })),
+    paths: caseStudyProjects.map((project) => ({ params: { slug: project.id } })),
     fallback: false,
   };
 }
 
 export function getStaticProps({ params }) {
-  const projects = siteContent.en.selectedProjects || [];
-  const projectExists = projects.some((project) => project.id === params?.slug);
+  const projectExists = caseStudyProjects.some((project) => project.id === params?.slug);
 
   if (!projectExists) return { notFound: true };
 

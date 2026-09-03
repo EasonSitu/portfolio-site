@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./ArchiveGateSite.module.scss";
 import { withPublicBasePath } from "../../lib/publicPath.mjs";
@@ -414,15 +413,6 @@ function PageLoader({ ready }) {
 function ExperienceDetailContent({ item, copy }) {
   return (
     <>
-      <div className={styles.experienceDetailTopline}>
-        <div>
-          <p className={styles.cardKicker}>{item.period}</p>
-          <p className={styles.experienceDetailLocation}>{item.location}</p>
-        </div>
-        <span className={styles.experienceDetailMarker} aria-hidden="true">DETAIL</span>
-      </div>
-      <h3 className={styles.experienceDetailTitle}>{item.headline}</h3>
-      <p className={styles.experienceDetailRole}>{item.company} / {item.role}</p>
       <p className={styles.experienceDetailFocus}>{item.focus}</p>
       <div className={styles.experienceDetailTags}>
         {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
@@ -592,30 +582,60 @@ function ExperienceExplorer({ copy }) {
   );
 }
 
-function ProjectShowcaseCard({ project, index, onClick }) {
+function ProjectShowcaseCard({ project, index, onClick, actionLabel }) {
+  const href = project.cardHref || "";
+  const card = (
+    <article className={styles.projectShowcaseCard} data-reveal data-tone={index % 2 === 0 ? "blue" : "clay"}>
+      <div className={styles.projectShowcaseTopline}>
+        <p className={styles.kicker}>{project.kicker}</p>
+        <span>{String(index + 1).padStart(2, "0")}</span>
+      </div>
+      {project.thumbnail && (
+        <figure className={styles.projectShowcaseMedia}>
+          <img
+            src={withPublicBasePath(project.thumbnail)}
+            alt={project.thumbnailAlt || ""}
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+      )}
+      <h3>{project.cardTitle || project.title}</h3>
+      <p className={styles.projectShowcaseSummary}>{project.summary}</p>
+      <div className={styles.projectShowcaseTags}>
+        {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
+      </div>
+      {href ? (
+        <span className={styles.projectShowcaseAction} aria-hidden="true">
+          {actionLabel}
+          <span aria-hidden="true">↗</span>
+        </span>
+      ) : (
+        <span className={styles.projectShowcaseStatus}>{project.cardStatus}</span>
+      )}
+    </article>
+  );
+
   return (
     <div className={styles.projectShowcaseItem} role="listitem">
-      <Link
-        href={`/work/${project.id}/`}
-        className={styles.projectShowcaseLink}
-        data-cursor-label="↗"
-        draggable={false}
-        onDragStart={(event) => event.preventDefault()}
-        onClick={onClick}
-      >
-        <article className={styles.projectShowcaseCard} data-reveal data-tone={index % 2 === 0 ? "blue" : "clay"}>
-          <div className={styles.projectShowcaseTopline}>
-            <p className={styles.kicker}>{project.kicker}</p>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-          </div>
-          <h3>{project.cardTitle || project.title}</h3>
-          <p className={styles.projectShowcaseSummary}>{project.summary}</p>
-          <div className={styles.projectShowcaseTags}>
-            {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
-          </div>
-          <span className={styles.projectShowcaseArrow} aria-hidden="true">↗</span>
-        </article>
-      </Link>
+      {href ? (
+        <a
+          href={href}
+          className={styles.projectShowcaseLink}
+          data-cursor-label="↗"
+          draggable={false}
+          onDragStart={(event) => event.preventDefault()}
+          onClick={onClick}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {card}
+        </a>
+      ) : (
+        <div className={`${styles.projectShowcaseLink} ${styles.projectShowcaseStatic}`}>
+          {card}
+        </div>
+      )}
     </div>
   );
 }
@@ -626,10 +646,17 @@ function SelectedProjectsSection({ projects, locale, header }) {
   const suppressClickRef = useRef(false);
   const [dragging, setDragging] = useState(false);
   const labels = locale === "en"
-    ? { previous: "Previous project", next: "Next project", instruction: "Scroll or drag to explore projects." }
+    ? { previous: "Previous project", next: "Next project", instruction: "Scroll or drag to explore projects.", viewCase: "View case study", viewLive: "View live", viewCode: "GitHub" }
     : locale === "zh-CN"
-      ? { previous: "上一个项目", next: "下一个项目", instruction: "横向滚动或拖动查看项目。" }
-      : { previous: "上一個項目", next: "下一個項目", instruction: "橫向滾動或拖動查看項目。" };
+      ? { previous: "上一个项目", next: "下一个项目", instruction: "横向滚动或拖动查看项目。", viewCase: "查看案例", viewLive: "在线体验", viewCode: "GitHub" }
+      : { previous: "上一個項目", next: "下一個項目", instruction: "橫向滾動或拖動查看項目。", viewCase: "查看案例", viewLive: "在線體驗", viewCode: "GitHub" };
+  const getActionLabel = (project) => {
+    const href = project.cardHref || "";
+    if (!href) return "";
+    if (/^https?:\/\/github\.com\//.test(href)) return labels.viewCode;
+    if (/^https?:\//.test(href)) return labels.viewLive;
+    return labels.viewCase;
+  };
   const dragLabel = locale === "en" ? "DRAG" : locale === "zh-CN" ? "拖动" : "拖曳";
 
   const scrollByCard = (direction) => {
@@ -644,7 +671,6 @@ function SelectedProjectsSection({ projects, locale, header }) {
 
   const handlePointerDown = (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    if (event.pointerType === "mouse") event.preventDefault();
     const rail = railRef.current;
     if (!rail) return;
     suppressClickRef.current = false;
@@ -655,20 +681,22 @@ function SelectedProjectsSection({ projects, locale, header }) {
       startX: event.clientX,
       startScrollLeft: rail.scrollLeft,
     };
-    rail.setPointerCapture?.(event.pointerId);
-    setDragging(true);
   };
 
   const handlePointerMove = (event) => {
     const state = dragStateRef.current;
     const rail = railRef.current;
     if (!state.active || !rail) return;
-    if (event.pointerType === "mouse") event.preventDefault();
-    if (Math.abs(event.clientX - state.startX) > 6) {
+    const distance = event.clientX - state.startX;
+    if (Math.abs(distance) <= 6) return;
+    if (!state.moved) {
       state.moved = true;
       suppressClickRef.current = true;
+      rail.setPointerCapture?.(event.pointerId);
+      setDragging(true);
     }
-    rail.scrollLeft = state.startScrollLeft - (event.clientX - state.startX);
+    event.preventDefault();
+    rail.scrollLeft = state.startScrollLeft - distance;
   };
 
   const endDrag = (event) => {
@@ -710,6 +738,7 @@ function SelectedProjectsSection({ projects, locale, header }) {
                 key={project.id}
                 project={project}
                 index={index}
+                actionLabel={getActionLabel(project)}
                 onClick={(event) => {
                   if (event.detail !== 0 && suppressClickRef.current) {
                     event.preventDefault();

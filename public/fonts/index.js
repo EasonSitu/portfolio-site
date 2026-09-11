@@ -1,8 +1,7 @@
 import localFont from "next/font/local";
-import { Manrope } from "next/font/google";
 
-export const manrope = Manrope({
-  subsets: ["latin"],
+export const manrope = localFont({
+  src: [{path:"./Manrope/Manrope-Latin.woff2",weight:"200 800",style:"normal"}],
   display: "swap",
   variable: "--font-manrope",
 });

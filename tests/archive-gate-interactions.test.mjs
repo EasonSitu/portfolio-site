@@ -86,14 +86,17 @@ test("navigation keeps the five section links accessible in the overlay", () => 
   assert.match(styleSource, /\.menuOverlay\[data-open="true"\][\s\S]*?pointer-events:\s*auto/);
 });
 
-test("experience opens isBIM by default and aligns the selected company", () => {
-  assert.match(componentSource, /item\.id === "isbim"/);
+test("experience stays collapsed by default and toggles the selected company", () => {
+  // Editorial design: all entries start collapsed; clicking toggles one open.
+  assert.match(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(null\)/);
+  assert.match(componentSource, /selectExperience/);
+  assert.doesNotMatch(componentSource, /item\.id === "isbim"/);
   assert.match(componentSource, /experienceItemRefs/);
   assert.match(componentSource, /window\.scrollTo\(\{/);
   assert.match(componentSource, /prefers-reduced-motion/);
   assert.match(componentSource, /inert=\{!isActive \? "" : undefined\}/);
   assert.match(componentSource, /aria-expanded=\{isActive\}/);
-  assert.doesNotMatch(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(null\)/);
+  assert.doesNotMatch(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(null\).*defaultIndex/);
 });
 
 test("menu overlay closes when clicking non-interactive backdrop space", () => {
@@ -378,8 +381,7 @@ test("site typography follows one capped responsive hierarchy across languages a
 
 test("experience explorer keeps recruiter scan order and detail controls visible", () => {
   assert.match(componentSource, /function ExperienceExplorer/);
-  assert.match(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(\(\) =>/);
-  assert.match(componentSource, /defaultIndex = copy\.experience\.findIndex/);
+  assert.match(componentSource, /const \[activeIndex, setActiveIndex\] = useState\(null\)/);
   assert.match(componentSource, /item\.period/);
   assert.match(componentSource, /item\.company/);
   assert.match(componentSource, /item\.role/);
@@ -460,38 +462,32 @@ test("contact uses a shared section title and a lower statement hierarchy", () =
   assert.match(styleSource, /\.contactTalk[\s\S]*?opacity:\s*0\.64/);
 });
 
-test("selected work is a concise horizontal draggable showcase", () => {
+test("selected work is a direct editorial grid without horizontal dragging", () => {
+  // Editorial design: projects display directly in a grid; no drag showcase.
   assert.match(componentSource, /projectShowcaseRail/);
   assert.match(componentSource, /projectShowcaseCard/);
   assert.match(componentSource, /project\.cardTitle \|\| project\.title/);
-  assert.match(componentSource, /onPointerDown/);
-  assert.match(componentSource, /onPointerMove/);
+  assert.match(componentSource, /editorialLayout/);
+  assert.doesNotMatch(componentSource, /onPointerDown/);
+  assert.doesNotMatch(componentSource, /onPointerMove/);
+  assert.doesNotMatch(componentSource, /handlePointerDown|handlePointerMove|endDrag/);
   assert.match(componentSource, /draggable=\{false\}/);
-  const pointerDownBlock = componentSource.match(/const handlePointerDown[\s\S]*?(?=const handlePointerMove)/)?.[0] || "";
-  const pointerMoveBlock = componentSource.match(/const handlePointerMove[\s\S]*?(?=const endDrag)/)?.[0] || "";
-  assert.doesNotMatch(pointerDownBlock, /preventDefault|setPointerCapture/);
-  assert.match(pointerMoveBlock, /Math\.abs\(distance\) <= 6/);
-  assert.match(pointerMoveBlock, /setPointerCapture/);
-  assert.match(pointerMoveBlock, /event\.preventDefault\(\)/);
   assert.doesNotMatch(componentSource, /import Link from "next\/link"/);
   assert.match(componentSource, /project\.cardHref/);
   assert.match(componentSource, /project\.thumbnail/);
   assert.match(componentSource, /withPublicBasePath\(project\.thumbnail\)/);
   assert.match(componentSource, /target="_blank"/);
+  assert.match(componentSource, /rel="noreferrer"/);
   assert.match(componentSource, /projectShowcaseAction/);
-  assert.match(componentSource, /actionLabel=\{getActionLabel\(project\)\}/);
+  assert.match(componentSource, /actionLabel=\{actionLabel\(project\)\}/);
   assert.match(styleSource, /\.projectShowcaseAction\s*\{/);
-  assert.match(styleSource, /\.projectShowcaseLink:hover \.projectShowcaseCard/);
-  assert.doesNotMatch(styleSource, /\.projectShowcaseArrow/);
   assert.match(componentSource, /projectShowcaseStatic/);
-  assert.match(componentSource, /scrollBy/);
+  assert.match(componentSource, /data-layout=\{layout\}/);
+  assert.doesNotMatch(componentSource, /scrollBy/);
   assert.doesNotMatch(componentSource, /ProjectEvidenceCard/);
   assert.doesNotMatch(componentSource, /projectSignalFlow/);
-  assert.match(styleSource, /\.projectShowcaseRail\s*\{[\s\S]*overflow-x:\s*auto/);
-  assert.match(styleSource, /\.projectShowcaseRail\s*\{[\s\S]*scroll-snap-type:\s*none/);
-  assert.match(styleSource, /\.projectShowcaseItem\s*\{[\s\S]*scroll-snap-align:\s*start/);
-  assert.match(styleSource, /\.projectShowcaseItem\s*\{[\s\S]*flex:\s*0 0/);
-  assert.match(styleSource, /\.projectShowcaseLink:focus-visible/);
+  assert.match(componentSource, /role="list"/);
+  assert.match(componentSource, /role="listitem"/);
   assert.match(styleSource, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.projectShowcaseRail/);
 });
 

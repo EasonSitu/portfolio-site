@@ -2,6 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./ArchiveGateSite.module.scss";
 import { withPublicBasePath } from "../../lib/publicPath.mjs";
 import HeroClarityVisual from "./HeroClarityVisual";
+import { editorialLayout } from "../../lib/editorialLayout.mjs";
+import editorialStyles from "./EditorialPreview.module.scss";
+import {EditorialEmphasis,MagneticContactLink} from './EditorialDetails';
+import {projectEmphasis} from '../../lib/editorialPresentation.mjs';
 
 const localeLabels = [
   ["en", "EN"],
@@ -451,10 +455,7 @@ function ExperienceDetailContent({ item, copy }) {
 function ExperienceExplorer({ copy }) {
   const experienceItemRefs = useRef([]);
   const pendingScrollIndexRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(() => {
-    const defaultIndex = copy.experience.findIndex((item) => item.id === "isbim");
-    return defaultIndex >= 0 ? defaultIndex : 0;
-  });
+  const [activeIndex, setActiveIndex] = useState(null);
 
   const selectExperience = (index) => {
     setActiveIndex((currentIndex) => {
@@ -575,8 +576,11 @@ function ExperienceExplorer({ copy }) {
   );
 }
 
-function ProjectShowcaseCard({ project, index, onClick, actionLabel }) {
-  const href = project.cardHref || "";
+function ProjectShowcaseCard({ project, index, onClick, actionLabel, layout='standard' }) {
+  // Internal site paths need the deploy basePath (e.g. /portfolio-site on Pages);
+  // external https URLs pass through unchanged.
+  const rawHref = project.cardHref || "";
+  const href = rawHref.startsWith("/") ? withPublicBasePath(rawHref) : rawHref;
   const card = (
     <article className={styles.projectShowcaseCard} data-reveal data-tone={index % 2 === 0 ? "blue" : "clay"}>
       <div className={styles.projectShowcaseTopline}>
@@ -585,16 +589,20 @@ function ProjectShowcaseCard({ project, index, onClick, actionLabel }) {
       </div>
       {project.thumbnail && (
         <figure className={styles.projectShowcaseMedia}>
+          <div className={editorialStyles.imageMotion}>
           <img
             src={withPublicBasePath(project.thumbnail)}
             alt={project.thumbnailAlt || ""}
+            width={project.thumbnail.endsWith('portfolio-site-thumb.webp') ? 1200 : 1368}
+            height={project.thumbnail.endsWith('portfolio-site-thumb.webp') ? 630 : 707}
             loading="lazy"
             decoding="async"
           />
+          </div>
         </figure>
       )}
-      <h3>{project.cardTitle || project.title}</h3>
-      <p className={styles.projectShowcaseSummary}>{project.summary}</p>
+      <h3><EditorialEmphasis phrases={['CIC AI','FrameShift','Hankou','汉口','漢口']} limit={1}>{project.cardTitle || project.title}</EditorialEmphasis></h3>
+      <p className={styles.projectShowcaseSummary}><EditorialEmphasis phrases={projectEmphasis}>{project.summary}</EditorialEmphasis></p>
       <div className={styles.projectShowcaseTags}>
         {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
       </div>
@@ -610,7 +618,7 @@ function ProjectShowcaseCard({ project, index, onClick, actionLabel }) {
   );
 
   return (
-    <div className={styles.projectShowcaseItem} role="listitem">
+    <div className={styles.projectShowcaseItem} role="listitem" data-layout={layout}>
       {href ? (
         <a
           href={href}
@@ -633,121 +641,27 @@ function ProjectShowcaseCard({ project, index, onClick, actionLabel }) {
   );
 }
 
-function SelectedProjectsSection({ projects, locale, header }) {
-  const railRef = useRef(null);
-  const dragStateRef = useRef({ active: false, moved: false, pointerId: null, startX: 0, startScrollLeft: 0 });
-  const suppressClickRef = useRef(false);
-  const [dragging, setDragging] = useState(false);
-  const labels = locale === "en"
-    ? { previous: "Previous project", next: "Next project", instruction: "Scroll or drag to explore projects.", viewCase: "View case study", viewLive: "View live", viewCode: "GitHub" }
-    : locale === "zh-CN"
-      ? { previous: "上一个项目", next: "下一个项目", instruction: "横向滚动或拖动查看项目。", viewCase: "查看案例", viewLive: "在线体验", viewCode: "GitHub" }
-      : { previous: "上一個項目", next: "下一個項目", instruction: "橫向滾動或拖動查看項目。", viewCase: "查看案例", viewLive: "在線體驗", viewCode: "GitHub" };
-  const getActionLabel = (project) => {
-    const href = project.cardHref || "";
-    if (!href) return "";
-    if (/^https?:\/\/github\.com\//.test(href)) return labels.viewCode;
-    if (/^https?:\//.test(href)) return labels.viewLive;
-    return labels.viewCase;
-  };
-  const dragLabel = locale === "en" ? "DRAG" : locale === "zh-CN" ? "拖动" : "拖曳";
-
-  const scrollByCard = (direction) => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    rail.scrollBy({
-      left: direction * Math.max(rail.clientWidth * 0.82, 280),
-      behavior: reduced ? "auto" : "smooth",
-    });
-  };
-
-  const handlePointerDown = (event) => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    const rail = railRef.current;
-    if (!rail) return;
-    suppressClickRef.current = false;
-    dragStateRef.current = {
-      active: true,
-      moved: false,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startScrollLeft: rail.scrollLeft,
-    };
-  };
-
-  const handlePointerMove = (event) => {
-    const state = dragStateRef.current;
-    const rail = railRef.current;
-    if (!state.active || !rail) return;
-    const distance = event.clientX - state.startX;
-    if (Math.abs(distance) <= 6) return;
-    if (!state.moved) {
-      state.moved = true;
-      suppressClickRef.current = true;
-      rail.setPointerCapture?.(event.pointerId);
-      setDragging(true);
-    }
-    event.preventDefault();
-    rail.scrollLeft = state.startScrollLeft - distance;
-  };
-
-  const endDrag = (event) => {
-    const state = dragStateRef.current;
-    const rail = railRef.current;
-    if (!state.active) return;
-    if (rail?.hasPointerCapture?.(state.pointerId)) rail.releasePointerCapture(state.pointerId);
-    dragStateRef.current = { active: false, moved: state.moved, pointerId: null, startX: 0, startScrollLeft: 0 };
-    setDragging(false);
-    if (event?.type === "pointercancel") rail?.releasePointerCapture?.(event.pointerId);
-  };
-
+function SelectedProjectsSection({projects,locale,header}) {
+  const labels=locale==='en'
+    ? {viewCase:'View case study',viewLive:'View live',viewCode:'GitHub'}
+    : locale==='zh-CN'
+      ? {viewCase:'查看案例',viewLive:'在线体验',viewCode:'GitHub'}
+      : {viewCase:'查看案例',viewLive:'在線體驗',viewCode:'GitHub'};
+  const layouts=editorialLayout(projects.length);
+  const actionLabel=project=>(project.cardHref||'').startsWith('https://github.com/')
+    ? labels.viewCode : (project.cardHref||'').startsWith('http') ? labels.viewLive : labels.viewCase;
   return (
     <section id="project" className={styles.projectSection}>
       <div className={styles.containerWide}>
         <SectionIndexHeader index="02">
-          <SectionHeading kicker={header.kicker} title={header.title} intro={header.intro} />
+          <SectionHeading kicker={header.kicker} title={header.title} intro={header.intro}/>
         </SectionIndexHeader>
         <div className={styles.projectShowcase}>
-          <div
-            className={styles.projectShowcaseRail}
-            ref={railRef}
-            data-dragging={dragging ? "true" : "false"}
-            data-cursor-label={dragLabel}
-            role="list"
-            aria-label={header.title}
-            tabIndex="0"
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
-            onKeyDown={(event) => {
-              if (event.key === "ArrowLeft") scrollByCard(-1);
-              if (event.key === "ArrowRight") scrollByCard(1);
-            }}
-          >
-            {projects.map((project, index) => (
-              <ProjectShowcaseCard
-                key={project.id}
-                project={project}
-                index={index}
-                actionLabel={getActionLabel(project)}
-                onClick={(event) => {
-                  if (event.detail !== 0 && suppressClickRef.current) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    suppressClickRef.current = false;
-                  }
-                }}
-              />
+          <div className={styles.projectShowcaseRail} role="list" aria-label={header.title}>
+            {projects.map((project,index)=>(
+              <ProjectShowcaseCard key={project.id} project={project} index={index}
+                actionLabel={actionLabel(project)} layout={layouts[index]}/>
             ))}
-          </div>
-          <div className={styles.projectShowcaseControls} data-reveal>
-            <p>{labels.instruction}</p>
-            <div className={styles.projectShowcaseButtons}>
-              <button type="button" onClick={() => scrollByCard(-1)} aria-label={labels.previous} data-cursor-label="←">←</button>
-              <button type="button" onClick={() => scrollByCard(1)} aria-label={labels.next} data-cursor-label="→">→</button>
-            </div>
           </div>
         </div>
       </div>
@@ -812,7 +726,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
   const [heroReady, setHeroReady] = useState(false);
   const handleHeroReady = useCallback(() => setHeroReady(true), []);
   useReveal(rootRef);
-  usePointerCursor(rootRef, cursorRef, cursorFollowerRef);
+  // This editorial study uses the native pointer; the approved Hero keeps its own feedback.
   useScrollTextReveal(rootRef);
 
   useEffect(() => {
@@ -854,7 +768,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
       : { open: "開啟選單", close: "關閉選單", navigation: "網站導覽", home: "個人介紹", kicker: "頁面導覽" };
 
   return (
-    <div ref={rootRef} className={styles.site} lang={locale} data-hero-site data-menu-open={mobileMenuOpen}>
+    <div ref={rootRef} className={`${styles.site} ${editorialStyles.page}`} lang={locale} data-hero-site data-menu-open={mobileMenuOpen}>
       <PageLoader ready={heroReady} />
       <span ref={cursorRef} className={styles.cursor} aria-hidden="true" />
       <span ref={cursorFollowerRef} className={styles.cursorFollower} aria-hidden="true" />
@@ -863,6 +777,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <div className={styles.headerIdentity}>
+            <a href="#home" className={editorialStyles.brand} onClick={closeMobileMenu}>Eason Situ<span aria-hidden="true">.</span></a>
             <button
               className={styles.menuButton}
               type="button"
@@ -879,6 +794,12 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
               </span>
             </button>
           </div>
+          <nav className={editorialStyles.nav} aria-label={menuLabels.navigation}>
+            <a href="#experience">{copy.nav.experience}</a>
+            <a href="#project">{copy.nav.projects}</a>
+            <a href="#skills">{copy.nav.skills}</a>
+            <a href="#contact">{copy.nav.contact}</a>
+          </nav>
           <LanguageSwitcher locale={locale} onChange={onLocaleChange} />
         </div>
       </header>
@@ -929,7 +850,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                 <h1 className={styles.heroIntro}>
                   <span className={styles.heroEyebrow}>{copy.hero.eyebrow}</span>
                   <span className={styles.heroName}>
-                    <span className={styles.heroNamePrimary}>{copy.hero.namePrimary || copy.hero.name}</span>
+                    <span className={styles.heroNamePrimary}><EditorialEmphasis phrases={['司徒智成','Zhicheng Situ']} limit={1}>{copy.hero.namePrimary || copy.hero.name}</EditorialEmphasis></span>
                     {copy.hero.namePrimary && copy.hero.nameLatin && <span className={styles.heroNameLatin}>{copy.hero.nameLatin}</span>}
                   </span>
                 </h1>
@@ -962,13 +883,15 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
 
         <SkillsSection copy={copy} />
 
-        <section id="contact" className={styles.contactSection}>
+        <section id="contact" className={styles.contactSection} data-contact-reveal>
+          <div className={editorialStyles.pageLip} aria-hidden="true" />
           <div className={styles.contactGlow} aria-hidden="true" />
-          <div className={styles.container}>
+          <div className={`${styles.container} ${editorialStyles.contactContent}`}>
             <header className={styles.contactSectionHeader}>
               <SectionIndexHeader index="04">
                 <h2>{copy.contact.kicker}</h2>
               </SectionIndexHeader>
+              <span className={editorialStyles.contactArrow} aria-hidden="true">↘</span>
             </header>
             <div className={styles.contactLayout} data-reveal>
               <div className={styles.contactCopy}>
@@ -988,9 +911,9 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
               <aside className={styles.contactAside} aria-label={copy.contact.kicker}>
                 <p className={styles.contactTalk}>{copy.contact.talkTitle}</p>
                 <div className={styles.contactActions}>
-                  <a className={styles.primaryButton} href={copy.contact.email} data-cursor-label="EMAIL">
+                  <MagneticContactLink className={styles.primaryButton} href={copy.contact.email} data-cursor-label="EMAIL">
                     {copy.contact.emailLabel}
-                  </a>
+                  </MagneticContactLink>
                   {copy.contact.linkedin && <a className={styles.secondaryButton} href={copy.contact.linkedin} data-cursor-label="LINKEDIN" target="_blank" rel="noreferrer">LinkedIn</a>}
                   {copy.contact.github && <a className={styles.secondaryButton} href={copy.contact.github} data-cursor-label="GITHUB" target="_blank" rel="noreferrer">GitHub</a>}
                   <a className={styles.secondaryButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">

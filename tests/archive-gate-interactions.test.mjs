@@ -109,7 +109,7 @@ test("the E loader owns the initial Hero wait and respects reduced motion", () =
   assert.match(componentSource, /const LOADER_FAILSAFE_DURATION\s*=\s*3200/);
   assert.match(componentSource, /<PageLoader ready=\{heroReady\}/);
   assert.match(componentSource, /onReady=\{handleHeroReady\}/);
-  assert.match(componentSource, /loading:\s*\(\)\s*=>\s*null/);
+  assert.match(componentSource, /data-hero-page-loader/);
   assert.match(componentSource, /data-phase=\{phase\}/);
   assert.match(styleSource, /@keyframes\s+pageLoaderProgress/);
   assert.match(styleSource, /\.pageLoader\[data-phase="visible"\]/);
@@ -196,12 +196,11 @@ test("hero CV download keeps a visible secondary button frame", () => {
   assert.match(styleSource, /\.textButton\s*\{[\s\S]*?padding:\s*0\.82rem 1rem;[\s\S]*?border:\s*1px solid var\(--ink\);[\s\S]*?border-radius:\s*var\(--radius-control\)/);
 });
 
-test("hero workflow is presented as an interactive five-layer tower", () => {
-  assert.match(componentSource, /HeroTowerVisual/);
-  assert.match(componentSource, /ssr:\s*false/);
-  assert.match(heroTowerSource, /Hero_Layer_0\(\[1-5\]\)/);
-  assert.match(heroTowerSource, /aria-pressed/);
-  assert.match(heroTowerSource, /prefers-reduced-motion/);
+test("hero workflow uses the approved illustration while retaining localized page content", () => {
+  assert.match(componentSource, /HeroClarityVisual/);
+  assert.match(componentSource, /locale=\{locale\}/);
+  assert.match(componentSource, /onReady=\{handleHeroReady\}/);
+  assert.doesNotMatch(componentSource, /ssr:\s*false/);
   assert.doesNotMatch(componentSource, /className=\{styles\.solutionMap\}/);
 });
 

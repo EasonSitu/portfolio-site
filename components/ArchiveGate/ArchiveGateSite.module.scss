@@ -575,9 +575,8 @@
   position: relative;
   min-height: 100svh;
   padding: 10.5rem 0 2.5rem;
-  background:
-    radial-gradient(circle at 80% 16%, rgba(219, 230, 244, 0.72), transparent 25rem),
-    linear-gradient(180deg, #f8f5ef 0%, var(--paper) 100%);
+  // Match the approved illustration's warm canvas rather than the old blue glow.
+  background: var(--paper);
 }
 
 .heroGrid {
@@ -918,6 +917,12 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+
+// The illustration owns its 4:3 frame; do not inherit the former tower height.
+.heroVisual.heroClarityVisual {
+  min-height: 0;
+  width: 100%;
 }
 
 /*

@@ -1,14 +1,7 @@
-import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./ArchiveGateSite.module.scss";
 import { withPublicBasePath } from "../../lib/publicPath.mjs";
-
-const HeroTowerVisual = dynamic(() => import("./HeroTowerVisual"), {
-  ssr: false,
-  // The full-screen E loader owns the initial wait. Do not flash a second
-  // small spinner before the complete Hero scene is ready.
-  loading: () => null,
-});
+import HeroClarityVisual from "./HeroClarityVisual";
 
 const localeLabels = [
   ["en", "EN"],
@@ -399,7 +392,7 @@ function PageLoader({ ready }) {
   if (phase === "hidden") return null;
 
   return (
-    <div className={styles.pageLoader} data-phase={phase} aria-hidden="true">
+    <div className={styles.pageLoader} data-hero-page-loader data-phase={phase} aria-hidden="true">
       <div className={styles.pageLoaderContent}>
         <EBrandMark className={styles.pageLoaderMark} inverted />
         <span className={styles.pageLoaderBar}>
@@ -861,7 +854,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
       : { open: "開啟選單", close: "關閉選單", navigation: "網站導覽", home: "個人介紹", kicker: "頁面導覽" };
 
   return (
-    <div ref={rootRef} className={styles.site} lang={locale} data-menu-open={mobileMenuOpen}>
+    <div ref={rootRef} className={styles.site} lang={locale} data-hero-site data-menu-open={mobileMenuOpen}>
       <PageLoader ready={heroReady} />
       <span ref={cursorRef} className={styles.cursor} aria-hidden="true" />
       <span ref={cursorFollowerRef} className={styles.cursorFollower} aria-hidden="true" />
@@ -947,9 +940,8 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
                   <a className={styles.textButton} href={withPublicBasePath(copy.contact.resume)} download data-cursor-label="CV">{copy.hero.download}</a>
                 </div>
               </div>
-              <div className={styles.heroVisual} data-reveal aria-label={locale === "en" ? "Five-layer delivery workflow model" : locale === "zh-CN" ? "五层数字化交付工作模型" : "五層數碼交付工作模型"}>
-                <HeroTowerVisual
-                  layers={copy.hero.workflowLayers}
+              <div className={`${styles.heroVisual} ${styles.heroClarityVisual}`} data-reveal>
+                <HeroClarityVisual
                   locale={locale}
                   onReady={handleHeroReady}
                 />

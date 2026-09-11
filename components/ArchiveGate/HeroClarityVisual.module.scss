@@ -1,0 +1,66 @@
+.root { width:100%; position:relative; }
+.scene { position:relative; margin:0; width:100%; aspect-ratio:4/3; isolation:isolate;
+  :global {
+.quality-scene{position:absolute;inset:0;width:100%;height:100%;isolation:isolate}
+.live-art{display:none;width:100%;height:auto}
+.quality-scene[data-live=true] .live-art{display:block}
+.live-overlay{position:absolute;inset:0;pointer-events:none;display:none}
+.quality-scene[data-live=true] .live-overlay{display:block}
+.paper-layer{position:absolute;left:0%;top:7%;width:19%;height:auto;filter:drop-shadow(3px 6px 3px #5a493232)}
+.guide-layer{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.guide-layer path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.guide-track{stroke:#c66c33;stroke-width:2;opacity:.07}
+.guide-live{stroke:#e87928;stroke-width:3.5;stroke-dasharray:1;stroke-dashoffset:1}
+.guide-node{fill:#eb7f2d;stroke:#ffc292;stroke-width:1}
+.guide-head{stroke:#e87928;stroke-width:3.5}
+.work-feedback{fill:#a6c9f0;fill-opacity:.13;stroke:#397bc8;stroke-width:2;opacity:0}
+.feature-feedback{fill:none;stroke:#2e7bdd;stroke-width:2;opacity:0}
+.finish-feedback{fill:none;stroke:#578dde;stroke-width:2;opacity:0}
+
+/* Independent hit targets and light feedback, never transforms of baked artwork. */
+.interaction-layer{position:absolute;inset:0;pointer-events:none}
+.interaction-feedback{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.interaction-feedback path{fill:#3c8ce0;fill-opacity:.18;stroke:#246cc1;stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;opacity:0}
+.hover-work{transition:opacity 220ms ease-out}
+.quality-scene[data-work-hint=true] .hover-work{opacity:1}
+.quality-scene[data-product-hint=true] .hover-feature{opacity:1}
+.hero-hotspot{position:absolute;min-width:44px;min-height:44px;padding:0;border:0;border-radius:8px;appearance:none;background:transparent;pointer-events:auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.hero-hotspot:disabled{pointer-events:none;cursor:default}
+.hero-hotspot:focus-visible{outline:2px solid #2964a8;outline-offset:3px;background:#3675bd08}
+.hotspot-paper{left:2%;top:10%;width:15%;height:19%}
+.hotspot-work{left:38%;top:27%;width:27%;height:22%}
+.hotspot-product{left:77%;top:49%;width:21%;height:34%}
+.paper-layer{transition:filter 200ms ease-out}
+.quality-scene[data-paper-hint=true] .paper-layer{filter:drop-shadow(3px 6px 3px #5a493242) brightness(1.035)}
+@media(prefers-reduced-motion:reduce){.hover-work,.paper-layer{transition:none}}
+.prop-motion-layer{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.prop-desk-group,.prop-plane-group,.prop-patch-group{display:none}
+.prop-plane{transform-box:view-box;transform-origin:1310px 810px;filter:drop-shadow(2px 8px 3px #5a493225)}
+.prop-gpt,.prop-fish{filter:drop-shadow(1px 4px 2px #5a49321a)}
+/* Rounded orange cord: contact shadow, warm rim, body and fine upper highlight. */
+.guide-line{stroke-dasharray:1;stroke-dashoffset:1;visibility:hidden}
+.material-route .guide-shadow{stroke:#8a461b;stroke-width:8;opacity:.2;transform:translate(1px,3px);filter:url(#route-line-soft)}
+.material-route .guide-rim{stroke:#c95a0d;stroke-width:6.5}
+.material-route .guide-body{stroke:#ff841b;stroke-width:4.8}
+.material-route .guide-shine{stroke:#ffd48a;stroke-width:1.35;opacity:.85;transform:translateY(-.8px)}
+.material-route .guide-arrow-band.guide-rim{stroke-width:7.5}
+.material-route .guide-arrow-band.guide-body{stroke-width:5.7}
+.guide-contact{fill:#75431e;opacity:.25;filter:url(#route-contact-soft)}
+
+  }
+}
+.poster, .scene :global(.quality-art) {
+  display:block; width:100%; height:auto;
+  mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 4%,#000 95%,transparent);
+  mask-composite:intersect;
+}
+.scene :global(.live-art) {display:none;}
+.scene :global(.quality-scene[data-live=true] .live-art) {display:block;}
+.controls {
+  position:absolute; right:0; bottom:0; display:flex; gap:8px;
+  &[hidden]{display:none;}
+  button {min-height:44px; min-width:44px; padding:0 12px; border:1px solid rgba(25,46,64,.16); border-radius:999px; background:rgba(248,245,239,.85); color:#4b5a67; font:inherit; font-size:12px; cursor:pointer;}
+  button:hover, button[aria-pressed=true] {border-color:#235caf;color:#164b96;}
+  button:focus-visible {outline:2px solid #235caf;outline-offset:3px;}
+}
+.srOnly {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0;}

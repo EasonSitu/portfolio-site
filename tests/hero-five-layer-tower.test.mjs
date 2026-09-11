@@ -19,7 +19,7 @@ const cameraModuleUrl = pathToFileURL(cameraPath).href;
 const modelPath = path.join(projectRoot, "public", "models", "hero-delivery-system-A-editorial-light.glb");
 const previewPath = path.join(projectRoot, "public", "models", "hero-delivery-system-A-editorial-light.png");
 
-test("the Archive Gate hero uses the approved A five-layer tower assets", () => {
+test("the archived A five-layer tower assets remain usable independently", () => {
   assert.ok(fs.statSync(modelPath).size > 100000, "A GLB asset should be present and non-empty");
   assert.ok(fs.statSync(previewPath).size > 100000, "A static preview should be present for fallback/loading");
 
@@ -63,7 +63,7 @@ test("the Archive Gate hero uses the approved A five-layer tower assets", () => 
   assert.doesNotMatch(component, /heroTowerStatus/);
   assert.doesNotMatch(component, /translate3d\(-1\.4rem/);
   assert.doesNotMatch(component, /scale\(1\.12\)/);
-  assert.match(page, /HeroTowerVisual/);
+  assert.match(page, /HeroClarityVisual/);
   assert.doesNotMatch(page, /className=\{styles\.solutionMap\}/);
 });
 

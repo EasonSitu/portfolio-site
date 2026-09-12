@@ -1,0 +1,17 @@
+.pointer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  opacity: 0; transition: opacity 120ms ease;
+  &[data-visible="true"] { opacity: 1; }
+}
+.dot, .ring {
+  position: absolute; border-radius: 50%; transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.dot { left: var(--dot-x); top: var(--dot-y); width: 6px; height: 6px; background: #245bd3; box-shadow: 0 0 0 1px rgba(255,255,255,.8); }
+.ring { left: var(--ring-x); top: var(--ring-y); width: 34px; height: 34px; border: 1px solid #708ec8; background: rgba(36,91,211,.025); transition: width 180ms ease, height 180ms ease, background 180ms ease; }
+.pointer[data-interactive="true"] .ring { width: 48px; height: 48px; border-color: #245bd3; background: rgba(36,91,211,.07); }
+.pointer[data-pressed="true"] .ring { width: 26px; height: 26px; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .enabled, .enabled :global(*) { cursor: none !important; }
+}
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) { .pointer { display: none; } }

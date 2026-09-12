@@ -6,6 +6,7 @@ import { editorialLayout } from "../../lib/editorialLayout.mjs";
 import editorialStyles from "./EditorialPreview.module.scss";
 import {EditorialEmphasis,MagneticContactLink} from './EditorialDetails';
 import {projectEmphasis} from '../../lib/editorialPresentation.mjs';
+import PointerCursor from '../PointerCursor';
 
 const localeLabels = [
   ["en", "EN"],
@@ -726,7 +727,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
   const [heroReady, setHeroReady] = useState(false);
   const handleHeroReady = useCallback(() => setHeroReady(true), []);
   useReveal(rootRef);
-  // This editorial study uses the native pointer; the approved Hero keeps its own feedback.
+  // PointerCursor provides the shared desktop effect; Hero feedback remains independent.
   useScrollTextReveal(rootRef);
 
   useEffect(() => {
@@ -770,6 +771,7 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
   return (
     <div ref={rootRef} className={`${styles.site} ${editorialStyles.page}`} lang={locale} data-hero-site data-menu-open={mobileMenuOpen}>
       <PageLoader ready={heroReady} />
+      <PointerCursor />
       <span ref={cursorRef} className={styles.cursor} aria-hidden="true" />
       <span ref={cursorFollowerRef} className={styles.cursorFollower} aria-hidden="true" />
       <span className={styles.signatureAura} aria-hidden="true" />

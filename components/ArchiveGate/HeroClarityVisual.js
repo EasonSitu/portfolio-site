@@ -2,13 +2,14 @@
 
 import {useEffect, useRef, useState} from 'react';
 import {getHeroAssets} from './heroClarity/assets.mjs';
+import {heroReplayControl} from './heroClarity/control.mjs';
 import styles from './HeroClarityVisual.module.scss';
 
 const assets=getHeroAssets();
 const copy={
-  en:{alt:'From unclear requirements, through AI-assisted prototyping, to usable digital products.', replay:'Replay', pause:'Pause', resume:'Resume', controls:'Illustration animation', failed:'Animation unavailable. Showing the still illustration.'},
-  'zh-CN':{alt:'从模糊需求，经 AI 辅助梳理和原型验证，到可用的数字产品。', replay:'重播', pause:'暂停', resume:'继续', controls:'插画动画', failed:'动画暂不可用，已保留静态插画。'},
-  'zh-HK':{alt:'從模糊需求，經 AI 輔助梳理和原型驗證，到可用的數碼產品。', replay:'重播', pause:'暫停', resume:'繼續', controls:'插畫動畫', failed:'動畫暫不可用，已保留靜態插畫。'},
+  en:{alt:'From unclear requirements, through AI-assisted prototyping, to usable digital products.', failed:'Animation unavailable. Showing the still illustration.'},
+  'zh-CN':{alt:'从模糊需求，经 AI 辅助梳理和原型验证，到可用的数字产品。', failed:'动画暂不可用，已保留静态插画。'},
+  'zh-HK':{alt:'從模糊需求，經 AI 輔助梳理和原型驗證，到可用的數碼產品。', failed:'動畫暫不可用，已保留靜態插畫。'},
 };
 
 export default function HeroClarityVisual({locale='en',onReady}) {
@@ -16,6 +17,7 @@ export default function HeroClarityVisual({locale='en',onReady}) {
   const localeRef=useRef(locale);
   const [status,setStatus]=useState({ready:false,paused:false,reduced:false,failed:false});
   const labels=copy[locale]||copy.en;
+  const replay=heroReplayControl(locale,status);
   useEffect(()=>{
     // A cached poster may load before hydration attaches the load handler.
     if(posterRef.current?.complete)onReady?.();
@@ -41,12 +43,13 @@ export default function HeroClarityVisual({locale='en',onReady}) {
           loading="eager" fetchPriority="high" alt={labels.alt} onLoad={onReady} onError={onReady}/>
         <div ref={runtimeRef}/>
       </figure>
-      <div className={styles.controls} role="group" aria-label={labels.controls} hidden={!status.ready||status.reduced||status.failed}>
-        <button type="button" onClick={()=>apiRef.current?.replay()}>{labels.replay}</button>
-        <button type="button" aria-pressed={status.paused} onClick={()=>apiRef.current?.togglePause()}>
-          {status.paused?labels.resume:labels.pause}
-        </button>
-      </div>
+      <button className={styles.replayButton} type="button" aria-label={replay.label} hidden={replay.hidden}
+        onClick={()=>apiRef.current?.replay()}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+          <path d="M4.8 8.4A8 8 0 1 1 4 14"/>
+          <path d="M4.8 3.9v4.5h4.5"/>
+        </svg>
+      </button>
       {status.failed&&<span className={styles.srOnly} role="status">{labels.failed}</span>}
     </div>
   );

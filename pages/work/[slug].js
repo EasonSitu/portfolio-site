@@ -1,11 +1,13 @@
 import Head from "next/head";
 import CaseStudyPage from "../../components/CaseStudy/CaseStudyPage";
 import { siteContent } from "../../data/content.mjs";
+import { withPublicBasePath } from "../../lib/publicPath.mjs";
 
 export default function WorkCaseStudy({ slug }) {
   return (
     <>
       <Head>
+        <link rel="icon" href={withPublicBasePath("/brand-mark.svg")} type="image/svg+xml" />
         <title>Project case study | Zhicheng Situ</title>
         <meta name="description" content="Selected project case study by Zhicheng Situ." />
       </Head>

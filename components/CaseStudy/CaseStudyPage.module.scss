@@ -1,10 +1,10 @@
 .page {
-  --paper: #f4f0e7;
-  --paper-deep: #e9e6de;
-  --ink: #17212b;
-  --muted: #5b656e;
+  --paper: #f9f7f2;
+  --paper-deep: #f0f0ec;
+  --ink: #25292b;
+  --muted: #626c75;
   --line: rgba(23, 33, 43, 0.16);
-  --accent: #174ea6;
+  --accent: #245bd3;
   --accent-soft: #dbe6f4;
   --terracotta: #c75a34;
   min-height: 100vh;
@@ -36,8 +36,8 @@
   position: sticky;
   z-index: 2;
   top: 0;
-  border-bottom: 1px solid rgba(23, 33, 43, 0.08);
-  background: rgba(244, 240, 231, 0.78);
+  border-bottom: 0;
+  background: rgba(249, 247, 242, 0.94);
   backdrop-filter: blur(14px);
 }
 
@@ -47,7 +47,7 @@
   justify-content: space-between;
   gap: 1.5rem;
   width: min(calc(100% - 2 * clamp(1.125rem, 4vw, 2.5rem)), 1180px);
-  min-height: 4.1rem;
+  min-height: 88px;
   margin: 0 auto;
 }
 
@@ -73,7 +73,8 @@
 }
 
 .languageSwitcher button {
-  min-width: 2rem;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0.45rem 0.5rem;
   border: 1px solid transparent;
   border-radius: 999px;
@@ -92,15 +93,16 @@
 }
 
 .content {
-  width: min(calc(100% - 2 * clamp(1.125rem, 4vw, 2.5rem)), 900px);
+  width: min(calc(100% - 2 * clamp(1.25rem, 4vw, 3.5rem)), 1180px);
   margin: 0 auto;
-  padding: clamp(3.25rem, 6vw, 5rem) 0 clamp(5rem, 9vw, 7rem);
+  padding: clamp(3.25rem, 6vw, 6rem) 0 clamp(5rem, 9vw, 7rem);
   animation: caseStudyEnter 500ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
 
 .caseStudyHero {
   display: grid;
   gap: 0;
+  padding-bottom: clamp(4rem, 8vw, 7rem);
 }
 
 .heroMeta {
@@ -108,7 +110,7 @@
   align-items: baseline;
   gap: 1rem;
   padding-bottom: 0.8rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 0;
 }
 
 .kicker,
@@ -124,12 +126,12 @@
 
 .headingBlock {
   display: block;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .heroMeta .index {
   padding-top: 0;
-  color: var(--terracotta);
+  color: var(--accent);
 }
 
 .headingBlock h1 {
@@ -137,18 +139,19 @@
   margin: 0;
   text-wrap: balance;
   font-family: var(--font-manrope), "Avenir Next", "Segoe UI", "Noto Sans TC", "Noto Sans SC", "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif;
-  font-size: clamp(2.15rem, 4.4vw, 3.5rem);
-  font-weight: 600;
+  font-size: clamp(2.4rem, 4.7vw, 4.3rem);
+  font-weight: 450;
+  color: var(--accent);
   letter-spacing: -0.035em;
-  line-height: 1.06;
+  line-height: 1.23;
 }
 
 .summary {
-  max-width: 58ch;
+  max-width: 760px;
   margin: clamp(1.5rem, 3vw, 2rem) 0 0;
   color: var(--muted);
   font-size: clamp(1.02rem, 1.6vw, 1.2rem);
-  line-height: 1.55;
+  line-height: 1.85;
 }
 
 .metaGrid {
@@ -175,27 +178,26 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.2rem;
+  gap: .6rem 1.5rem;
+  margin-top: 1.75rem;
 }
 
 .tags span {
-  padding: 0.36rem 0.65rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  padding: 0;
+  border: 0;
   color: var(--muted);
   font-size: 0.75rem;
 }
 
 .caseStudyHeroMedia {
   display: grid;
-  min-height: clamp(14rem, 32vw, 24rem);
-  margin: clamp(2.5rem, 4vw, 3.5rem) 0 0;
+  min-height: 0;
+  margin: clamp(3rem, 5vw, 4.5rem) 0 0;
   place-items: center;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 1.25rem;
-  background: var(--paper-deep);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans TC", "Noto Sans SC", "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", monospace;
   font-size: 0.75rem;
@@ -206,28 +208,29 @@
 .caseStudyHeroMedia img {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
   background: #fff;
 }
 
 .caseStudySection {
   display: grid;
-  grid-template-columns: minmax(9rem, 0.28fr) minmax(0, 1fr);
-  gap: clamp(1.25rem, 2.5vw, 2rem);
+  grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr);
+  gap: clamp(2rem, 5vw, 5rem);
   padding: clamp(3.5rem, 7vw, 5.5rem) 0;
   border-top: 1px solid var(--line);
 }
 
 .sectionHeader {
-  grid-column: 1 / -1;
+  grid-column: 1;
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 0.9rem;
 }
 
 .sectionNumber {
-  color: var(--terracotta);
+  color: var(--accent);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans TC", "Noto Sans SC", "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", monospace;
   font-size: 0.8125rem;
   letter-spacing: 0.12em;
@@ -236,10 +239,10 @@
 .sectionHeader h2 {
   margin: 0;
   font-family: var(--font-manrope), "Avenir Next", "Segoe UI", "Noto Sans TC", "Noto Sans SC", "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif;
-  font-size: clamp(1.75rem, 2.8vw, 2.45rem);
-  font-weight: 500;
+  font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+  font-weight: 450;
   letter-spacing: -0.015em;
-  line-height: 1.12;
+  line-height: 1.35;
 }
 
 .sectionBody {
@@ -508,10 +511,29 @@
   }
 }
 
+/* Editorial evidence: native screenshots, quiet captions, no nested cards. */
+.emphasis { color: var(--accent); font-weight: 550; }
+.sectionBody p { margin-top: 0; line-height: 1.9; }
+.caseStudyEvidence { gap: 2.5rem; }
+.caseStudyEvidence .sectionHeader { flex-direction: row; align-items: baseline; }
+.evidenceGrid { gap: 3.5rem; }
+.evidenceItem { margin: 0; border: 0; border-radius: 0; background: transparent; }
+.evidenceItem figcaption { border: 0; padding: 1.1rem 0 0; max-width: 72ch; line-height: 1.8; }
+.caseStudyNavigation { padding-top: 2rem; }
+.page .returnLink { padding: 2.25rem 0; color: var(--accent); font-size: clamp(1.4rem, 3vw, 2.4rem); font-weight: 400; }
+.returnLink span:last-child { transition: transform 260ms ease; }
+.returnLink:hover span:last-child { transform: translate(-5px, -5px); }
+
 @media (max-width: 700px) {
   .headerInner {
     min-height: 3.8rem;
+    gap: .5rem;
   }
+
+  .backLink { font-size: .75rem; min-height: 44px; }
+  .languageSwitcher { gap: 0; }
+  .summary { font-size: 1rem; }
+  .caseStudyEvidence .sectionHeader { flex-direction: column; }
 
   .content {
     padding-top: 4.5rem;
@@ -544,6 +566,7 @@
 
   .sectionBody {
     grid-column: 1;
+    font-size: 1rem;
   }
 
   .moduleFlow {

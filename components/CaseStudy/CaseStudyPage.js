@@ -4,6 +4,13 @@ import { siteContent } from "../../data/content.mjs";
 import { DEFAULT_LOCALE } from "../../lib/pageContract.mjs";
 import { withPublicBasePath } from "../../lib/publicPath.mjs";
 import styles from "./CaseStudyPage.module.scss";
+import PointerCursor from "../PointerCursor";
+import { emphasisParts, projectEmphasis } from "../../lib/editorialPresentation.mjs";
+
+function CaseEmphasis({ children }) {
+  return emphasisParts(children, projectEmphasis, 2).map((part, index) =>
+    part.emphasis ? <strong className={styles.emphasis} key={index}>{part.text}</strong> : part.text);
+}
 
 const localeOptions = [
   ["en", "EN"],
@@ -118,6 +125,7 @@ export default function CaseStudyPage({ slug }) {
 
   return (
     <main className={styles.page} lang={locale}>
+      <PointerCursor />
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link className={styles.backLink} href="/#project">
@@ -150,7 +158,7 @@ export default function CaseStudyPage({ slug }) {
           <div className={styles.headingBlock}>
             <h1>{project.title}</h1>
           </div>
-          <p className={styles.summary}>{project.summary}</p>
+          <p className={styles.summary}><CaseEmphasis>{project.summary}</CaseEmphasis></p>
 
           {!isCicProject && project.boundary && (
             <div className={styles.metaGrid}>
@@ -192,7 +200,7 @@ export default function CaseStudyPage({ slug }) {
             <h2 id="case-study-role">{localeLabels.myRole}</h2>
           </div>
           <div className={styles.sectionBody}>
-            <p>{project.role || localeLabels.statusFallback}</p>
+            <p><CaseEmphasis>{project.role || localeLabels.statusFallback}</CaseEmphasis></p>
             {project.roleDetail && <p className={styles.roleDetail}>{project.roleDetail}</p>}
             {roleHighlights.length > 0 && (
               <div className={styles.roleHighlights}>
@@ -284,7 +292,7 @@ export default function CaseStudyPage({ slug }) {
               <div className={styles.evidenceGrid}>
                 {project.evidenceImages.map((image) => (
                   <figure className={styles.evidenceItem} key={image.src}>
-                    <img src={withPublicBasePath(image.src)} alt={image.alt || project.title} />
+                    <img src={withPublicBasePath(image.src)} alt={image.alt || project.title} loading="lazy" decoding="async" />
                     {image.caption && <figcaption>{image.caption}</figcaption>}
                   </figure>
                 ))}

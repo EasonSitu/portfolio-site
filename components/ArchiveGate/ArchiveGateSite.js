@@ -770,7 +770,6 @@ export default function ArchiveGateSite({ copy, locale, onLocaleChange }) {
 
   return (
     <div ref={rootRef} className={`${styles.site} ${editorialStyles.page}`} lang={locale} data-hero-site data-menu-open={mobileMenuOpen}>
-      <PageLoader ready={heroReady} />
       <PointerCursor />
       <span ref={cursorRef} className={styles.cursor} aria-hidden="true" />
       <span ref={cursorFollowerRef} className={styles.cursorFollower} aria-hidden="true" />

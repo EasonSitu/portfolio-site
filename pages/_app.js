@@ -1,5 +1,6 @@
 import { calibre, manrope } from "public/fonts";
 import "../styles/globals.scss";
+import PageCurtain from "../components/PageCurtain";
 
 const App = ({ Component, pageProps }) => {
   return (
@@ -7,7 +8,7 @@ const App = ({ Component, pageProps }) => {
       <div
         className={`${calibre.variable} ${manrope.variable} app-root`}
       >
-        <Component {...pageProps} />
+        <PageCurtain><Component {...pageProps} /></PageCurtain>
       </div>
     </>
   );

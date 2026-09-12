@@ -4,6 +4,9 @@ import { withPublicBasePath } from "../lib/publicPath.mjs";
 const INITIAL_LOCALE_SCRIPT = `
 (function () {
   try {
+    if (window.sessionStorage.getItem("portfolio-entry-seen") === "1") {
+      document.documentElement.dataset.entrySeen = "true";
+    }
     var saved = window.localStorage.getItem("portfolio-locale");
     var languages = { en: "en", "zh-CN": "zh-CN", "zh-HK": "zh-Hant-HK" };
     if (saved && languages[saved]) {

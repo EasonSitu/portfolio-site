@@ -1,0 +1,32 @@
+.content { min-height: 100vh; }
+.curtain {
+  position: fixed; inset: 0; z-index: 10000; background: #1c1d20; color: #f9f7f2;
+  display: grid; place-items: center; transform: translateY(0);
+  // CSS-only escape hatch if hydration never completes.
+  animation: escapeCurtain 1ms 4s forwards;
+}
+.signature { display: block; width: 4.5rem; height: 4.5rem; }
+.curve { position: absolute; top: calc(100% - 1px); left: 0; width: 100%; height: 0; fill: #1c1d20; }
+.curtain[data-phase="idle"] { display: none; }
+.curtain[data-phase="reveal"], .curtain[data-phase="short-reveal"] { animation: liftCurtain 850ms cubic-bezier(.76,0,.24,1) forwards; }
+.curtain[data-phase="reveal"] .curve, .curtain[data-phase="short-reveal"] .curve { animation: bendCurtain 850ms cubic-bezier(.76,0,.24,1) forwards; }
+.curtain[data-phase="short-reveal"], .curtain[data-phase="short-reveal"] .curve { animation-duration: 610ms; }
+.curtain[data-phase="reveal"] .signature, .curtain[data-phase="short-reveal"] .signature { opacity: 0; transition: opacity 180ms ease; }
+.curtain[data-phase="cover"] { animation: coverCurtain 280ms cubic-bezier(.65,0,.35,1) both, escapeCurtain 1ms 4s forwards; }
+.curtain[data-phase="cover"] .signature, .curtain[data-phase="short-reveal"] .signature { visibility: hidden; }
+.content[data-entry-phase="reveal"], .content[data-entry-phase="short-reveal"] { animation: settleContent 850ms cubic-bezier(.22,1,.36,1) both; }
+:global(html[data-entry-seen="true"]) .curtain[data-phase="intro"] { display: none; }
+@keyframes liftCurtain { to { transform: translateY(-125%); visibility: hidden; pointer-events: none; } }
+@keyframes bendCurtain { 0%,100% { height: 0; } 45% { height: 18vh; } }
+@keyframes coverCurtain { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes settleContent { from { transform: translateY(22px); } to { transform: translateY(0); } }
+@keyframes escapeCurtain { to { visibility: hidden; pointer-events: none; } }
+@media (max-width: 700px) {
+  .curtain[data-phase="reveal"], .curtain[data-phase="short-reveal"], .curtain[data-phase="reveal"] .curve, .curtain[data-phase="short-reveal"] .curve { animation-duration: 510ms; }
+  .curtain[data-phase="cover"] { animation-duration: 200ms, 1ms; }
+  .content[data-entry-phase="reveal"], .content[data-entry-phase="short-reveal"] { animation-duration: 510ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .curtain { display: none !important; }
+  .content { animation: none !important; }
+}

@@ -27,6 +27,14 @@ const brandMarkSource = readFileSync(
   new URL("../public/brand-mark.svg", import.meta.url),
   "utf8",
 );
+const appSource = readFileSync(
+  new URL("../pages/_app.js", import.meta.url),
+  "utf8",
+);
+const curtainSource = readFileSync(
+  new URL("../components/PageCurtain.js", import.meta.url),
+  "utf8",
+);
 
 test("B foundation uses a pointer-aware editorial hero without loading the 3D hero", () => {
   assert.doesNotMatch(componentSource, /import Hero from "\.\.\/Hero\/Hero";/);
@@ -106,19 +114,20 @@ test("menu overlay closes when clicking non-interactive backdrop space", () => {
   assert.match(componentSource, /onClick=\{handleMenuOverlayClick\}/);
 });
 
-test("the E loader owns the initial Hero wait and respects reduced motion", () => {
-  assert.match(componentSource, /function PageLoader\(\{ ready \}\)/);
-  assert.match(componentSource, /const LOADER_MIN_VISIBLE\s*=\s*900/);
-  assert.match(componentSource, /const LOADER_FAILSAFE_DURATION\s*=\s*3200/);
-  assert.match(componentSource, /<PageLoader ready=\{heroReady\}/);
-  assert.match(componentSource, /onReady=\{handleHeroReady\}/);
-  assert.match(componentSource, /data-hero-page-loader/);
-  assert.match(componentSource, /data-phase=\{phase\}/);
-  assert.match(styleSource, /@keyframes\s+pageLoaderProgress/);
-  assert.match(styleSource, /\.pageLoader\[data-phase="visible"\]/);
-  assert.match(styleSource, /\.pageLoader\[data-phase="exiting"\]/);
-  assert.doesNotMatch(styleSource, /animation:\s*pageLoaderExit/);
-  assert.match(styleSource, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.pageLoader\s*\{/);
+test("the entry curtain owns the initial wait and respects reduced motion", () => {
+  // Editorial design: PageCurtain replaces the old E loader and gates the Hero start.
+  assert.match(appSource, /<PageCurtain>/);
+  assert.match(curtainSource, /prefers-reduced-motion/);
+  assert.match(curtainSource, /finish\(\);/);
+  assert.match(curtainSource, /delay\(finish, 4000\)/);
+  assert.match(curtainSource, /event\.key === 'Escape'/);
+  assert.match(curtainSource, /aria-busy=\{phase !== 'idle'\}/);
+  assert.match(curtainSource, /data-page-curtain/);
+  assert.match(curtainSource, /data-phase=\{phase\}/);
+  assert.match(curtainSource, /sessionStorage\.getItem\('portfolio-entry-seen'\)/);
+  assert.match(curtainSource, /<noscript>/);
+  assert.match(curtainSource, /inert = phase !== 'idle'/);
+  assert.doesNotMatch(componentSource, /<PageLoader ready=\{heroReady\}/);
 });
 
 test("the page renders exactly the five recruiter-facing primary sections", () => {

@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {getHeroAssets} from './heroClarity/assets.mjs';
 import {heroReplayControl} from './heroClarity/control.mjs';
 import styles from './HeroClarityVisual.module.scss';
+import {usePageRevealed} from '../PageCurtain';
 
 const assets=getHeroAssets();
 const copy={
@@ -13,6 +14,7 @@ const copy={
 };
 
 export default function HeroClarityVisual({locale='en',onReady}) {
+  const pageRevealed=usePageRevealed();
   const runtimeRef=useRef(null), apiRef=useRef(null), posterRef=useRef(null);
   const localeRef=useRef(locale);
   const [status,setStatus]=useState({ready:false,paused:false,reduced:false,failed:false});
@@ -23,6 +25,7 @@ export default function HeroClarityVisual({locale='en',onReady}) {
     if(posterRef.current?.complete)onReady?.();
   },[onReady]);
   useEffect(()=>{
+    if(!pageRevealed)return undefined;
     let disposed=false;
     // The static illustration is SSR content; motion code loads after hydration.
     import('./heroClarity/runtime.mjs').then(({mountHeroRuntime})=>{
@@ -31,7 +34,7 @@ export default function HeroClarityVisual({locale='en',onReady}) {
       apiRef.current.setLocale(localeRef.current);
     }).catch(()=>{if(!disposed)setStatus(s=>({...s,failed:true}));});
     return ()=>{disposed=true;apiRef.current?.destroy();apiRef.current=null;};
-  },[]);
+  },[pageRevealed]);
   useEffect(()=>{localeRef.current=locale;apiRef.current?.setLocale(locale);},[locale]);
   return (
     <div className={styles.root} data-hero-clarity>
